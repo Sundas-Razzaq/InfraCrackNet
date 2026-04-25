@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { getApiErrorMessage } from "../../api/authApi";
+import { useAuth } from "../../context/useAuth";
 
 function LoginPage({ onNavigate }) {
     const { loginUser } = useAuth();
@@ -53,9 +54,7 @@ function LoginPage({ onNavigate }) {
             });
             onNavigate("/dashboard");
         } catch (err) {
-            const apiMessage =
-                err.response?.data?.message || "Login failed. Please try again.";
-            setError(apiMessage);
+            setError(getApiErrorMessage(err, "Login failed. Please try again."));
         } finally {
             setLoading(false);
         }
@@ -103,6 +102,12 @@ function LoginPage({ onNavigate }) {
                 Don&apos;t have an account?{" "}
                 <button type="button" onClick={() => onNavigate("/signup")}>
                     Sign up
+                </button>
+            </p>
+
+            <p style={{ marginTop: "0.5rem" }}>
+                <button type="button" onClick={() => onNavigate("/forgot-password")}>
+                    Forgot password?
                 </button>
             </p>
         </section>

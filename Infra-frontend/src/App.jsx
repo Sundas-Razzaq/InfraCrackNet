@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import SignupPage from "./pages/auth/signup";
 import LoginPage from "./pages/auth/login";
+import ForgotPasswordPage from "./pages/auth/forgotPassword";
+import ResetPasswordPage from "./pages/auth/resetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/useAuth";
 import "./App.css";
 
 function App() {
   const { user, logoutUser } = useAuth();
   const [path, setPath] = useState(window.location.pathname || "/login");
+
+  const getPathInfo = () => {
+    const pathname = window.location.pathname || "/login";
+    const token = pathname.startsWith("/reset-password/")
+      ? pathname.split("/")[2] || ""
+      : "";
+
+    return { pathname, token };
+  };
 
   const navigate = (to) => {
     window.history.pushState({}, "", to);
@@ -20,12 +31,22 @@ function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  if (path === "/signup") {
+  const { pathname, token } = getPathInfo();
+
+  if (pathname === "/signup") {
     return <SignupPage onNavigate={navigate} />;
   }
 
-  if (path === "/login") {
+  if (pathname === "/login") {
     return <LoginPage onNavigate={navigate} />;
+  }
+
+  if (pathname === "/forgot-password") {
+    return <ForgotPasswordPage onNavigate={navigate} />;
+  }
+
+  if (pathname === "/reset-password" || pathname.startsWith("/reset-password/")) {
+    return <ResetPasswordPage onNavigate={navigate} token={token} />;
   }
 
   return (

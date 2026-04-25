@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const getJwtSecret = () => {
@@ -19,6 +20,18 @@ const hashPassword = async (password) => {
 const comparePassword = async (plainPassword, hashedPassword) =>
     bcrypt.compare(plainPassword, hashedPassword);
 
+const generatePasswordResetToken = async (user, expiryMinutes = 15) => {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = Date.now() + expiryMinutes * 60 * 1000;
+
+    await user.save();
+
+    return resetToken;
+};
+
 const generateAccessToken = (user) => {
     const payload = {
         userId: user._id || user.id,
@@ -36,6 +49,7 @@ const generateToken = generateAccessToken;
 module.exports = {
     hashPassword,
     comparePassword,
+    generatePasswordResetToken,
     generateAccessToken,
     verifyToken,
     generateToken,

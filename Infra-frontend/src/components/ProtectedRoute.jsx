@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 function ProtectedRoute({ children, onNavigate }) {
     const { isAuthenticated, isAuthLoading } = useAuth();

@@ -1,11 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     getCurrentUser,
     login as loginApi,
     logout as logoutApi,
 } from "../api/authApi";
-
-const AuthContext = createContext(null);
+import AuthContext from "./authContext";
 
 const readPersistedAuth = () => {
     try {
@@ -79,32 +78,33 @@ export function AuthProvider({ children }) {
     };
 
     useEffect(() => {
-        checkAuth();
+        let isMounted = true;
+
+        const loadAuthState = async () => {
+            if (!isMounted) {
+                return;
+            }
+
+            await checkAuth();
+        };
+
+        loadAuthState();
+
+        return () => {
+            isMounted = false;
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const value = useMemo(
-        () => ({
-            user,
-            token,
-            isAuthenticated,
-            isAuthLoading,
-            loginUser,
-            logoutUser,
-            checkAuth,
-        }),
-        [user, token, isAuthenticated, isAuthLoading]
-    );
+    const value = {
+        user,
+        token,
+        isAuthenticated,
+        isAuthLoading,
+        loginUser,
+        logoutUser,
+        checkAuth,
+    };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-
-    return context;
-};
