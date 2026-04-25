@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { validateRequestBody } = require("../middleware/authMiddleware");
 
 const signupSchema = Joi.object({
     name: Joi.string().trim().min(3).required().messages({
@@ -21,22 +22,6 @@ const signupSchema = Joi.object({
         "any.required": "Password is required.",
     }),
 });
-
-const validateRequestBody = (schema) => (req, res, next) => {
-    const { error } = schema.validate(req.body, {
-        abortEarly: false,
-        stripUnknown: true,
-    });
-
-    if (error) {
-        return res.status(400).json({
-            message: "Validation failed",
-            errors: error.details.map((detail) => detail.message),
-        });
-    }
-
-    return next();
-};
 
 const signupValidation = validateRequestBody(signupSchema);
 
