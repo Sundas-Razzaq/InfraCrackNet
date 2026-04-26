@@ -1,23 +1,28 @@
 import roadsImage from "../../assets/images/landingPageImages/roads.png";
+import icon5 from "../../assets/icons/landingPage/Icon-5.png";
+import icon6 from "../../assets/icons/landingPage/Icon-6.png";
+import icon7 from "../../assets/icons/landingPage/Icon-7.png";
+import { motion } from "framer-motion";
+import { container, fadeInUp, sectionViewport } from "../../utils/landingMotion";
 
 const defaultFeatureCards = [
 	{
 		id: "detection",
-		icon: "target",
+		icon: icon5,
 		title: "Automated Detection",
 		description:
 			"Instant identification of micro-cracks and structural fissures across any concrete or asphalt surface using proprietary neural networks.",
 	},
 	{
 		id: "measurement",
-		icon: "ruler",
+		icon: icon6,
 		title: "Crack Measurement",
 		description:
 			"Sub-millimeter precision for width, length, and depth assessment without manual calipers.",
 	},
 	{
 		id: "severity",
-		icon: "alert",
+		icon: icon7,
 		title: "Severity Classification",
 		description:
 			"Automated risk assessment based on structural standards and historical fatigue data.",
@@ -66,30 +71,56 @@ function FeatureSection({
 	return (
 		<section className="landing-feature-section" aria-labelledby="landing-feature-title">
 			<div className="landing-feature-container">
-				<header className="landing-feature-header">
+				<motion.header
+					className="landing-feature-header"
+					variants={fadeInUp}
+					initial="hidden"
+					whileInView="visible"
+					viewport={sectionViewport}
+				>
 					<h2 id="landing-feature-title" className="landing-feature-title">
 						{title}
 					</h2>
 					<p className="landing-feature-subtitle">{subtitle}</p>
-				</header>
+				</motion.header>
 
-				<div className="landing-feature-top-grid">
+				<motion.div
+					className="landing-feature-top-grid"
+					variants={container}
+					initial="hidden"
+					whileInView="visible"
+					viewport={sectionViewport}
+				>
 					{featureCards.map((feature, index) => (
-						<article
+						<motion.article
 							key={feature.id}
 							className={`landing-feature-card ${index === 0 ? "landing-feature-card-wide" : ""}`}
+							variants={fadeInUp}
+							whileHover={{ y: -5, scale: 1.02 }}
+							transition={{ type: "spring", stiffness: 200 }}
 						>
 							<div className="landing-feature-icon" aria-hidden="true">
-								<FeatureIcon type={feature.icon} />
+								<img src={feature.icon} alt="" className="landing-feature-icon-image" />
 							</div>
 							<h3 className="landing-feature-card-title">{feature.title}</h3>
 							<p className="landing-feature-card-text">{feature.description}</p>
-						</article>
+						</motion.article>
 					))}
-				</div>
+				</motion.div>
 
-				<div className="landing-feature-bottom-grid">
-					<article className="landing-report-card">
+				<motion.div
+					className="landing-feature-bottom-grid"
+					variants={container}
+					initial="hidden"
+					whileInView="visible"
+					viewport={sectionViewport}
+				>
+					<motion.article
+						className="landing-report-card"
+						variants={fadeInUp}
+						whileHover={{ y: -5, scale: 1.02 }}
+						transition={{ type: "spring", stiffness: 200 }}
+					>
 						<div className="landing-feature-icon" aria-hidden="true">
 							<FeatureIcon type="report" />
 						</div>
@@ -99,12 +130,12 @@ function FeatureSection({
 							{reportCtaLabel}
 							<span aria-hidden="true">→</span>
 						</a>
-					</article>
+					</motion.article>
 
-					<figure className="landing-feature-image-wrap">
+					<motion.figure className="landing-feature-image-wrap" variants={fadeInUp}>
 						<img src={imageSrc} alt={imageAlt} className="landing-feature-image" />
-					</figure>
-				</div>
+					</motion.figure>
+				</motion.div>
 			</div>
 		</section>
 	);

@@ -2,6 +2,8 @@ import icon1 from "../../assets/icons/landingPage/icon-1.png";
 import icon2 from "../../assets/icons/landingPage/Icon-2.png";
 import icon3 from "../../assets/icons/landingPage/icon-3.png";
 import icon4 from "../../assets/icons/landingPage/Icon-4.png";
+import { motion } from "framer-motion";
+import { container, fadeInUp, sectionViewport } from "../../utils/landingMotion";
 
 const defaultSteps = [
     {
@@ -34,25 +36,43 @@ function WorkFlowSection({ title = "The Scanning Workflow", steps = defaultSteps
     return (
         <section className="landing-workflow-section" aria-labelledby="landing-workflow-title" id="workflow">
             <div className="landing-workflow-container">
-                <header className="landing-workflow-header">
+                <motion.header
+                    className="landing-workflow-header"
+                    variants={fadeInUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={sectionViewport}
+                >
                     <h2 id="landing-workflow-title" className="landing-workflow-title">
                         {title}
                     </h2>
-                </header>
+                </motion.header>
 
                 <div className="landing-workflow-track" aria-hidden="true" />
 
-                <div className="landing-workflow-grid">
+                <motion.div
+                    className="landing-workflow-grid"
+                    variants={container}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={sectionViewport}
+                >
                     {steps.map((step) => (
-                        <article className="landing-workflow-step" key={step.id}>
+                        <motion.article
+                            className="landing-workflow-step"
+                            key={step.id}
+                            variants={fadeInUp}
+                            whileHover={{ y: -5, scale: 1.02 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                        >
                             <div className="landing-workflow-icon-wrap">
                                 <img src={step.icon} alt="" className="landing-workflow-icon" />
                             </div>
                             <h3 className="landing-workflow-step-title">{step.title}</h3>
                             <p className="landing-workflow-step-description">{step.description}</p>
-                        </article>
+                        </motion.article>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );

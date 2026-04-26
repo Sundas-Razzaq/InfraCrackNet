@@ -1,4 +1,6 @@
 import logoMark from "../../assets/logos/logo.png";
+import { motion } from "framer-motion";
+import { container, fadeInUp, sectionViewport } from "../../utils/landingMotion";
 
 const defaultProductLinks = [
     { label: "Features", href: "#features" },
@@ -22,8 +24,15 @@ function LandingFooter({
 }) {
     return (
         <footer className="landing-footer-shell">
-            <div className="landing-footer" aria-label="Footer">
-                <section className="landing-footer-brand-col">
+            <motion.div
+                className="landing-footer"
+                aria-label="Footer"
+                variants={container}
+                initial="hidden"
+                whileInView="visible"
+                viewport={sectionViewport}
+            >
+                <motion.section className="landing-footer-brand-col" variants={fadeInUp}>
                     <a className="landing-brand" href="/" aria-label="InfraCrackNet home">
                         <img className="landing-brand-icon" src={logoMark} alt="InfraCrackNet logo" />
                         <span className="landing-brand-text">INFRACRACKNET AI</span>
@@ -37,9 +46,9 @@ function LandingFooter({
                     <p className="landing-footer-copyright">
                         © {year} {companyName}. Precision Structural Scanning.
                     </p>
-                </section>
+                </motion.section>
 
-                <section className="landing-footer-links-col" aria-label="Product">
+                <motion.section className="landing-footer-links-col" aria-label="Product" variants={fadeInUp}>
                     <h2 className="landing-footer-heading">PRODUCT</h2>
                     <ul className="landing-footer-list" role="list">
                         {productLinks.map((link) => (
@@ -50,9 +59,9 @@ function LandingFooter({
                             </li>
                         ))}
                     </ul>
-                </section>
+                </motion.section>
 
-                <section className="landing-footer-links-col" aria-label="Legal">
+                <motion.section className="landing-footer-links-col" aria-label="Legal" variants={fadeInUp}>
                     <h2 className="landing-footer-heading">LEGAL</h2>
                     <ul className="landing-footer-list" role="list">
                         {legalLinks.map((link) => (
@@ -63,8 +72,8 @@ function LandingFooter({
                             </li>
                         ))}
                     </ul>
-                </section>
-            </div>
+                </motion.section>
+            </motion.div>
         </footer>
     );
 }

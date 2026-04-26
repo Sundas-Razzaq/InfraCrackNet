@@ -1,6 +1,8 @@
 import buildingsImage from "../../assets/images/landingPageImages/buidings.png";
 import bridgesImage from "../../assets/images/landingPageImages/bridges.png";
 import roadsImage from "../../assets/images/landingPageImages/roads.png";
+import { motion } from "framer-motion";
+import { container, fadeInUp, sectionViewport } from "../../utils/landingMotion";
 
 const defaultUseCases = [
     {
@@ -32,18 +34,36 @@ function UsecaseSection({
     useCases = defaultUseCases,
 }) {
     return (
-        <section className="landing-usecase-section" aria-labelledby="landing-usecase-title" id="solutions">
+        <section className="landing-usecase-section" aria-labelledby="landing-usecase-title" id="usecaseSection">
             <div className="landing-usecase-container">
-                <header className="landing-usecase-header">
+                <motion.header
+                    className="landing-usecase-header"
+                    variants={fadeInUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={sectionViewport}
+                >
                     <h2 id="landing-usecase-title" className="landing-usecase-title">
                         {title}
                     </h2>
                     <p className="landing-usecase-description">{description}</p>
-                </header>
+                </motion.header>
 
-                <div className="landing-usecase-grid">
+                <motion.div
+                    className="landing-usecase-grid"
+                    variants={container}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={sectionViewport}
+                >
                     {useCases.map((useCase) => (
-                        <article className="landing-usecase-card" key={useCase.id}>
+                        <motion.article
+                            className="landing-usecase-card"
+                            key={useCase.id}
+                            variants={fadeInUp}
+                            whileHover={{ y: -5, scale: 1.02 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                        >
                             <div className="landing-usecase-image-wrap">
                                 <img src={useCase.image} alt={useCase.alt} className="landing-usecase-image" />
                             </div>
@@ -51,9 +71,9 @@ function UsecaseSection({
                                 <h3 className="landing-usecase-card-title">{useCase.title}</h3>
                                 <p className="landing-usecase-card-text">{useCase.description}</p>
                             </div>
-                        </article>
+                        </motion.article>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );
