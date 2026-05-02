@@ -65,18 +65,18 @@ function LoginPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="login"
-            title="Login"
-            subtitle="Welcome back. Continue monitoring from your account."
+            title="Welcome Back"
+            subtitle="Login to your account"
             footer={
                 <div className="auth-card-footer-links">
                     <p className="auth-page-action">
-                        Don&apos;t have an account?{" "}
-                        <button type="button" onClick={() => onNavigate("/signup")}>
+                        Don&apos;t have an account?{' '}
+                        <button type="button" onClick={() => onNavigate('/signup')}>
                             Sign up
                         </button>
                     </p>
                     <p className="auth-page-action">
-                        <button type="button" onClick={() => onNavigate("/forgot-password")}>
+                        <button type="button" onClick={() => onNavigate('/forgot-password')}>
                             Forgot password?
                         </button>
                     </p>
@@ -89,7 +89,8 @@ function LoginPage({ onNavigate }) {
                 onChange={handleChange}
                 onSubmit={handleSubmit}
                 loading={loading}
-                error={error}
+                message={error}
+                messageTone={error ? "error" : ""}
             />
         </AuthLayout>
     );

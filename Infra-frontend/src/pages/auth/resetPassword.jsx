@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthForm from "../../components/auth/authForm";
 import { getApiErrorMessage, resetPassword as resetPasswordApi } from "../../api/authApi";
 import AuthLayout from "../../layouts/authLayout";
 
-function ResetPasswordPage({ onNavigate, token }) {
+function ResetPasswordPage({ onNavigate }) {
     const [formData, setFormData] = useState({
         password: "",
         confirmPassword: "",
     });
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -16,6 +17,26 @@ function ResetPasswordPage({ onNavigate, token }) {
         const { name, value } = event.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
+    useEffect(() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const t = params.get("token");
+            if (t) {
+                setToken(t);
+                return;
+            }
+
+            // Fallback: token might be the last path segment
+            const parts = window.location.pathname.split("/").filter(Boolean);
+            const last = parts[parts.length - 1];
+            if (last && last.length > 10) {
+                setToken(last);
+            }
+        } catch (err) {
+            // ignore
+        }
+    }, []);
 
     const validateInput = () => {
         const password = formData.password;
@@ -76,11 +97,11 @@ function ResetPasswordPage({ onNavigate, token }) {
         <AuthLayout
             mode="reset"
             title="Reset Password"
-            subtitle="Enter a new password for your account."
+            subtitle="Enter your new password"
             footer={
                 <p className="auth-page-action">
                     <button type="button" onClick={() => onNavigate("/login")}>
-                        Back to login
+                        Back to Login
                     </button>
                 </p>
             }
@@ -93,7 +114,7 @@ function ResetPasswordPage({ onNavigate, token }) {
                 loading={loading}
                 message={error || success}
                 messageTone={error ? "error" : "success"}
-                submitLabel="Reset password"
+                submitLabel="Reset Password"
             />
         </AuthLayout>
     );

@@ -30,7 +30,7 @@ function ForgotPasswordPage({ onNavigate }) {
         setLoading(true);
         try {
             await forgotPasswordApi({ email: trimmedEmail });
-            setSuccess("If email exists, reset link sent");
+            setSuccess("Reset link sent to your email. Please check your inbox and follow the instructions to proceed.");
         } catch (err) {
             setError(
                 getApiErrorMessage(err, "Unable to send reset link. Please try again.")
@@ -44,12 +44,11 @@ function ForgotPasswordPage({ onNavigate }) {
         <AuthLayout
             mode="forgot"
             title="Forgot Password"
-            subtitle="Enter your email address and we&apos;ll send a reset link if the account exists."
+            subtitle="Enter your email to receive reset link"
             footer={
                 <p className="auth-page-action">
-                    Remembered your password?{" "}
                     <button type="button" onClick={() => onNavigate("/login")}>
-                        Back to login
+                        Back to Login
                     </button>
                 </p>
             }
@@ -62,7 +61,7 @@ function ForgotPasswordPage({ onNavigate }) {
                 loading={loading}
                 message={error || success}
                 messageTone={error ? "error" : "success"}
-                submitLabel="Send reset link"
+                submitLabel="Send Reset Link"
             />
         </AuthLayout>
     );

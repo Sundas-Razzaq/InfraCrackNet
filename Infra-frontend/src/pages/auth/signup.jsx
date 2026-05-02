@@ -58,7 +58,7 @@ function SignupPage({ onNavigate }) {
         <AuthLayout
             mode="signup"
             title="Create Account"
-            subtitle="Enter your details to begin monitoring structural integrity."
+            subtitle="Get started with InfraCrackNet"
             footer={
                 <p className="auth-page-action">
                     Already have an account?{" "}

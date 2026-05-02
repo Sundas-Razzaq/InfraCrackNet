@@ -93,84 +93,57 @@
 
 .auth-container-shell {
 	width: 100%;
-	display: flex;
-	justify-content: center;
+	position: relative;
+	min-height: calc(100vh - 64px);
+	overflow: hidden;
+}
+
+.auth-container-visual {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	overflow: hidden;
+}
+.auth-container-visual::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+}
+
+.auth-visual {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .auth-container-inner {
 	width: 100%;
 	max-width: 1100px;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(360px, 460px);
-	align-items: center;
-	gap: var(--space-32);
-}
-
-.auth-container-visual {
-	min-width: 0;
-}
-
-.auth-visual {
-	position: relative;
-	overflow: hidden;
-	display: flex;
-	align-items: flex-end;
-	justify-content: flex-start;
-	padding: var(--space-48);
-	min-height: 560px;
-	border-radius: var(--radius-modal);
-	background-color: var(--color-bg-dark);
-	border: 1px solid var(--color-border-divider);
-}
-
-.auth-visual-image,
-.auth-visual-overlay,
-.auth-visual-copy {
-	position: absolute;
-	inset: 0;
-}
-
-.auth-visual-image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-}
-
-.auth-visual-overlay {
-	background:
-		linear-gradient(135deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.2) 55%, rgba(15, 23, 42, 0.42) 100%),
-		radial-gradient(circle at top left, rgba(59, 130, 246, 0.2), transparent 44%);
-}
-
-.auth-visual-copy {
-	max-width: 28rem;
-	margin-top: auto;
+	margin: 0 auto;
 	position: relative;
 	z-index: 1;
-	display: grid;
-	gap: var(--space-8);
-	align-self: flex-end;
-	color: var(--color-text-inverse);
+	min-height: 560px;
+	display: block;
 }
 
-.auth-visual-kicker {
-	font-size: var(--font-size-caption);
-	font-weight: 700;
-	letter-spacing: 0.16em;
-	text-transform: uppercase;
-	color: var(--color-accent-light);
+.auth-card-wrapper {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-32);
 }
 
-.auth-visual-copy h2 {
-	font-size: clamp(2rem, 2.2vw, 2.75rem);
-	line-height: 1.15;
-	color: var(--color-text-inverse);
-}
-
-.auth-visual-copy p {
-	max-width: 24rem;
-	color: rgba(255, 255, 255, 0.88);
+.auth-visual-bg {
+	position: absolute;
+	inset: 0;
+	background: inherit;
 }
 
 .auth-card {
