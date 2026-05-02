@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { getApiErrorMessage } from "../../api/authApi";
+import AuthForm from "../../components/auth/authForm";
 import { useAuth } from "../../context/useAuth";
+import AuthLayout from "../../layouts/authLayout";
 
 function LoginPage({ onNavigate }) {
     const { loginUser } = useAuth();
@@ -61,56 +63,35 @@ function LoginPage({ onNavigate }) {
     };
 
     return (
-        <section style={{ maxWidth: 420, margin: "4rem auto", padding: "1.5rem" }}>
-            <h1>Login</h1>
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="email">Email</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        style={{ width: "100%" }}
-                    />
+        <AuthLayout
+            mode="login"
+            title="Login"
+            subtitle="Welcome back. Continue monitoring from your account."
+            footer={
+                <div className="auth-card-footer-links">
+                    <p className="auth-page-action">
+                        Don&apos;t have an account?{" "}
+                        <button type="button" onClick={() => onNavigate("/signup")}>
+                            Sign up
+                        </button>
+                    </p>
+                    <p className="auth-page-action">
+                        <button type="button" onClick={() => onNavigate("/forgot-password")}>
+                            Forgot password?
+                        </button>
+                    </p>
                 </div>
-
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="password">Password</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        minLength={6}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                {error ? <p style={{ color: "#c62828" }}>{error}</p> : null}
-
-                <button type="submit" disabled={loading}>
-                    {loading ? "Logging in..." : "Login"}
-                </button>
-            </form>
-
-            <p style={{ marginTop: "1rem" }}>
-                Don&apos;t have an account?{" "}
-                <button type="button" onClick={() => onNavigate("/signup")}>
-                    Sign up
-                </button>
-            </p>
-
-            <p style={{ marginTop: "0.5rem" }}>
-                <button type="button" onClick={() => onNavigate("/forgot-password")}>
-                    Forgot password?
-                </button>
-            </p>
-        </section>
+            }
+        >
+            <AuthForm
+                type="login"
+                values={formData}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                loading={loading}
+                error={error}
+            />
+        </AuthLayout>
     );
 }
 

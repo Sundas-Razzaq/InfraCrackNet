@@ -1,5 +1,7 @@
 import { useState } from "react";
+import AuthForm from "../../components/auth/authForm";
 import { forgotPassword as forgotPasswordApi, getApiErrorMessage } from "../../api/authApi";
+import AuthLayout from "../../layouts/authLayout";
 
 function ForgotPasswordPage({ onNavigate }) {
     const [email, setEmail] = useState("");
@@ -39,41 +41,30 @@ function ForgotPasswordPage({ onNavigate }) {
     };
 
     return (
-        <section style={{ maxWidth: 420, margin: "4rem auto", padding: "1.5rem" }}>
-            <h1>Forgot Password</h1>
-            <p style={{ marginBottom: "1rem" }}>
-                Enter your email address and we&apos;ll send a reset link if the account exists.
-            </p>
-
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="email">Email</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        required
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                {error ? <p style={{ color: "#c62828" }}>{error}</p> : null}
-                {success ? <p style={{ color: "#2e7d32" }}>{success}</p> : null}
-
-                <button type="submit" disabled={loading}>
-                    {loading ? "Sending..." : "Send reset link"}
-                </button>
-            </form>
-
-            <p style={{ marginTop: "1rem" }}>
-                Remembered your password?{" "}
-                <button type="button" onClick={() => onNavigate("/login")}>
-                    Back to login
-                </button>
-            </p>
-        </section>
+        <AuthLayout
+            mode="forgot"
+            title="Forgot Password"
+            subtitle="Enter your email address and we&apos;ll send a reset link if the account exists."
+            footer={
+                <p className="auth-page-action">
+                    Remembered your password?{" "}
+                    <button type="button" onClick={() => onNavigate("/login")}>
+                        Back to login
+                    </button>
+                </p>
+            }
+        >
+            <AuthForm
+                type="forgot"
+                values={{ email }}
+                onChange={(event) => setEmail(event.target.value)}
+                onSubmit={handleSubmit}
+                loading={loading}
+                message={error || success}
+                messageTone={error ? "error" : "success"}
+                submitLabel="Send reset link"
+            />
+        </AuthLayout>
     );
 }
 

@@ -1,5 +1,7 @@
 import { useState } from "react";
+import AuthForm from "../../components/auth/authForm";
 import { getApiErrorMessage, resetPassword as resetPasswordApi } from "../../api/authApi";
+import AuthLayout from "../../layouts/authLayout";
 
 function ResetPasswordPage({ onNavigate, token }) {
     const [formData, setFormData] = useState({
@@ -71,55 +73,29 @@ function ResetPasswordPage({ onNavigate, token }) {
     };
 
     return (
-        <section style={{ maxWidth: 420, margin: "4rem auto", padding: "1.5rem" }}>
-            <h1>Reset Password</h1>
-            <p style={{ marginBottom: "1rem" }}>
-                Enter a new password for your account.
-            </p>
-
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="password">New Password</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        minLength={6}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="confirmPassword">Confirm Password</label>
-                    <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                        minLength={6}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                {error ? <p style={{ color: "#c62828" }}>{error}</p> : null}
-                {success ? <p style={{ color: "#2e7d32" }}>{success}</p> : null}
-
-                <button type="submit" disabled={loading}>
-                    {loading ? "Resetting..." : "Reset password"}
-                </button>
-            </form>
-
-            <p style={{ marginTop: "1rem" }}>
-                <button type="button" onClick={() => onNavigate("/login")}>
-                    Back to login
-                </button>
-            </p>
-        </section>
+        <AuthLayout
+            mode="reset"
+            title="Reset Password"
+            subtitle="Enter a new password for your account."
+            footer={
+                <p className="auth-page-action">
+                    <button type="button" onClick={() => onNavigate("/login")}>
+                        Back to login
+                    </button>
+                </p>
+            }
+        >
+            <AuthForm
+                type="reset"
+                values={formData}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                loading={loading}
+                message={error || success}
+                messageTone={error ? "error" : "success"}
+                submitLabel="Reset password"
+            />
+        </AuthLayout>
     );
 }
 

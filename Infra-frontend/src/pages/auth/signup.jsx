@@ -1,11 +1,14 @@
 import { useState } from "react";
+import AuthForm from "../../components/auth/authForm";
 import { signup } from "../../api/authApi";
+import AuthLayout from "../../layouts/authLayout";
 
 function SignupPage({ onNavigate }) {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
+        confirmPassword: "",
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -22,8 +25,15 @@ function SignupPage({ onNavigate }) {
         setError("");
         setSuccess("");
 
+        if (formData.password !== formData.confirmPassword) {
+            setError("Confirm password must match password.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            await signup(formData);
+            const { confirmPassword, ...payload } = formData;
+            await signup(payload);
             setSuccess("Signup successful. Redirecting to login...");
 
             setTimeout(() => {
@@ -45,65 +55,30 @@ function SignupPage({ onNavigate }) {
     };
 
     return (
-        <section style={{ maxWidth: 420, margin: "4rem auto", padding: "1.5rem" }}>
-            <h1>Sign Up</h1>
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="name">Name</label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        minLength={3}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="email">Email</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: "0.75rem" }}>
-                    <label htmlFor="password">Password</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        minLength={6}
-                        style={{ width: "100%" }}
-                    />
-                </div>
-
-                {error ? <p style={{ color: "#c62828" }}>{error}</p> : null}
-                {success ? <p style={{ color: "#2e7d32" }}>{success}</p> : null}
-
-                <button type="submit" disabled={loading}>
-                    {loading ? "Creating account..." : "Create account"}
-                </button>
-            </form>
-
-            <p style={{ marginTop: "1rem" }}>
-                Already have an account?{" "}
-                <button type="button" onClick={() => onNavigate("/login")}>
-                    Login
-                </button>
-            </p>
-        </section>
+        <AuthLayout
+            mode="signup"
+            title="Create Account"
+            subtitle="Enter your details to begin monitoring structural integrity."
+            footer={
+                <p className="auth-page-action">
+                    Already have an account?{" "}
+                    <button type="button" onClick={() => onNavigate("/login")}>
+                        Login
+                    </button>
+                </p>
+            }
+        >
+            <AuthForm
+                type="signup"
+                values={formData}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                loading={loading}
+                message={error || success}
+                messageTone={error ? "error" : "success"}
+                submitLabel="Create Account"
+            />
+        </AuthLayout>
     );
 }
 
