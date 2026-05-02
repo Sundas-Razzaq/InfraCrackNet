@@ -20,10 +20,12 @@
 .landing-navbar {
 	padding: 0.75rem 0;
 	will-change: transform;
+	&.navbar{
+		max-width: 100%;
+	}
 }
 
 .landing-navbar .container {
-	max-width: 1200px;
 	width: 100%;
 	padding-left: var(--space-24);
 	padding-right: var(--space-24);
@@ -906,4 +908,3 @@
 	background-color: var(--color-border-divider);
 	border-color: var(--color-border-default);
 }
-	
