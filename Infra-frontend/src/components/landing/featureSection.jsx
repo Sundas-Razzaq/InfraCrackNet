@@ -70,71 +70,86 @@ function FeatureSection({
 }) {
 	return (
 		<section className="landing-feature-section" aria-labelledby="landing-feature-title">
-			<div className="landing-feature-container">
+			<div className="container">
 				<motion.header
-					className="landing-feature-header"
+					className="landing-feature-header row mb-5"
 					variants={fadeInUp}
 					initial="hidden"
 					whileInView="visible"
 					viewport={sectionViewport}
 				>
-					<h2 id="landing-feature-title" className="landing-feature-title">
-						{title}
-					</h2>
-					<p className="landing-feature-subtitle">{subtitle}</p>
+					<div className="col-lg-8 mx-auto">
+						<h2 id="landing-feature-title" className="landing-feature-title">
+							{title}
+						</h2>
+						<p className="landing-feature-subtitle">{subtitle}</p>
+					</div>
 				</motion.header>
 
 				<motion.div
-					className="landing-feature-top-grid"
+					className="row g-4 mb-5"
 					variants={container}
 					initial="hidden"
 					whileInView="visible"
 					viewport={sectionViewport}
 				>
 					{featureCards.map((feature, index) => (
-						<motion.article
+						<motion.div
 							key={feature.id}
-							className={`landing-feature-card ${index === 0 ? "landing-feature-card-wide" : ""}`}
+							className={index === 0 ? "col-lg-6 col-md-12" : "col-lg-3 col-md-6"}
 							variants={fadeInUp}
-							whileHover={{ y: -5, scale: 1.02 }}
-							transition={{ type: "spring", stiffness: 200 }}
 						>
-							<div className="landing-feature-icon" aria-hidden="true">
-								<img src={feature.icon} alt="" className="landing-feature-icon-image" />
-							</div>
-							<h3 className="landing-feature-card-title">{feature.title}</h3>
-							<p className="landing-feature-card-text">{feature.description}</p>
-						</motion.article>
+							<motion.article
+								className="landing-feature-card h-100"
+								whileHover={{ y: -5, scale: 1.02 }}
+								transition={{ type: "spring", stiffness: 200 }}
+							>
+								<div className="landing-feature-icon" aria-hidden="true">
+									<img src={feature.icon} alt="" className="landing-feature-icon-image" />
+								</div>
+								<h3 className="landing-feature-card-title">{feature.title}</h3>
+								<p className="landing-feature-card-text">{feature.description}</p>
+							</motion.article>
+						</motion.div>
 					))}
 				</motion.div>
 
 				<motion.div
-					className="landing-feature-bottom-grid"
+					className="row g-4"
 					variants={container}
 					initial="hidden"
 					whileInView="visible"
 					viewport={sectionViewport}
 				>
-					<motion.article
-						className="landing-report-card"
+					<motion.div
+						className="col-lg-6 col-md-12"
 						variants={fadeInUp}
-						whileHover={{ y: -5, scale: 1.02 }}
-						transition={{ type: "spring", stiffness: 200 }}
 					>
-						<div className="landing-feature-icon" aria-hidden="true">
-							<FeatureIcon type="report" />
-						</div>
-						<h3 className="landing-report-title">{reportTitle}</h3>
-						<p className="landing-report-text">{reportDescription}</p>
-						<a className="landing-report-link" href={reportCtaHref}>
-							{reportCtaLabel}
-							<span aria-hidden="true">→</span>
-						</a>
-					</motion.article>
+						<motion.article
+							className="landing-report-card h-100"
+							whileHover={{ y: -5, scale: 1.02 }}
+							transition={{ type: "spring", stiffness: 200 }}
+						>
+							<div className="landing-feature-icon" aria-hidden="true">
+								<FeatureIcon type="report" />
+							</div>
+							<h3 className="landing-report-title">{reportTitle}</h3>
+							<p className="landing-report-text">{reportDescription}</p>
+							<a className="landing-report-link" href={reportCtaHref}>
+								{reportCtaLabel}
+								<span aria-hidden="true">→</span>
+							</a>
+						</motion.article>
+					</motion.div>
 
-					<motion.figure className="landing-feature-image-wrap" variants={fadeInUp}>
-						<img src={imageSrc} alt={imageAlt} className="landing-feature-image" />
-					</motion.figure>
+					<motion.div
+						className="col-lg-6 col-md-12"
+						variants={fadeInUp}
+					>
+						<motion.figure className="landing-feature-image-wrap h-100">
+							<img src={imageSrc} alt={imageAlt} className="landing-feature-image img-fluid" />
+						</motion.figure>
+					</motion.div>
 				</motion.div>
 			</div>
 		</section>

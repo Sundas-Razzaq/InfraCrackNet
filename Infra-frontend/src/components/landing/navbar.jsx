@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import logoMark from "../../assets/logos/logo.png";
 
 const defaultNavLinks = [
@@ -45,50 +44,61 @@ function LandingNavbar({
 
     return (
         <header className={`landing-navbar-shell ${isScrolled ? "is-scrolled" : ""}`}>
-            <motion.nav
-                className="landing-navbar"
+            <nav
+                className="navbar navbar-expand-lg navbar-light landing-navbar"
                 aria-label="Primary"
-                initial={{ y: -60 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
             >
-                <a className="landing-brand" href={brandHref} aria-label="InfraCrackNet home">
-                    <img className="landing-brand-icon" src={logoMark} alt="InfraCrackNet logo" />
-                    <span className="landing-brand-text">INFRACRACKNET</span>
-                </a>
-
-                <ul className="landing-navbar-links" role="list">
-                    {navLinks.map((link) => (
-                        <li key={`${link.label}-${link.targetId}`}>
-                            <button
-                                type="button"
-                                className={`landing-navbar-link landing-navbar-link-button ${activeTarget === link.targetId ? "is-active" : ""
-                                    }`}
-                                onClick={(event) => handleSectionScroll(event, link.targetId)}
-                            >
-                                {link.label}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="landing-navbar-actions">
-                    <a className="landing-login-link" href={loginHref}>
-                        Login
+                <div className="container">
+                    <a className="navbar-brand landing-brand" href={brandHref} aria-label="InfraCrackNet home">
+                        <img className="landing-brand-icon" src={logoMark} alt="InfraCrackNet logo" />
+                        <span className="landing-brand-text">INFRACRACKNET</span>
                     </a>
-                    <motion.a
-                        className="btn-primary landing-cta-link"
-                        href={ctaHref}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
+
+                    <button
+                        className="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarCollapse"
+                        aria-controls="navbarCollapse"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation"
                     >
-                        {ctaLabel}
-                    </motion.a>
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div className="collapse navbar-collapse" id="navbarCollapse">
+                        <ul className="navbar-nav mx-auto landing-navbar-links" role="list">
+                            {navLinks.map((link) => (
+                                <li className="nav-item" key={`${link.label}-${link.targetId}`}>
+                                    <button
+                                        type="button"
+                                        className={`nav-link landing-navbar-link landing-navbar-link-button ${activeTarget === link.targetId ? "is-active" : ""
+                                            }`}
+                                        onClick={(event) => handleSectionScroll(event, link.targetId)}
+                                    >
+                                        {link.label}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <div className="d-flex align-items-center gap-3 landing-navbar-actions">
+                            <a className="landing-login-link" href={loginHref}>
+                                Login
+                            </a>
+                            <a
+                                className="btn btn-primary landing-cta-link"
+                                href={ctaHref}
+                            >
+                                {ctaLabel}
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </motion.nav>
+            </nav>
         </header>
     );
 }
 
 export default LandingNavbar;
+

@@ -35,9 +35,9 @@ const defaultSteps = [
 function WorkFlowSection({ title = "The Scanning Workflow", steps = defaultSteps }) {
     return (
         <section className="landing-workflow-section" aria-labelledby="landing-workflow-title" id="workflow">
-            <div className="landing-workflow-container">
+            <div className="container">
                 <motion.header
-                    className="landing-workflow-header"
+                    className="landing-workflow-header mb-5"
                     variants={fadeInUp}
                     initial="hidden"
                     whileInView="visible"
@@ -51,26 +51,30 @@ function WorkFlowSection({ title = "The Scanning Workflow", steps = defaultSteps
                 <div className="landing-workflow-track" aria-hidden="true" />
 
                 <motion.div
-                    className="landing-workflow-grid"
+                    className="row g-4 g-lg-5"
                     variants={container}
                     initial="hidden"
                     whileInView="visible"
                     viewport={sectionViewport}
                 >
                     {steps.map((step) => (
-                        <motion.article
-                            className="landing-workflow-step"
+                        <motion.div
+                            className="col-md-6 col-lg-3"
                             key={step.id}
                             variants={fadeInUp}
-                            whileHover={{ y: -5, scale: 1.02 }}
-                            transition={{ type: "spring", stiffness: 200 }}
                         >
-                            <div className="landing-workflow-icon-wrap">
-                                <img src={step.icon} alt="" className="landing-workflow-icon" />
-                            </div>
-                            <h3 className="landing-workflow-step-title">{step.title}</h3>
-                            <p className="landing-workflow-step-description">{step.description}</p>
-                        </motion.article>
+                            <motion.article
+                                className="landing-workflow-step h-100"
+                                whileHover={{ y: -5, scale: 1.02 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                            >
+                                <div className="landing-workflow-icon-wrap">
+                                    <img src={step.icon} alt="" className="landing-workflow-icon" />
+                                </div>
+                                <h3 className="landing-workflow-step-title">{step.title}</h3>
+                                <p className="landing-workflow-step-description">{step.description}</p>
+                            </motion.article>
+                        </motion.div>
                     ))}
                 </motion.div>
             </div>

@@ -31,82 +31,84 @@ function HeroSection({
 
     return (
         <section className="landing-hero-section" aria-labelledby="landing-hero-title">
-            <div className="landing-hero-container">
-                <motion.div className="landing-hero-content">
-                    <motion.div
-                        className="landing-hero-badge"
-                        aria-hidden="true"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                    >
-                        <span className="landing-hero-badge-dot" />
-                        <span className="landing-hero-badge-label">{badgeLabel}</span>
-                    </motion.div>
-
-                    <motion.h1
-                        id="landing-hero-title"
-                        className="landing-hero-title"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-                    >
-                        <span className="landing-hero-title-primary">{titleTop}</span>
-                        <span className="landing-hero-title-accent">{titleAccent}</span>
-                        <span className="landing-hero-title-primary">{titleBottom}</span>
-                    </motion.h1>
-
-                    <motion.p
-                        className="landing-hero-description"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
-                    >
-                        {description}
-                    </motion.p>
-
-                    <motion.div
-                        className="landing-hero-actions"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
-                    >
-                        <motion.button
-                            type="button"
-                            className="btn-primary landing-hero-cta"
-                            onClick={handleGetStarted}
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
+            <div className="container">
+                <div className="row align-items-center g-4 g-lg-5">
+                    <motion.div className="col-lg-6 landing-hero-content">
+                        <motion.div
+                            className="landing-hero-badge"
+                            aria-hidden="true"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                         >
-                            {primaryCtaLabel}
-                        </motion.button>
-                        <motion.button
-                            type="button"
-                            className="btn-secondary landing-hero-cta-secondary"
-                            onClick={handleViewDemo}
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
-                        >
-                            {secondaryCtaLabel}
-                        </motion.button>
-                    </motion.div>
-                </motion.div>
+                            <span className="landing-hero-badge-dot" />
+                            <span className="landing-hero-badge-label">{badgeLabel}</span>
+                        </motion.div>
 
-                <div className="landing-hero-visual-wrap">
-                    <div className="landing-hero-glow" aria-hidden="true" />
-                    <motion.div
-                        className="landing-hero-visual-card"
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{
-                            duration: 4,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                        }}
-                    >
-                        <img src={imageSrc} alt={imageAlt} className="landing-hero-image" />
+                        <motion.h1
+                            id="landing-hero-title"
+                            className="landing-hero-title"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+                        >
+                            <span className="landing-hero-title-primary">{titleTop}</span>
+                            <span className="landing-hero-title-accent">{titleAccent}</span>
+                            <span className="landing-hero-title-primary">{titleBottom}</span>
+                        </motion.h1>
+
+                        <motion.p
+                            className="landing-hero-description"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+                        >
+                            {description}
+                        </motion.p>
+
+                        <motion.div
+                            className="landing-hero-actions"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, ease: "easeOut", delay: 0.6 }}
+                        >
+                            <motion.button
+                                type="button"
+                                className="btn btn-primary landing-hero-cta"
+                                onClick={handleGetStarted}
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                            >
+                                {primaryCtaLabel}
+                            </motion.button>
+                            <motion.button
+                                type="button"
+                                className="btn btn-secondary landing-hero-cta-secondary"
+                                onClick={handleViewDemo}
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                            >
+                                {secondaryCtaLabel}
+                            </motion.button>
+                        </motion.div>
                     </motion.div>
+
+                    <div className="col-lg-6 landing-hero-visual-wrap">
+                        <div className="landing-hero-glow" aria-hidden="true" />
+                        <motion.div
+                            className="landing-hero-visual-card"
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                            }}
+                        >
+                            <img src={imageSrc} alt={imageAlt} className="landing-hero-image img-fluid" />
+                        </motion.div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -114,3 +116,4 @@ function HeroSection({
 }
 
 export default HeroSection;
+

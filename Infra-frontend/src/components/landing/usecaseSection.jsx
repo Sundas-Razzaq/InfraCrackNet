@@ -35,9 +35,9 @@ function UsecaseSection({
 }) {
     return (
         <section className="landing-usecase-section" aria-labelledby="landing-usecase-title" id="usecaseSection">
-            <div className="landing-usecase-container">
+            <div className="container">
                 <motion.header
-                    className="landing-usecase-header"
+                    className="landing-usecase-header mb-5"
                     variants={fadeInUp}
                     initial="hidden"
                     whileInView="visible"
@@ -50,28 +50,32 @@ function UsecaseSection({
                 </motion.header>
 
                 <motion.div
-                    className="landing-usecase-grid"
+                    className="row g-4"
                     variants={container}
                     initial="hidden"
                     whileInView="visible"
                     viewport={sectionViewport}
                 >
                     {useCases.map((useCase) => (
-                        <motion.article
-                            className="landing-usecase-card"
+                        <motion.div
+                            className="col-md-6 col-lg-4"
                             key={useCase.id}
                             variants={fadeInUp}
-                            whileHover={{ y: -5, scale: 1.02 }}
-                            transition={{ type: "spring", stiffness: 200 }}
                         >
-                            <div className="landing-usecase-image-wrap">
-                                <img src={useCase.image} alt={useCase.alt} className="landing-usecase-image" />
-                            </div>
-                            <div className="landing-usecase-content">
-                                <h3 className="landing-usecase-card-title">{useCase.title}</h3>
-                                <p className="landing-usecase-card-text">{useCase.description}</p>
-                            </div>
-                        </motion.article>
+                            <motion.article
+                                className="landing-usecase-card h-100"
+                                whileHover={{ y: -5, scale: 1.02 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                            >
+                                <div className="landing-usecase-image-wrap">
+                                    <img src={useCase.image} alt={useCase.alt} className="landing-usecase-image img-fluid" />
+                                </div>
+                                <div className="landing-usecase-content">
+                                    <h3 className="landing-usecase-card-title">{useCase.title}</h3>
+                                    <p className="landing-usecase-card-text">{useCase.description}</p>
+                                </div>
+                            </motion.article>
+                        </motion.div>
                     ))}
                 </motion.div>
             </div>

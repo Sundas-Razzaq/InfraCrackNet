@@ -16,7 +16,7 @@ function CTASection({
 
 	return (
 		<section className="landing-cta-section" aria-labelledby="landing-cta-title" id={id}>
-			<div className="landing-cta-container">
+			<div className="container">
 				<motion.div
 					className="landing-cta-card"
 					initial={{ opacity: 0, scale: 0.95 }}
