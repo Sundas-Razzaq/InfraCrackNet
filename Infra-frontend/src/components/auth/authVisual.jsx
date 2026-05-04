@@ -1,4 +1,4 @@
-import bgImage from "../../assets/images/auth/background.png";
+// import bgImage from "../../assets/images/auth/background.png";
 
 function AuthVisual() {
     return (
@@ -6,7 +6,7 @@ function AuthVisual() {
             className="auth-visual"
             aria-label="Infrastructure background panel"
             style={{
-                backgroundImage: `url(${bgImage})`,
+                // backgroundImage: `url(${bgImage})`,
             }}
         />
     );
