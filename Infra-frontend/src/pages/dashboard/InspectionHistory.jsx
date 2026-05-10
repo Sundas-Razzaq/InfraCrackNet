@@ -1,31 +1,75 @@
 import { ArrowRight, Clock3, Download, History, Search, ShieldAlert, TriangleAlert } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/dashboard/shared/PageHeader";
-
-const historyItems = [
-    {
-        structure: "Golden Gate Bridge South Pillar",
-        location: "Section A-12 | Pillar 4",
-        date: "Oct 24, 2023",
-        severity: "Severe",
-        tone: "danger",
-    },
-    {
-        structure: "Hoover Dam Intake Tower 2",
-        location: "Maintenance Deck | Level 4",
-        date: "Oct 23, 2023",
-        severity: "Moderate",
-        tone: "warning",
-    },
-    {
-        structure: "Brooklyn Bridge Support Beam",
-        location: "Suspension Anchor | North",
-        date: "Oct 22, 2023",
-        severity: "Clear",
-        tone: "success",
-    },
-];
+import {
+    buildAssetUrl,
+    downloadInspectionReport,
+    getInspectionHistory,
+} from "../../api/inspectionApi";
+import { getApiErrorMessage } from "../../api/authApi";
 
 function InspectionHistory() {
+    const navigate = useNavigate();
+    const [historyItems, setHistoryItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [search, setSearch] = useState("");
+    const [downloadingId, setDownloadingId] = useState("");
+
+    const loadHistory = useCallback(async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await getInspectionHistory();
+            setHistoryItems(Array.isArray(response?.data) ? response.data : []);
+        } catch (err) {
+            setError(getApiErrorMessage(err, "Failed to fetch inspection history."));
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadHistory();
+    }, [loadHistory]);
+
+    const filteredItems = useMemo(() => {
+        const query = search.trim().toLowerCase();
+        if (!query) {
+            return historyItems;
+        }
+
+        return historyItems.filter((item) => {
+            const text = `${item?.crackType || ""} ${item?.crackSeverity || ""}`.toLowerCase();
+            return text.includes(query);
+        });
+    }, [historyItems, search]);
+
+    const toTone = (severity) => {
+        if (severity === "Severe") return "danger";
+        if (severity === "Moderate") return "warning";
+        if (severity === "Minor") return "success";
+        return "success";
+    };
+
+    const handleDownload = async (id) => {
+        if (!id || downloadingId) {
+            return;
+        }
+
+        setDownloadingId(id);
+
+        try {
+            await downloadInspectionReport(id);
+        } catch (err) {
+            setError(getApiErrorMessage(err, "Unable to download report."));
+        } finally {
+            setDownloadingId("");
+        }
+    };
+
     return (
         <div className="dashboard-page">
             <PageHeader
@@ -33,9 +77,9 @@ function InspectionHistory() {
                 title="Inspection history"
                 description="Track scans, severity shifts, and report generation history across monitored structures."
             >
-                <button type="button" className="dashboard-button dashboard-button--ghost">
+                <button type="button" className="dashboard-button dashboard-button--ghost" onClick={loadHistory}>
                     <Download size={16} />
-                    Export history
+                    Refresh history
                 </button>
             </PageHeader>
 
@@ -49,43 +93,88 @@ function InspectionHistory() {
 
                         <label className="dashboard-filter" aria-label="Filter inspection history">
                             <Search size={16} />
-                            <input type="search" placeholder="Filter structures" />
+                            <input
+                                type="search"
+                                placeholder="Filter by severity or crack type"
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                            />
                         </label>
                     </div>
+
+                    {loading ? <p>Loading inspection history...</p> : null}
+                    {error ? <p className="auth-message auth-message--error">{error}</p> : null}
+                    {!loading && !error && filteredItems.length === 0 ? (
+                        <p>No inspections found for your account yet.</p>
+                    ) : null}
 
                     <div className="dashboard-table-wrap">
                         <table className="dashboard-table dashboard-table--history">
                             <thead>
                                 <tr>
-                                    <th>Structure</th>
+                                    <th>Inspection</th>
                                     <th>Date</th>
                                     <th>Severity</th>
-                                    <th>Report</th>
+                                    <th>Confidence</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {historyItems.map((item) => (
-                                    <tr key={`${item.structure}-${item.date}`}>
+                                {filteredItems.map((item) => (
+                                    <tr key={item._id}>
                                         <td>
                                             <div className="dashboard-table__primary">
-                                                <strong>{item.structure}</strong>
-                                                <span>{item.location}</span>
+                                                <strong>{item.crackType || "Unknown crack type"}</strong>
+                                                <span>{item._id}</span>
+                                                {item.processedImage ? (
+                                                    <img
+                                                        src={buildAssetUrl(item.processedImage)}
+                                                        alt="Processed thumbnail"
+                                                        style={{
+                                                            width: "88px",
+                                                            height: "56px",
+                                                            objectFit: "cover",
+                                                            borderRadius: "8px",
+                                                            marginTop: "0.5rem",
+                                                        }}
+                                                    />
+                                                ) : null}
                                             </div>
                                         </td>
                                         <td>
                                             <div className="dashboard-table__date">
                                                 <Clock3 size={15} />
-                                                {item.date}
+                                                {item.createdAt ? new Date(item.createdAt).toLocaleString() : "N/A"}
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={["dashboard-pill", `is-${item.tone}`].join(" ")}>
-                                                {item.severity}
+                                            <span className={["dashboard-pill", `is-${toTone(item.crackSeverity)}`].join(" ")}>
+                                                {item.crackSeverity || "Unknown"}
                                             </span>
                                         </td>
+                                        <td>{typeof item.confidenceScore === "number" ? `${item.confidenceScore}%` : "N/A"}</td>
                                         <td>
-                                            <button type="button" className="dashboard-icon-button" aria-label="Open report">
+                                            <button
+                                                type="button"
+                                                className="dashboard-icon-button"
+                                                aria-label="View result"
+                                                onClick={() =>
+                                                    navigate(`/dashboard/analysis-result?id=${item._id}`, {
+                                                        state: { inspection: item },
+                                                    })
+                                                }
+                                                style={{ marginRight: "0.5rem" }}
+                                            >
                                                 <ArrowRight size={16} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="dashboard-icon-button"
+                                                aria-label="Download report"
+                                                onClick={() => handleDownload(item._id)}
+                                                disabled={downloadingId === item._id}
+                                            >
+                                                <Download size={16} />
                                             </button>
                                         </td>
                                     </tr>
@@ -105,8 +194,8 @@ function InspectionHistory() {
 
                     <article className="dashboard-summary-card">
                         <History size={24} />
-                        <strong>128 reports generated</strong>
-                        <p>Most recent inspections have been indexed and are ready for quick retrieval.</p>
+                        <strong>{historyItems.length} reports generated</strong>
+                        <p>All inspection records are loaded from your backend history endpoint.</p>
                     </article>
 
                     <div className="dashboard-subgrid dashboard-subgrid--compact">

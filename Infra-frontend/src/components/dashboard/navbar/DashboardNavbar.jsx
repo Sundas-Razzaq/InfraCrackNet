@@ -52,6 +52,8 @@ function DashboardNavbar() {
                     <Bell size={17} />
                 </button>
 
+
+
                 <div className="dashboard-navbar__profile">
                     <div className="dashboard-navbar__avatar">
                         {(userName || "A").slice(0, 1).toUpperCase()}

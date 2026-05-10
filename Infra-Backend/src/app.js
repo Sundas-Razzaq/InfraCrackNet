@@ -1,14 +1,15 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const path = require('path');
 const authRoutes = require("./routes/authRoutes");
+const inspectionRoutes = require("./routes/inspection.routes");
 const errorHandler = require("./middleware/errorMiddleware");
 
 const app = express();
 
-const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 const corsOptions = {
-    origin: allowedOrigin,
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -20,6 +21,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+
+// Serve uploaded files (images, processed images, pdf reports)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Inspection routes (protected internally)
+app.use('/api/inspections', inspectionRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
