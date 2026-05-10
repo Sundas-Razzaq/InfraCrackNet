@@ -8,14 +8,10 @@ const app = express();
 
 const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin || origin === allowedOrigin) {
-            return callback(null, true);
-        }
-
-        return callback(new Error("Not allowed by CORS"));
-    },
+    origin: allowedOrigin,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 // Middlewares
