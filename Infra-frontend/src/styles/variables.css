@@ -1,29 +1,31 @@
 :root {
 	/* Brand colors */
 	--color-primary: #1e3a8a;
-	--color-primary-light: #3b82f6;
+	--color-primary-light:#3b82f6;
 	--color-primary-dark: #1e40af;
-	--color-primary-hover: #1e40af;
-	--color-primary-active: #1d4ed8;
+	--color-primary-hover: #1d4ed8;
+	--color-primary-active: #1e40af;
 	--color-secondary: #475569;
-	--color-secondary-light: #cbd5f5;
+	--color-secondary-light: #f1f5f9;
 	--color-secondary-dark: #334155;
 	--color-secondary-active: #1f2937;
-	--color-accent: #06b6d4;
-	--color-accent-light: #67e8f9;
-	--color-accent-dark: #0891b2;
+	--color-accent: #0ea5e9;
+	--color-accent-light: #7dd3fc;
+	--color-accent-dark: #0284c7;
 
 	/* Background colors */
-	--color-bg-main: #f8fafc;
+	--color-bg-main: #f0f4f9;
 	--color-bg-section: #ffffff;
 	--color-bg-card: #ffffff;
-	--color-bg-dark: #0f172a;
+	--color-bg-dark: #0a0f1e;
+	--color-bg-sidebar: #0d1428;
 
 	/* Text colors */
 	--color-text-primary: #0f172a;
 	--color-text-secondary: #475569;
 	--color-text-muted: #94a3b8;
 	--color-text-inverse: #ffffff;
+	--color-text-soft: #64748b;
 
 	/* Border colors */
 	--color-border-default: #e2e8f0;
@@ -31,45 +33,51 @@
 
 	/* Status colors */
 	--color-success: #22c55e;
+	--color-success-bg: #dcfce7;
 	--color-error: #ef4444;
+	--color-error-bg: #fee2e2;
 	--color-warning: #f59e0b;
+	--color-warning-bg: #fef3c7;
 	--color-info: #3b82f6;
+	--color-info-bg: #dbeafe;
 
 	/* Dashboard palette */
-	--dashboard-bg: #07111f;
-	--dashboard-bg-soft: #0c1728;
-	--dashboard-surface: #0f1c31;
-	--dashboard-surface-alt: #14233d;
-	--dashboard-surface-bright: #1c2f50;
-	--dashboard-border: rgba(148, 163, 184, 0.14);
-	--dashboard-border-strong: rgba(148, 163, 184, 0.22);
-	--dashboard-text: #e5eefc;
-	--dashboard-text-soft: #a9b8cf;
-	--dashboard-text-muted: #7e8da8;
+	--dashboard-bg: #0a0f1e;
+	--dashboard-bg-soft: #0f172a;
+	--dashboard-surface: #141d33;
+	--dashboard-surface-alt: #1a2440;
+	--dashboard-surface-bright: #1f2d4d;
+	--dashboard-border: rgba(148, 163, 184, 0.12);
+	--dashboard-border-strong: rgba(148, 163, 184, 0.2);
+	--dashboard-text: #e8f0fe;
+	--dashboard-text-soft: #b0c0da;
+	--dashboard-text-muted: #7a8aa5;
 	--dashboard-accent: #7cb5ff;
 	--dashboard-accent-strong: #3b82f6;
 	--dashboard-success: #34d399;
 	--dashboard-warning: #fbbf24;
 	--dashboard-danger: #fb7185;
 	--dashboard-cyan: #22d3ee;
-	--dashboard-shadow: 0 26px 70px rgba(2, 8, 23, 0.35);
-	--dashboard-shadow-soft: 0 14px 30px rgba(2, 8, 23, 0.22);
-	--dashboard-gradient: linear-gradient(180deg, #0f1c31 0%, #09101d 100%);
-	--dashboard-gradient-panel: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(34, 211, 238, 0.08));
+	--dashboard-shadow: 0 26px 70px rgba(2, 8, 23, 0.5);
+	--dashboard-shadow-soft: 0 14px 30px rgba(2, 8, 23, 0.3);
+	--dashboard-gradient: linear-gradient(180deg, #0f172a 0%, #0a0f1e 100%);
+	--dashboard-gradient-panel: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(34, 211, 238, 0.06));
 
 	/* Typography */
-	--font-family-base: Inter, system-ui, sans-serif;
+	--font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	--font-family-display: 'Inter', system-ui, sans-serif;
 
-	--font-size-h1: 2.5rem;
-	--font-size-h2: 2rem;
-	--font-size-h3: 1.75rem;
-	--font-size-h4: 1.5rem;
-	--font-size-h5: 1.25rem;
-	--font-size-h6: 1.125rem;
+	--font-size-h1: 2.25rem;
+	--font-size-h2: 1.875rem;
+	--font-size-h3: 1.5rem;
+	--font-size-h4: 1.25rem;
+	--font-size-h5: 1.125rem;
+	--font-size-h6: 1rem;
 	--font-size-body-lg: 1.125rem;
-	--font-size-body: 1rem;
-	--font-size-small: 0.875rem;
-	--font-size-caption: 0.75rem;
+	--font-size-body: 0.9375rem;
+	--font-size-small: 0.8125rem;
+	--font-size-caption: 0.6875rem;
+	--font-size-xs: 0.625rem;
 
 	--font-weight-h1: 700;
 	--font-weight-h2: 700;
@@ -78,8 +86,9 @@
 	--font-weight-h5: 600;
 	--font-weight-h6: 600;
 	--font-weight-body: 400;
-	--font-weight-small: 400;
-	--font-weight-caption: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+	--font-weight-bold: 700;
 
 	--line-height-h1: 1.2;
 	--line-height-h2: 1.25;
@@ -88,30 +97,41 @@
 	--line-height-h5: 1.4;
 	--line-height-h6: 1.45;
 	--line-height-body-lg: 1.6;
-	--line-height-body: 1.6;
+	--line-height-body: 1.5;
 	--line-height-small: 1.5;
 	--line-height-caption: 1.4;
 
 	/* Spacing scale (8px system) */
+	--space-2: 0.125rem;
 	--space-4: 0.25rem;
+	--space-6: 0.375rem;
 	--space-8: 0.5rem;
+	--space-12: 0.75rem;
 	--space-16: 1rem;
+	--space-20: 1.25rem;
 	--space-24: 1.5rem;
+	--space-28: 1.75rem;
 	--space-32: 2rem;
+	--space-40: 2.5rem;
 	--space-48: 3rem;
+	--space-56: 3.5rem;
+	--space-64: 4rem;
 
 	/* Radius */
 	--radius-button: 0.5rem;
 	--radius-input: 0.5rem;
 	--radius-card: 0.75rem;
 	--radius-modal: 1rem;
+	--radius-full: 9999px;
 
 	/* Shadows */
-	--shadow-card: 0 4px 12px rgba(15, 23, 42, 0.08);
-	--shadow-hover: 0 8px 20px rgba(15, 23, 42, 0.12);
-	--shadow-modal: 0 16px 40px rgba(15, 23, 42, 0.16);
+	--shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+	--shadow-hover: 0 1px 3px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.08);
+	--shadow-modal: 0 4px 12px rgba(15, 23, 42, 0.06), 0 16px 48px rgba(15, 23, 42, 0.12);
+	--shadow-lg: 0 8px 32px rgba(15, 23, 42, 0.12);
 
 	/* Motion */
-	--transition-fast: 0.2s ease;
-	--transition-medium: 0.28s ease;
+	--transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	--transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	--transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
