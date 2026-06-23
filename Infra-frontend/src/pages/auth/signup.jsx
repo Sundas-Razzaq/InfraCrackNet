@@ -7,6 +7,7 @@ function SignupPage({ onNavigate }) {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
+        role: "Inspector",
         password: "",
         confirmPassword: "",
     });
@@ -32,7 +33,8 @@ function SignupPage({ onNavigate }) {
         }
 
         try {
-            const { confirmPassword, ...payload } = formData;
+            const payload = { ...formData };
+            delete payload.confirmPassword; // Remove confirmPassword before sending to API
             await signup(payload);
             setSuccess("Signup successful. Redirecting to login...");
 

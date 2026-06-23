@@ -8,12 +8,14 @@ const signupSchema = Joi.object({
         "string.min": "Name must be at least 3 characters long.",
         "any.required": "Name is required.",
     }),
+
     email: Joi.string().trim().email().required().messages({
         "string.base": "Email must be a string.",
         "string.empty": "Email is required.",
         "string.email": "Please provide a valid email address.",
         "any.required": "Email is required.",
     }),
+
     password: Joi.string().min(6).pattern(/\d/).required().messages({
         "string.base": "Password must be a string.",
         "string.empty": "Password is required.",
@@ -21,6 +23,15 @@ const signupSchema = Joi.object({
         "string.pattern.base": "Password must contain at least one number.",
         "any.required": "Password is required.",
     }),
+
+    role: Joi.string()
+        .valid("Inspector", "Engineer")
+        .required()
+        .messages({
+            "any.only":
+                "Role must be either Inspector or Engineer.",
+            "any.required": "Role is required.",
+        }),
 });
 
 const forgotPasswordSchema = Joi.object({
@@ -40,16 +51,22 @@ const resetPasswordSchema = Joi.object({
         "string.pattern.base": "Password must contain at least one number.",
         "any.required": "Password is required.",
     }),
-    confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-        "any.only": "Confirm password must match password.",
-        "string.empty": "Confirm password is required.",
-        "any.required": "Confirm password is required.",
-    }),
+
+    confirmPassword: Joi.string()
+        .valid(Joi.ref("password"))
+        .required()
+        .messages({
+            "any.only": "Confirm password must match password.",
+            "string.empty": "Confirm password is required.",
+            "any.required": "Confirm password is required.",
+        }),
 });
 
 const signupValidation = validateRequestBody(signupSchema);
-const forgotPasswordValidation = validateRequestBody(forgotPasswordSchema);
-const resetPasswordValidation = validateRequestBody(resetPasswordSchema);
+const forgotPasswordValidation =
+    validateRequestBody(forgotPasswordSchema);
+const resetPasswordValidation =
+    validateRequestBody(resetPasswordSchema);
 
 module.exports = {
     signupSchema,

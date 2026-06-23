@@ -6,10 +6,12 @@ import AuthLayout from "../../layouts/authLayout";
 
 function LoginPage({ onNavigate }) {
     const { loginUser } = useAuth();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -43,20 +45,43 @@ function LoginPage({ onNavigate }) {
         setError("");
 
         const validationError = validateInput();
+
         if (validationError) {
             setError(validationError);
             return;
         }
 
         setLoading(true);
+
         try {
-            await loginUser({
+            const response = await loginUser({
                 email: formData.email.trim().toLowerCase(),
                 password: formData.password,
             });
-            onNavigate("/dashboard");
+
+            const role = response.user?.role;
+
+            switch (role) {
+                case "Admin":
+                    onNavigate("/admin/dashboard");
+                    break;
+
+                case "Engineer":
+                    onNavigate("/engineer/dashboard");
+                    break;
+
+                case "Inspector":
+                default:
+                    onNavigate("/inspector/dashboard");
+                    break;
+            }
         } catch (err) {
-            setError(getApiErrorMessage(err, "Login failed. Please try again."));
+            setError(
+                getApiErrorMessage(
+                    err,
+                    "Login failed. Please try again."
+                )
+            );
         } finally {
             setLoading(false);
         }
@@ -70,13 +95,22 @@ function LoginPage({ onNavigate }) {
             footer={
                 <div className="auth-card-footer-links">
                     <p className="auth-page-action">
-                        Don&apos;t have an account?{' '}
-                        <button type="button" onClick={() => onNavigate('/signup')}>
+                        Don&apos;t have an account?{" "}
+                        <button
+                            type="button"
+                            onClick={() => onNavigate("/signup")}
+                        >
                             Sign up
                         </button>
                     </p>
+
                     <p className="auth-page-action">
-                        <button type="button" onClick={() => onNavigate('/forgot-password')}>
+                        <button
+                            type="button"
+                            onClick={() =>
+                                onNavigate("/forgot-password")
+                            }
+                        >
                             Forgot password?
                         </button>
                     </p>

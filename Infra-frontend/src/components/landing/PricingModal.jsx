@@ -84,7 +84,6 @@ const PricingModal = ({ isOpen, onClose }) => {
                         </button>
 
                         <div className="pricing-modal-header">
-                            <h2 className="pricing-modal-title">Simple, transparent pricing</h2>
                             <p className="pricing-modal-subtitle">
                                 Start free. Scale as you grow. No hidden fees.
                             </p>

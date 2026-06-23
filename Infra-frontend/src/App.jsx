@@ -1,10 +1,23 @@
-import { BrowserRouter, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import LandingPage from "./pages/landing/landingPage";
+
 import SignupPage from "./pages/auth/signup";
 import LoginPage from "./pages/auth/login";
 import ForgotPasswordPage from "./pages/auth/forgotPassword";
 import ResetPasswordPage from "./pages/auth/resetPassword";
-// import { DashboardRoutes } from "./routes/DashboardRoutes";
+
+import EngineerDashboard from "./pages/engineer-dashboard/Dashboard";
+import InspectorDashboard from "./pages/inspector-dashboard/Dashboard";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import "./App.css";
 
 function LoginRoute() {
@@ -25,19 +38,72 @@ function ForgotPasswordRoute() {
 function ResetPasswordRoute() {
   const navigate = useNavigate();
   const { token = "" } = useParams();
-  return <ResetPasswordPage onNavigate={navigate} token={token} />;
+
+  return (
+    <ResetPasswordPage
+      onNavigate={navigate}
+      token={token}
+    />
+  );
 }
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Routes */}
+
         <Route path="/" element={<LandingPage />} />
-        {/* {DashboardRoutes()} */}
-        <Route path="/login" element={<LoginRoute />} />
-        <Route path="/signup" element={<SignupRoute />} />
-        <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordRoute />} />
+
+        <Route
+          path="/login"
+          element={<LoginRoute />}
+        />
+
+        <Route
+          path="/signup"
+          element={<SignupRoute />}
+        />
+
+        <Route
+          path="/forgot-password"
+          element={<ForgotPasswordRoute />}
+        />
+
+        <Route
+          path="/reset-password/:token"
+          element={<ResetPasswordRoute />}
+        />
+
+        {/* Protected Routes */}
+
+        <Route
+          path="/engineer/dashboard"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "Engineer",
+                "Admin",
+              ]}
+            >
+              <EngineerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inspector/dashboard"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "Inspector",
+                "Admin",
+              ]}
+            >
+              <InspectorDashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

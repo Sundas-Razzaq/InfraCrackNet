@@ -55,6 +55,7 @@ const signup = async (req, res) => {
             name: value.name,
             email: normalizedEmail,
             password: hashedPassword,
+            role: value.role,
         });
 
         const userData = user.toObject();

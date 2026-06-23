@@ -21,9 +21,7 @@ const validateRequestBody = (schema) => (req, res, next) => {
 };
 
 const getTokenFromRequest = (req) => {
-    if (req.cookies?.token) {
-        return req.cookies.token;
-    }
+    if (req.cookies?.token) return req.cookies.token;
 
     const authHeader = req.headers.authorization;
 
@@ -45,12 +43,13 @@ const protect = (req, res, next) => {
         }
 
         const decoded = verifyToken(token);
+
         req.user = {
             id: decoded.userId,
             role: decoded.role,
         };
 
-        return next();
+        next();
     } catch (error) {
         return res.status(401).json({
             message: "Invalid or expired token",
@@ -58,7 +57,26 @@ const protect = (req, res, next) => {
     }
 };
 
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                message: "Authentication required",
+            });
+        }
+
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({
+                message: "Access denied",
+            });
+        }
+
+        next();
+    };
+};
+
 module.exports = {
     validateRequestBody,
     protect,
+    authorizeRoles,
 };
