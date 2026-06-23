@@ -4,7 +4,7 @@ import SignupPage from "./pages/auth/signup";
 import LoginPage from "./pages/auth/login";
 import ForgotPasswordPage from "./pages/auth/forgotPassword";
 import ResetPasswordPage from "./pages/auth/resetPassword";
-import { DashboardRoutes } from "./routes/DashboardRoutes";
+// import { DashboardRoutes } from "./routes/DashboardRoutes";
 import "./App.css";
 
 function LoginRoute() {
@@ -33,7 +33,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        {DashboardRoutes()}
+        {/* {DashboardRoutes()} */}
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/signup" element={<SignupRoute />} />
         <Route path="/forgot-password" element={<ForgotPasswordRoute />} />

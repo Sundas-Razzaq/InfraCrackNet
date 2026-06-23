@@ -61,7 +61,8 @@ function LandingNavbar({
               src={logoMark}
               alt="InfraCrackNet logo"
             />
-            <span className="landing-brand-text">INFRACRACKNET</span>
+            <span className="landing-brand-text" style={{ color: 'var(--dashboard-cyan)' }}>INFRA</span>
+            <span className="landing-brand-text">CRACKNET</span>
           </a>
 
           <button
@@ -82,9 +83,8 @@ function LandingNavbar({
                 <li className="nav-item" key={`${link.label}-${link.targetId}`}>
                   <button
                     type="button"
-                    className={`nav-link landing-navbar-link landing-navbar-link-button ${
-                      activeTarget === link.targetId ? "is-active" : ""
-                    }`}
+                    className={`nav-link landing-navbar-link landing-navbar-link-button ${activeTarget === link.targetId ? "is-active" : ""
+                      }`}
                     onClick={(event) =>
                       handleSectionScroll(event, link.targetId)
                     }

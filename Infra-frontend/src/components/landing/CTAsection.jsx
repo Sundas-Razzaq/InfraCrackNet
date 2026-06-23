@@ -1,17 +1,23 @@
+// src/components/landing/CTAsection.jsx
 import { useNavigate } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
 function CTASection({
 	title = "Start analyzing infrastructure with AI today",
-	description =
-	"Join hundreds of engineering firms reducing inspection costs by 60% with InfraCrackNet AI.",
-	ctaLabel = "Get Started Now",
+	description = "Join hundreds of engineering firms reducing inspection costs by 60% with InfraCrackNet AI.",
+	ctaLabel = "See Plans & Pricing",
 	id = "cta",
+	onOpenPricing, // Add this prop
 }) {
+	// eslint-disable-next-line no-unused-vars
 	const navigate = useNavigate();
 
-	const handleGetStarted = () => {
-		navigate("/signup");
+	const handleOpenPricing = () => {
+		// Call the onOpenPricing function passed from parent
+		if (onOpenPricing) {
+			onOpenPricing();
+		}
 	};
 
 	return (
@@ -33,7 +39,7 @@ function CTASection({
 					<motion.button
 						type="button"
 						className="landing-cta-button"
-						onClick={handleGetStarted}
+						onClick={handleOpenPricing} // Changed from navigate to handleOpenPricing
 						whileHover={{ scale: 1.03 }}
 						whileTap={{ scale: 0.97 }}
 						animate={{
