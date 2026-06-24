@@ -1,3 +1,4 @@
+// src/pages/SignupPage.jsx
 import { useState } from "react";
 import AuthForm from "../../components/auth/authForm";
 import { signup } from "../../api/authApi";
@@ -20,6 +21,10 @@ function SignupPage({ onNavigate }) {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handleRoleSelect = (role) => {
+        setFormData((prev) => ({ ...prev, role }));
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
@@ -34,7 +39,7 @@ function SignupPage({ onNavigate }) {
 
         try {
             const payload = { ...formData };
-            delete payload.confirmPassword; // Remove confirmPassword before sending to API
+            delete payload.confirmPassword;
             await signup(payload);
             setSuccess("Signup successful. Redirecting to login...");
 
@@ -59,13 +64,13 @@ function SignupPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="signup"
-            title="Create Account"
-            subtitle="Get started with InfraCrackNet"
+            title="Create Your Account"
+            subtitle="Join engineers using AI-powered structural inspection."
             footer={
                 <p className="auth-page-action">
                     Already have an account?{" "}
                     <button type="button" onClick={() => onNavigate("/login")}>
-                        Login
+                        Sign In →
                     </button>
                 </p>
             }
@@ -79,6 +84,7 @@ function SignupPage({ onNavigate }) {
                 message={error || success}
                 messageTone={error ? "error" : "success"}
                 submitLabel="Create Account"
+                onRoleSelect={handleRoleSelect}
             />
         </AuthLayout>
     );

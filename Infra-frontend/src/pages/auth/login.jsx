@@ -1,3 +1,4 @@
+// src/pages/LoginPage.jsx
 import { useState } from "react";
 import { getApiErrorMessage } from "../../api/authApi";
 import AuthForm from "../../components/auth/authForm";
@@ -65,11 +66,9 @@ function LoginPage({ onNavigate }) {
                 case "Admin":
                     onNavigate("/admin/dashboard");
                     break;
-
                 case "Engineer":
                     onNavigate("/engineer/dashboard");
                     break;
-
                 case "Inspector":
                 default:
                     onNavigate("/inspector/dashboard");
@@ -77,10 +76,7 @@ function LoginPage({ onNavigate }) {
             }
         } catch (err) {
             setError(
-                getApiErrorMessage(
-                    err,
-                    "Login failed. Please try again."
-                )
+                getApiErrorMessage(err, "Login failed. Please try again.")
             );
         } finally {
             setLoading(false);
@@ -91,26 +87,17 @@ function LoginPage({ onNavigate }) {
         <AuthLayout
             mode="login"
             title="Welcome Back"
-            subtitle="Login to your account"
+            subtitle="Your infrastructure insights are waiting for you."
             footer={
                 <div className="auth-card-footer-links">
                     <p className="auth-page-action">
-                        Don&apos;t have an account?{" "}
-                        <button
-                            type="button"
-                            onClick={() => onNavigate("/signup")}
-                        >
-                            Sign up
+                        Don't have an account?{" "}
+                        <button type="button" onClick={() => onNavigate("/signup")}>
+                            Create Account →
                         </button>
                     </p>
-
                     <p className="auth-page-action">
-                        <button
-                            type="button"
-                            onClick={() =>
-                                onNavigate("/forgot-password")
-                            }
-                        >
+                        <button type="button" onClick={() => onNavigate("/forgot-password")}>
                             Forgot password?
                         </button>
                     </p>
@@ -125,6 +112,7 @@ function LoginPage({ onNavigate }) {
                 loading={loading}
                 message={error}
                 messageTone={error ? "error" : ""}
+                submitLabel="Sign In"
             />
         </AuthLayout>
     );
