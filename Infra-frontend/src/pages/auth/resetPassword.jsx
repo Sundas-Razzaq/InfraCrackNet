@@ -33,8 +33,8 @@ function ResetPasswordPage({ onNavigate }) {
             if (last && last.length > 10) {
                 setToken(last);
             }
-        } catch (err) {
-            // ignore
+        } catch {
+            // Ignore - token will remain null
         }
     }, []);
 

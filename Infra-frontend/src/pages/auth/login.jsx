@@ -1,9 +1,9 @@
-// src/pages/LoginPage.jsx
+// src/pages/auth/login.jsx
 import { useState } from "react";
 import { getApiErrorMessage } from "../../api/authApi";
-import AuthForm from "../../components/auth/authForm";
+import AuthForm from "../../components/auth/AuthForm";
 import { useAuth } from "../../context/useAuth";
-import AuthLayout from "../../layouts/authLayout";
+import AuthLayout from "../../layouts/AuthLayout";
 
 function LoginPage({ onNavigate }) {
     const { loginUser } = useAuth();
@@ -86,8 +86,6 @@ function LoginPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="login"
-            title="Welcome Back"
-            subtitle="Your infrastructure insights are waiting for you."
             footer={
                 <div className="auth-card-footer-links">
                     <p className="auth-page-action">

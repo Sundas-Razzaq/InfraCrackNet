@@ -268,9 +268,7 @@
     }
 }
 
-/* ============================================================
-   ROLE TOGGLE BUTTONS (Add to auth.css)
-   ============================================================ */
+/* ROLE TOGGLE BUTTONS */
 
 .auth-role-field {
     grid-column: 1 / -1;
@@ -409,5 +407,147 @@
         font-size: var(--font-size-caption);
         padding: var(--space-6) var(--space-8);
         min-height: 2.25rem;
+    }
+}
+
+/*AUTH LAYOUT WITH SIDEBAR*/
+
+.auth-layout-split {
+    min-height: 100vh;
+    display: flex;
+    background: var(--color-bg-main);
+}
+
+/* Sidebar */
+.auth-sidebar {
+    width: 45%;
+    min-height: 100vh;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-48);
+    flex-shrink: 0;
+}
+
+.auth-sidebar-content {
+    max-width: 420px;
+    color: var(--color-text-inverse);
+}
+
+.auth-sidebar-brand {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.02em;
+    margin-bottom: var(--space-32);
+    color: var(--color-text-inverse);
+}
+
+.auth-sidebar-title {
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-h1);
+    line-height: var(--line-height-h1);
+    color: var(--color-text-inverse);
+    margin-bottom: var(--space-16);
+    letter-spacing: -0.02em;
+}
+
+.auth-sidebar-subtitle {
+    font-size: var(--font-size-body-lg);
+    font-weight: var(--font-weight-body);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: var(--line-height-body-lg);
+    margin-bottom: var(--space-32);
+}
+
+.auth-sidebar-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-32) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+}
+
+.auth-sidebar-features li {
+    font-size: var(--font-size-body);
+    color: rgba(255, 255, 255, 0.85);
+    line-height: var(--line-height-body);
+    padding-left: var(--space-24);
+    position: relative;
+}
+
+.auth-sidebar-features li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-sidebar-trust {
+    font-size: var(--font-size-small);
+    color: rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: var(--space-24);
+    margin-top: var(--space-8);
+}
+
+/* Main content (form area) */
+.auth-layout-main-split {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-24);
+    min-height: 100vh;
+}
+
+.auth-container-split {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.auth-card-wrapper-split {
+    width: 100%;
+}
+
+/* Override existing auth-card for split layout */
+.auth-layout-main-split .auth-card {
+    max-width: 100%;
+    padding: var(--space-32);
+    border-radius: var(--radius-modal);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border-divider);
+    background: var(--color-bg-section);
+}
+
+/*RESPONSIVE - Hide sidebar on mobile*/
+
+@media (max-width: 992px) {
+    .auth-sidebar {
+        display: none;
+    }
+
+    .auth-layout-main-split {
+        width: 100%;
+        padding: var(--space-16);
+    }
+
+    .auth-layout-main-split .auth-card {
+        max-width: 440px;
+        margin: 0 auto;
+        padding: var(--space-24);
+    }
+}
+
+@media (max-width: 640px) {
+    .auth-layout-main-split {
+        padding: var(--space-12);
+    }
+
+    .auth-layout-main-split .auth-card {
+        padding: var(--space-16);
+        border-radius: var(--radius-card);
     }
 }

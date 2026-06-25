@@ -1,8 +1,8 @@
-// src/pages/SignupPage.jsx
+// src/pages/auth/signup.jsx
 import { useState } from "react";
-import AuthForm from "../../components/auth/authForm";
+import AuthForm from "../../components/auth/AuthForm";
 import { signup } from "../../api/authApi";
-import AuthLayout from "../../layouts/authLayout";
+import AuthLayout from "../../layouts/AuthLayout";
 
 function SignupPage({ onNavigate }) {
     const [formData, setFormData] = useState({
@@ -64,8 +64,6 @@ function SignupPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="signup"
-            title="Create Your Account"
-            subtitle="Join engineers using AI-powered structural inspection."
             footer={
                 <p className="auth-page-action">
                     Already have an account?{" "}

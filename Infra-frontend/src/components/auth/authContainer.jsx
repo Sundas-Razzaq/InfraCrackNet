@@ -1,17 +1,13 @@
-import AuthCard from "./authCard";
-import AuthVisual from "./authVisual";
+// src/components/auth/AuthContainer.jsx
+import AuthCard from "./AuthCard";
 
-function AuthContainer({ children, visual = <AuthVisual />, title, subtitle, footer }) {
+function AuthContainer({ children, title, subtitle, footer }) {
     return (
-        <div className="auth-container-shell">
-            <div className="auth-container-visual">{visual}</div>
-
-            <div className="auth-container-inner">
-                <div className="auth-card-wrapper">
-                    <AuthCard title={title} subtitle={subtitle} footer={footer}>
-                        {children}
-                    </AuthCard>
-                </div>
+        <div className="auth-container-split">
+            <div className="auth-card-wrapper-split">
+                <AuthCard title={title} subtitle={subtitle} footer={footer}>
+                    {children}
+                </AuthCard>
             </div>
         </div>
     );

@@ -43,7 +43,6 @@ function ForgotPasswordPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="forgot"
-            title="Forgot Password"
             subtitle="Enter your email to receive reset link"
             footer={
                 <p className="auth-page-action">
