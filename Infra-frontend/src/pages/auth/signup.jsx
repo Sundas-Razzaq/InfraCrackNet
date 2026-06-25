@@ -64,6 +64,7 @@ function SignupPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="signup"
+            title="Create an Account"
             footer={
                 <p className="auth-page-action">
                     Already have an account?{" "}

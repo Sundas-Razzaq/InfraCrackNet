@@ -86,6 +86,7 @@ function LoginPage({ onNavigate }) {
     return (
         <AuthLayout
             mode="login"
+            title="Welcome Back"
             footer={
                 <div className="auth-card-footer-links">
                     <p className="auth-page-action">

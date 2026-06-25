@@ -54,6 +54,7 @@ function ForgotPasswordPage({ onNavigate }) {
         >
             <AuthForm
                 type="forgot"
+                title="Forgot Password"
                 values={{ email }}
                 onChange={(event) => setEmail(event.target.value)}
                 onSubmit={handleSubmit}

@@ -1,5 +1,3 @@
-// src/components/auth/authForm.jsx
-
 const formFieldsByType = {
     login: [
         {
