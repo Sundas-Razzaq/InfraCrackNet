@@ -1,13 +1,16 @@
 const User = require("../models/user");
-const { signupSchema } = require("../validations/authValidation");
 const crypto = require("crypto");
+
 const {
     hashPassword,
     comparePassword,
     generateAccessToken,
     generatePasswordResetToken,
 } = require("../services/authService");
-const { sendPasswordResetEmail } = require("../services/emailService");
+
+const {
+    sendPasswordResetEmail,
+} = require("../services/emailService");
 
 const setAuthCookie = (res, token) => {
     res.cookie("token", token, {
@@ -28,20 +31,15 @@ const clearAuthCookie = (res) => {
 
 const signup = async (req, res) => {
     try {
-        const { error, value } = signupSchema.validate(req.body, {
-            abortEarly: false,
-            stripUnknown: true,
+        console.log("Signup Request Body:", req.body);
+
+        const { name, email, password, role } = req.body;
+
+        const normalizedEmail = email.toLowerCase();
+
+        const existingUser = await User.findOne({
+            email: normalizedEmail,
         });
-
-        if (error) {
-            return res.status(400).json({
-                message: "Validation failed",
-                errors: error.details.map((detail) => detail.message),
-            });
-        }
-
-        const normalizedEmail = value.email.toLowerCase();
-        const existingUser = await User.findOne({ email: normalizedEmail });
 
         if (existingUser) {
             return res.status(409).json({
@@ -49,19 +47,20 @@ const signup = async (req, res) => {
             });
         }
 
-        const hashedPassword = await hashPassword(value.password);
+        const hashedPassword = await hashPassword(password);
 
         const user = await User.create({
-            name: value.name,
+            name,
             email: normalizedEmail,
             password: hashedPassword,
-            role: value.role,
+            role,
         });
 
         const userData = user.toObject();
         delete userData.password;
 
         const token = generateAccessToken(user);
+
         setAuthCookie(res, token);
 
         return res.status(201).json({
@@ -70,6 +69,8 @@ const signup = async (req, res) => {
             user: userData,
         });
     } catch (error) {
+        console.error("Signup Error:", error);
+
         return res.status(500).json({
             message: "Server error",
             error: error.message,
@@ -96,7 +97,10 @@ const login = async (req, res) => {
             });
         }
 
-        const isPasswordValid = await comparePassword(password, user.password);
+        const isPasswordValid = await comparePassword(
+            password,
+            user.password
+        );
 
         if (!isPasswordValid) {
             return res.status(401).json({
@@ -105,6 +109,7 @@ const login = async (req, res) => {
         }
 
         const token = generateAccessToken(user);
+
         setAuthCookie(res, token);
 
         const userData = user.toObject();
@@ -140,7 +145,8 @@ const logout = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password");
+        const user = await User.findById(req.user.id)
+            .select("-password");
 
         if (!user) {
             return res.status(404).json({
@@ -161,7 +167,9 @@ const getCurrentUser = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
     try {
-        const email = String(req.body?.email || "").trim().toLowerCase();
+        const email = String(req.body?.email || "")
+            .trim()
+            .toLowerCase();
 
         if (!email) {
             return res.status(400).json({
@@ -172,7 +180,8 @@ const forgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user) {
-            const resetToken = await generatePasswordResetToken(user);
+            const resetToken =
+                await generatePasswordResetToken(user);
 
             try {
                 await sendPasswordResetEmail({
@@ -181,7 +190,10 @@ const forgotPassword = async (req, res) => {
                     token: resetToken,
                 });
             } catch (mailError) {
-                console.error("Password reset email failed:", mailError);
+                console.error(
+                    "Password reset email failed:",
+                    mailError
+                );
             }
         }
 
@@ -207,7 +219,11 @@ const resetPassword = async (req, res) => {
             });
         }
 
-        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
         const user = await User.findOne({
             resetPasswordToken: hashedToken,
             resetPasswordExpire: { $gt: Date.now() },
@@ -215,20 +231,23 @@ const resetPassword = async (req, res) => {
 
         if (!user) {
             return res.status(400).json({
-                message: "Password reset token is invalid or has expired",
+                message:
+                    "Password reset token is invalid or has expired",
             });
         }
 
-        const newPassword = req.body?.password;
+        user.password = await hashPassword(
+            req.body.password
+        );
 
-        user.password = await hashPassword(newPassword);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
 
         await user.save();
 
         return res.status(200).json({
-            message: "Password has been reset successfully",
+            message:
+                "Password has been reset successfully",
         });
     } catch (error) {
         return res.status(500).json({
