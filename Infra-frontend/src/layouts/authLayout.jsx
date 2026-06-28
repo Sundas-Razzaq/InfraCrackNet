@@ -1,6 +1,5 @@
-// src/layouts/AuthLayout.jsx
-import AuthContainer from "../components/auth/AuthContainer";
-import AuthSidebar from "../components/auth/AuthSidebar";
+import AuthContainer from "../components/auth/authContainer";
+import AuthSidebar from "../components/auth/authSidebar";
 import "../styles/auth.css";
 
 function AuthLayout({ children, title, subtitle, footer, mode = "login" }) {

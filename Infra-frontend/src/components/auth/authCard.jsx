@@ -1,4 +1,3 @@
-// src/components/auth/AuthCard.jsx
 function AuthCard({ title, subtitle, children, footer }) {
     return (
         <section className="auth-card">

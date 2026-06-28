@@ -1,9 +1,8 @@
-// src/pages/auth/login.jsx
 import { useState } from "react";
 import { getApiErrorMessage } from "../../api/authApi";
-import AuthForm from "../../components/auth/AuthForm";
+import AuthForm from "../../components/auth/authForm";
 import { useAuth } from "../../context/useAuth";
-import AuthLayout from "../../layouts/AuthLayout";
+import AuthLayout from "../../layouts/authLayout";
 
 function LoginPage({ onNavigate }) {
     const { loginUser } = useAuth();

@@ -1,5 +1,3 @@
-// src/components/auth/AuthSidebar.jsx
-
 function AuthSidebar({ mode = "login" }) {
     const isLogin = mode === "login";
     const isSignup = mode === "signup";

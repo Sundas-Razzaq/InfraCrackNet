@@ -1,5 +1,4 @@
-// src/components/auth/AuthContainer.jsx
-import AuthCard from "./AuthCard";
+import AuthCard from "./authCard";
 
 function AuthContainer({ children, title, subtitle, footer }) {
     return (

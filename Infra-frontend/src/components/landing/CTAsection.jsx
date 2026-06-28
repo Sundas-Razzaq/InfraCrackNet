@@ -1,4 +1,3 @@
-// src/components/landing/CTAsection.jsx
 import { useNavigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
@@ -8,7 +7,7 @@ function CTASection({
 	description = "Join hundreds of engineering firms reducing inspection costs by 60% with InfraCrackNet AI.",
 	ctaLabel = "See Plans & Pricing",
 	id = "cta",
-	onOpenPricing, // Add this prop
+	onOpenPricing,
 }) {
 	// eslint-disable-next-line no-unused-vars
 	const navigate = useNavigate();
