@@ -41,28 +41,6 @@
 	--color-info: #3b82f6;
 	--color-info-bg: #dbeafe;
 
-	/* Dashboard palette */
-	--dashboard-bg: #0a0f1e;
-	--dashboard-bg-soft: #0f172a;
-	--dashboard-surface: #141d33;
-	--dashboard-surface-alt: #1a2440;
-	--dashboard-surface-bright: #1f2d4d;
-	--dashboard-border: rgba(148, 163, 184, 0.12);
-	--dashboard-border-strong: rgba(148, 163, 184, 0.2);
-	--dashboard-text: #e8f0fe;
-	--dashboard-text-soft: #b0c0da;
-	--dashboard-text-muted: #7a8aa5;
-	--dashboard-accent: #7cb5ff;
-	--dashboard-accent-strong: #3b82f6;
-	--dashboard-success: #34d399;
-	--dashboard-warning: #fbbf24;
-	--dashboard-danger: #fb7185;
-	--dashboard-cyan: #22d3ee;
-	--dashboard-shadow: 0 26px 70px rgba(2, 8, 23, 0.5);
-	--dashboard-shadow-soft: 0 14px 30px rgba(2, 8, 23, 0.3);
-	--dashboard-gradient: linear-gradient(180deg, #0f172a 0%, #0a0f1e 100%);
-	--dashboard-gradient-panel: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(34, 211, 238, 0.06));
-
 	/* Typography */
 	--font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	--font-family-display: 'Inter', system-ui, sans-serif;
