@@ -1,23 +1,32 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "../components/dashboard/sidebar/Sidebar";
-import DashboardNavbar from "../components/dashboard/navbar/DashboardNavbar";
-import { SidebarProvider } from "../context/SidebarContext";
+import { useState } from "react";
+import Sidebar from "../sidebar/Sidebar";
+import DashboardNavbar from "../navbar/DashboardNavbar";
 
-function DashboardLayout() {
+function DashboardLayout({ children, user }) {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const toggleSidebar = () => {
+        setIsCollapsed((prev) => !prev);
+    };
+
     return (
-        <SidebarProvider>
-            <div className="dashboard-layout">
-                <Sidebar />
+        <div className="dashboard">
+            <Sidebar
+                isCollapsed={isCollapsed}
+                userRole={user?.role}
+            />
 
-                <div className="dashboard-layout__viewport">
-                    <DashboardNavbar />
+            <main className="dashboard-main">
+                <DashboardNavbar
+                    onToggleSidebar={toggleSidebar}
+                    user={user}
+                />
 
-                    <main className="dashboard-layout__content">
-                        <Outlet />
-                    </main>
-                </div>
-            </div>
-        </SidebarProvider>
+                <section className="dashboard-content">
+                    {children}
+                </section>
+            </main>
+        </div>
     );
 }
 

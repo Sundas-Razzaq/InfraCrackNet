@@ -1,39 +1,22 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
 
-function SidebarItem({ to, label, icon: Icon, end = false, danger = false, onClick }) {
-    const content = (
-        <>
-            <span className="sidebar-item__icon">
-                <Icon size={18} />
-            </span>
-            <span className="sidebar-item__label">{label}</span>
-        </>
-    );
-
-    if (to) {
-        return (
+function SidebarItem({ item, isCollapsed }) {
+    return (
+        <li className="sidebar-item">
             <NavLink
-                to={to}
-                end={end}
+                to={item.path}
+                end={item.path === "/dashboard"}
                 className={({ isActive }) =>
-                    ["sidebar-item", isActive ? "is-active" : "", danger ? "is-danger" : ""]
-                        .filter(Boolean)
-                        .join(" ")
+                    ["sidebar-link", isActive ? "active" : ""].filter(Boolean).join(" ")
                 }
             >
-                {content}
+                <span className="sidebar-icon" aria-hidden="true">
+                    <FontAwesomeIcon icon={item.icon} />
+                </span>
+                {!isCollapsed ? <span className="sidebar-label">{item.title}</span> : null}
             </NavLink>
-        );
-    }
-
-    return (
-        <button
-            type="button"
-            className={["sidebar-item", danger ? "is-danger" : ""].filter(Boolean).join(" ")}
-            onClick={onClick}
-        >
-            {content}
-        </button>
+        </li>
     );
 }
 
