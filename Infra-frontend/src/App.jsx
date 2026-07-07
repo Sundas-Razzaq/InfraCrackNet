@@ -13,8 +13,8 @@ import LoginPage from "./pages/auth/login";
 import ForgotPasswordPage from "./pages/auth/forgotPassword";
 import ResetPasswordPage from "./pages/auth/resetPassword";
 
-import EngineerDashboard from "./pages/Dashboard/engineerDashboard";
-import InspectorDashboard from "./pages/Dashboard/inspectorDashboard";
+import EngineerDashboard from "./pages/dashboard/engineerDashboard";
+import InspectorDashboard from "./pages/dashboard/inspectorDashboard";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
