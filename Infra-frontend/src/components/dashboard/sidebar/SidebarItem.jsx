@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
 
-function SidebarItem({ item, isCollapsed }) {
+function SidebarItem({ item }) {
     return (
         <li className="sidebar-item">
             <NavLink
@@ -14,7 +14,7 @@ function SidebarItem({ item, isCollapsed }) {
                 <span className="sidebar-icon" aria-hidden="true">
                     <FontAwesomeIcon icon={item.icon} />
                 </span>
-                {!isCollapsed ? <span className="sidebar-label">{item.title}</span> : null}
+                <span className="sidebar-label">{item.title}</span>
             </NavLink>
         </li>
     );

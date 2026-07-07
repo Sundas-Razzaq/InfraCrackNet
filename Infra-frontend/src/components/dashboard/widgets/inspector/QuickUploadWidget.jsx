@@ -5,17 +5,13 @@ function QuickUploadWidget() {
         <WidgetCard title="Quick Upload">
             <div className="upload-area">
 
-                <div className="upload-placeholder">
+                <p className="upload-text">
+                    Drag &amp; drop inspection images here
+                </p>
 
-                    <p className="upload-text">
-                        Drag &amp; drop inspection images here
-                    </p>
-
-                    <p className="upload-subtext">
-                        JPG • PNG • HEIC • TIFF — up to 50MB per image
-                    </p>
-
-                </div>
+                <p className="upload-subtext">
+                    JPG • PNG • HEIC • TIFF — up to 50MB per image
+                </p>
 
                 <div className="upload-actions">
 

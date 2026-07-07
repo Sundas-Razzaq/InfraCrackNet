@@ -1,14 +1,9 @@
 import { sidebarItems } from "./sidebarConfig";
 import SidebarItem from "./SidebarItem";
 
-function Sidebar({
-    isCollapsed,
-    userRole = "Engineer",
-}) {
+function Sidebar({ userRole = "Engineer" }) {
     return (
-        <aside
-            className={`sidebar ${isCollapsed ? "is-collapsed" : ""}`}
-        >
+        <aside className="sidebar">
             <header className="sidebar-header">
                 <div className="sidebar-logo">
                     InfraCrackNet
@@ -23,12 +18,11 @@ function Sidebar({
                 className="sidebar-nav"
                 aria-label="Dashboard Navigation"
             >
-                <ul>
+                <ul className="sidebar-nav-list">
                     {sidebarItems.map((item) => (
                         <SidebarItem
                             key={item.id}
                             item={item}
-                            isCollapsed={isCollapsed}
                         />
                     ))}
                 </ul>

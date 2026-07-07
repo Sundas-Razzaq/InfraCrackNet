@@ -1,59 +1,28 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-
-function ProfileDropdown({
-
-    user = {
-
-        name: "Sundas Razzaq",
-
-        role: "Engineer"
-
-    }
-
-}) {
-
-    const initials = user.name
-        .split(" ")
-        .map(word => word[0])
+function getInitials(name = "") {
+    return name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part[0])
         .join("")
         .slice(0, 2)
-        .toUpperCase();
+        .toUpperCase() || "U";
+}
+
+function ProfileDropdown({ user = { name: "Sundas Razzaq", role: "Engineer" } }) {
+    const initials = getInitials(user.name);
 
     return (
-
-        <button
-            type="button"
-            className="profile-dropdown"
-            aria-label="Profile Menu"
-        >
-
-            <span className="profile-avatar">
-
+        <button type="button" className="profile-dropdown" aria-label="Profile menu">
+            <span className="profile-avatar" aria-hidden="true">
                 {initials}
-
             </span>
 
             <span className="profile-info">
-
-                <span className="profile-name">
-
-                    {user.name}
-
-                </span>
-
-                <span className="profile-role">
-
-                    {user.role}
-
-                </span>
-
+                <span className="profile-name">{user.name}</span>
+                <span className="profile-role">{user.role}</span>
             </span>
-
-            <FontAwesomeIcon icon={faChevronDown} />
-
         </button>
-
     );
 
 }

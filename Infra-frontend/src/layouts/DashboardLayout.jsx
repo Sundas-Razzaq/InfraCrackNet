@@ -1,25 +1,12 @@
-import { useState } from "react";
 import Sidebar from "../components/dashboard/sidebar/Sidebar";
 import DashboardNavbar from "../components/dashboard/navbar/DashboardNavbar";
 function DashboardLayout({ children, user }) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-
-    const toggleSidebar = () => {
-        setIsCollapsed((prev) => !prev);
-    };
-
     return (
         <div className="dashboard">
-            <Sidebar
-                isCollapsed={isCollapsed}
-                userRole={user?.role}
-            />
+            <Sidebar userRole={user?.role} />
 
             <main className="dashboard-main">
-                <DashboardNavbar
-                    onToggleSidebar={toggleSidebar}
-                    user={user}
-                />
+                <DashboardNavbar user={user} />
 
                 <section className="dashboard-content">
                     {children}
