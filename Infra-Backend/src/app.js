@@ -7,13 +7,16 @@ const errorHandler = require("./middleware/errorMiddleware");
 const app = express();
 
 const corsOptions = {
-    origin: true,
+    origin: [
+        "https://infra-crack-net-6msy.vercel.app",
+    ],
     credentials: true,
 };
 
 // Middlewares
 app.use(cors(corsOptions));
-app.use(express.json());
+credentials: true,
+    app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
