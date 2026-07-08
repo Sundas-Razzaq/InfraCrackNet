@@ -37,7 +37,7 @@ function Sidebar({
                     </div>
 
                     <div className="sidebar-role">
-                        {userRole}
+                        {userRole || "Loading..."}
                     </div>
 
                 </header>

@@ -11,7 +11,7 @@ function DashboardLayout({ children, user }) {
         <div className="dashboard">
 
             <Sidebar
-                userRole={user?.role}
+                userRole={user?.role || ""}
                 isOpen={sidebarOpen}
                 closeSidebar={() => setSidebarOpen(false)}
             />

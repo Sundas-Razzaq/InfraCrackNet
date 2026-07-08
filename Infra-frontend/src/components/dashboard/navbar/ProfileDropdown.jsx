@@ -9,7 +9,7 @@ function getInitials(name = "") {
         .toUpperCase() || "U";
 }
 
-function ProfileDropdown({ user = { name: "Sundas Razzaq", role: "Engineer" } }) {
+function ProfileDropdown({ user }) {
     const initials = getInitials(user.name);
 
     return (
@@ -19,8 +19,8 @@ function ProfileDropdown({ user = { name: "Sundas Razzaq", role: "Engineer" } })
             </span>
 
             <span className="profile-info">
-                <span className="profile-name">{user.name}</span>
-                <span className="profile-role">{user.role}</span>
+                <span className="profile-name">{user.name || "Loading..."}</span>
+                <span className="profile-role">{user.role || ""}</span>
             </span>
         </button>
     );
