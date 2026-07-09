@@ -1,13 +1,28 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+
 import { sidebarItems } from "./sidebarConfig";
 import SidebarItem from "./SidebarItem";
+import { useAuth } from "../../../context/useAuth";
 
 function Sidebar({
-    userRole = "Engineer",
+    userRole = "",
     isOpen,
     closeSidebar,
 }) {
+    const { logoutUser } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await logoutUser();
+            navigate("/login", { replace: true });
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
+
     return (
         <>
             <div
@@ -16,11 +31,8 @@ function Sidebar({
             />
 
             <aside className={`sidebar ${isOpen ? "is-open" : ""}`}>
-
                 <header className="sidebar-header">
-
                     <div className="sidebar-header-top">
-
                         <div className="sidebar-logo">
                             InfraCrackNet
                         </div>
@@ -33,13 +45,11 @@ function Sidebar({
                         >
                             <FontAwesomeIcon icon={faXmark} />
                         </button>
-
                     </div>
 
                     <div className="sidebar-role">
                         {userRole || "Loading..."}
                     </div>
-
                 </header>
 
                 <nav
@@ -61,12 +71,11 @@ function Sidebar({
                     <button
                         type="button"
                         className="sidebar-logout"
-                        onClick={closeSidebar}
+                        onClick={handleLogout}
                     >
                         Logout
                     </button>
                 </footer>
-
             </aside>
         </>
     );

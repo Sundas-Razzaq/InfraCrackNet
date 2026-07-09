@@ -9,6 +9,8 @@ import SeverityChartWidget from "../../components/dashboard/widgets/engineer/Sev
 import RiskWidget from "../../components/dashboard/widgets/engineer/StructuralRiskWidget";
 import Approvals from "../../components/dashboard/widgets/engineer/RecentApprovalsWidget";
 
+import { useAuth } from "../../context/useAuth";
+
 import {
     faRobot,
     faClipboardCheck,
@@ -16,16 +18,13 @@ import {
     faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
-const user = {
-    name: "Sadia Farooq",
-    role: "Engineer",
-};
-
 function EngineerDashboard() {
+    const { user } = useAuth();
+
     return (
         <DashboardLayout user={user}>
             <DashboardHeader
-                userName={user.name}
+                user={user}
                 subtitle="Monday, 26 May 2025 — Here's what needs your attention"
                 buttonText="New Inspection"
                 onButtonClick={() => { }}

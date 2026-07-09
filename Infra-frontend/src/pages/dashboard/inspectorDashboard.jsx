@@ -8,6 +8,7 @@ import ActiveInspectionWidget from "../../components/dashboard/widgets/inspector
 import QuickUploadWidget from "../../components/dashboard/widgets/inspector/QuickUploadWidget";
 import ReminderWidget from "../../components/dashboard/widgets/inspector/ReminderWidget";
 import RecentInspectionWidget from "../../components/dashboard/widgets/inspector/RecentInspectionWidget";
+import { useAuth } from "../../context/useAuth";
 
 import {
     faClipboardList,
@@ -16,18 +17,15 @@ import {
     faFileCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
-const user = {
-    name: "Sundas Razzaq",
-    role: "Inspector",
-};
-
 function InspectorDashboard() {
+    const { user } = useAuth();
+
     return (
         <DashboardLayout user={user}>
             <DashboardHeader
-                userName={user.name}
-                subtitle="You have 3 active inspections and 2 pending uploads today"
-                buttonText="Start Inspection"
+                user={user}
+                subtitle="Monday, 26 May 2025 — Here's what needs your attention"
+                buttonText="New Inspection"
                 onButtonClick={() => { }}
             />
 
