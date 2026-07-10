@@ -13,8 +13,12 @@ import LoginPage from "./pages/auth/login";
 import ForgotPasswordPage from "./pages/auth/forgotPassword";
 import ResetPasswordPage from "./pages/auth/resetPassword";
 
-import EngineerDashboard from "./pages/dashboard/engineerDashboard";
-import InspectorDashboard from "./pages/dashboard/inspectorDashboard";
+import DashboardLayout from "./layouts/DashboardLayout";
+
+import DashboardHome from "./pages/dashboard/DashboardHome";
+import Profile from "./pages/dashboard/profile";
+import Notifications from "./pages/dashboard/notifications";
+import Settings from "./pages/dashboard/settings";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -75,35 +79,36 @@ function App() {
           element={<ResetPasswordRoute />}
         />
 
-        {/* Protected Routes */}
+        {/* Protected Dashboard */}
 
         <Route
-          path="/engineer/dashboard"
+          path="/dashboard"
           element={
-            <ProtectedRoute
-              allowedRoles={[
-                "Engineer",
-                "Admin",
-              ]}
-            >
-              <EngineerDashboard />
+            <ProtectedRoute>
+              <DashboardLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route
+            index
+            element={<DashboardHome />}
+          />
 
-        <Route
-          path="/inspector/dashboard"
-          element={
-            <ProtectedRoute
-              allowedRoles={[
-                "Inspector",
-                "Admin",
-              ]}
-            >
-              <InspectorDashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="profile"
+            element={<Profile />}
+          />
+
+          <Route
+            path="notifications"
+            element={<Notifications />}
+          />
+
+          <Route
+            path="settings"
+            element={<Settings />}
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

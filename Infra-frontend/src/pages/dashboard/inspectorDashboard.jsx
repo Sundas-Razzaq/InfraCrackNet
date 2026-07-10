@@ -21,7 +21,7 @@ function InspectorDashboard() {
     const { user } = useAuth();
 
     return (
-        <DashboardLayout user={user}>
+        <>
             <DashboardHeader
                 user={user}
                 subtitle="Monday, 26 May 2025 — Here's what needs your attention"
@@ -77,7 +77,7 @@ function InspectorDashboard() {
             <section className="dashboard-table">
                 <RecentInspectionWidget />
             </section>
-        </DashboardLayout>
+        </>
     );
 }
 

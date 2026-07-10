@@ -264,14 +264,6 @@
     background: var(--color-bg-section);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
-.search-icon {
-    position: absolute;
-    left: var(--space-16);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-text-muted);
-    pointer-events: none;
-}
 .notification-button {
     position: relative;
     width: 44px;

@@ -22,7 +22,7 @@ function EngineerDashboard() {
     const { user } = useAuth();
 
     return (
-        <DashboardLayout user={user}>
+        <>
             <DashboardHeader
                 user={user}
                 subtitle="Monday, 26 May 2025 — Here's what needs your attention"
@@ -72,7 +72,7 @@ function EngineerDashboard() {
                     <Approvals />
                 </DashboardGrid>
             </section>
-        </DashboardLayout>
+        </>
     );
 }
 
