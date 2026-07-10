@@ -15,7 +15,7 @@ import ResetPasswordPage from "./pages/auth/resetPassword";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 
-import DashboardHome from "./pages/dashboard/DashboardHome";
+import DashboardHome from "./pages/dashboard/dashboardHome";
 import Profile from "./pages/dashboard/profile";
 import Notifications from "./pages/dashboard/notifications";
 import Settings from "./pages/dashboard/settings";
