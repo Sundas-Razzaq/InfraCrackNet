@@ -33,16 +33,26 @@ const getTokenFromRequest = (req) => {
 };
 
 const protect = (req, res, next) => {
+    console.log("========== AUTH DEBUG ==========");
+    console.log("Origin:", req.headers.origin);
+    console.log("Cookies:", req.cookies);
+    console.log("Authorization:", req.headers.authorization);
+
     try {
         const token = getTokenFromRequest(req);
 
+        console.log("Extracted Token:", token);
+
         if (!token) {
+            console.log("No token received");
             return res.status(401).json({
                 message: "Authentication required",
             });
         }
 
         const decoded = verifyToken(token);
+
+        console.log("Decoded:", decoded);
 
         req.user = {
             id: decoded.userId,
@@ -51,6 +61,8 @@ const protect = (req, res, next) => {
 
         next();
     } catch (error) {
+        console.log("JWT Error:", error.message);
+
         return res.status(401).json({
             message: "Invalid or expired token",
         });
