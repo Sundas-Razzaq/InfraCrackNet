@@ -12,20 +12,24 @@ const {
     sendPasswordResetEmail,
 } = require("../services/emailService");
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const setAuthCookie = (res, token) => {
     res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         maxAge: 24 * 60 * 60 * 1000,
+        path: "/",
     });
 };
 
 const clearAuthCookie = (res) => {
     res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "none",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+        path: "/",
     });
 };
 
