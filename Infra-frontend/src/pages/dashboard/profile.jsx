@@ -5,6 +5,7 @@ import "../../styles/profile.css";
 import {
     getProfile,
     updateProfile,
+    changePassword,
 } from "../../api/profileApi";
 
 import { getApiErrorMessage } from "../../api/authApi";
@@ -20,8 +21,17 @@ function Profile() {
         role: "",
     });
 
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
+
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [changingPassword, setChangingPassword] =
+        useState(false);
+
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -33,7 +43,8 @@ function Profile() {
                     name: data.user.name || "",
                     email: data.user.email || "",
                     phone: data.user.phone || "",
-                    organization: data.user.organization || "",
+                    organization:
+                        data.user.organization || "",
                     position: data.user.position || "",
                     bio: data.user.bio || "",
                     role: data.user.role || "",
@@ -59,6 +70,15 @@ function Profile() {
         const { name, value } = event.target;
 
         setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handlePasswordChange = (event) => {
+        const { name, value } = event.target;
+
+        setPasswordData((prev) => ({
             ...prev,
             [name]: value,
         }));
@@ -92,13 +112,39 @@ function Profile() {
         }
     };
 
+    const handlePasswordSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            setChangingPassword(true);
+
+            await changePassword(passwordData);
+
+            alert("Password updated successfully.");
+
+            setPasswordData({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
+        } catch (err) {
+            alert(
+                getApiErrorMessage(
+                    err,
+                    "Failed to update password."
+                )
+            );
+        } finally {
+            setChangingPassword(false);
+        }
+    };
+
     if (loading) {
         return <p>Loading profile...</p>;
     }
 
     return (
         <div className="profile-page">
-
             <div className="profile-page-header">
                 <div>
                     <h1 className="profile-page-title">
@@ -106,7 +152,8 @@ function Profile() {
                     </h1>
 
                     <p className="profile-page-subtitle">
-                        Manage your personal information and account settings
+                        Manage your personal information and account
+                        settings
                     </p>
                 </div>
 
@@ -127,11 +174,8 @@ function Profile() {
             )}
 
             <div className="profile-page-content">
-
                 <aside className="profile-page-sidebar card">
-
                     <div className="profile-page-avatar-wrapper">
-
                         <div className="profile-page-avatar">
                             {formData.name
                                 ? formData.name
@@ -161,7 +205,6 @@ function Profile() {
                         >
                             Change Photo
                         </button>
-
                     </div>
 
                     <div className="profile-page-divider"></div>
@@ -189,11 +232,9 @@ function Profile() {
                             <strong>Today</strong>
                         </div>
                     </div>
-
                 </aside>
 
                 <section className="profile-page-form card">
-
                     <div className="card-header">
                         <h2 className="card-title">
                             Personal Information
@@ -204,9 +245,7 @@ function Profile() {
                         id="profileForm"
                         onSubmit={handleSubmit}
                     >
-
                         <div className="profile-page-grid">
-
                             <div className="form-group">
                                 <label>Name</label>
 
@@ -217,7 +256,6 @@ function Profile() {
                                     onChange={handleChange}
                                 />
                             </div>
-
                         </div>
 
                         <div className="form-group">
@@ -254,11 +292,10 @@ function Profile() {
                         </div>
 
                         <div className="form-group">
-                            <label>Role / Position</label>
+                            <label>Role</label>
 
                             <input
                                 type="text"
-                                name="position"
                                 value={formData.role}
                                 disabled
                             />
@@ -274,15 +311,74 @@ function Profile() {
                                 rows="5"
                             />
                         </div>
-
-                        {/* Password section will be connected later */}
-
                     </form>
 
+                    <hr className="profile-page-divider" />
+
+                    <div className="card-header">
+                        <h2 className="card-title">
+                            Change Password
+                        </h2>
+                    </div>
+
+                    <form onSubmit={handlePasswordSubmit}>
+                        <div className="form-group">
+                            <label>Current Password</label>
+
+                            <input
+                                type="password"
+                                name="currentPassword"
+                                value={
+                                    passwordData.currentPassword
+                                }
+                                onChange={
+                                    handlePasswordChange
+                                }
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>New Password</label>
+
+                            <input
+                                type="password"
+                                name="newPassword"
+                                value={
+                                    passwordData.newPassword
+                                }
+                                onChange={
+                                    handlePasswordChange
+                                }
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Confirm Password</label>
+
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                value={
+                                    passwordData.confirmPassword
+                                }
+                                onChange={
+                                    handlePasswordChange
+                                }
+                            />
+                        </div>
+                        <br />
+                        <button
+                            type="submit"
+                            className="btn-primary"
+                            disabled={changingPassword}
+                        >
+                            {changingPassword
+                                ? "Updating..."
+                                : "Update Password"}
+                        </button>
+                    </form>
                 </section>
-
             </div>
-
         </div>
     );
 }

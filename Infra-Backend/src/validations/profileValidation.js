@@ -1,6 +1,8 @@
 const Joi = require("joi");
 const { validateRequestBody } = require("../middleware/authMiddleware");
 
+/* UPDATE PROFILE */
+
 const updateProfileSchema = Joi.object({
     name: Joi.string()
         .trim()
@@ -61,10 +63,51 @@ const updateProfileSchema = Joi.object({
         }),
 });
 
+/* CHANGE PASSWORD */
+
+const changePasswordSchema = Joi.object({
+    currentPassword: Joi.string()
+        .required()
+        .messages({
+            "string.empty": "Current password is required.",
+            "any.required": "Current password is required.",
+        }),
+
+    newPassword: Joi.string()
+        .min(6)
+        .pattern(/\d/)
+        .required()
+        .messages({
+            "string.min":
+                "Password must be at least 6 characters long.",
+            "string.pattern.base":
+                "Password must contain at least one number.",
+            "any.required":
+                "New password is required.",
+        }),
+
+    confirmPassword: Joi.string()
+        .valid(Joi.ref("newPassword"))
+        .required()
+        .messages({
+            "any.only":
+                "Confirm password must match the new password.",
+            "any.required":
+                "Confirm password is required.",
+        }),
+});
+
+/* VALIDATION MIDDLEWARE */
+
 const updateProfileValidation =
     validateRequestBody(updateProfileSchema);
+
+const changePasswordValidation =
+    validateRequestBody(changePasswordSchema);
 
 module.exports = {
     updateProfileSchema,
     updateProfileValidation,
+    changePasswordSchema,
+    changePasswordValidation,
 };
