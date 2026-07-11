@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/authRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
+const profileRoutes = require("./routes/profileRoutes");
 
 const app = express();
 
@@ -35,10 +36,11 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
-    res.send("Backend is running successfully 🚀");
+    res.send("Backend is running successfully ...............");
 });
 
 // API Test Route

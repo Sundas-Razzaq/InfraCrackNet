@@ -34,6 +34,36 @@ const userSchema = new mongoose.Schema(
         resetPasswordExpire: {
             type: Date,
         },
+        phone: {
+            type: String,
+            default: "",
+        },
+
+        organization: {
+            type: String,
+            default: "",
+        },
+
+        position: {
+            type: String,
+            default: "",
+        },
+
+        bio: {
+            type: String,
+            default: "",
+        },
+
+        profileImage: {
+            url: {
+                type: String,
+                default: "",
+            },
+            publicId: {
+                type: String,
+                default: "",
+            },
+        },
     },
     { timestamps: true }
 );

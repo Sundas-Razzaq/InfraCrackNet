@@ -1,49 +1,164 @@
+import { useEffect, useState } from "react";
+
 import "../../styles/profile.css";
 
-const Profile = () => {
+import {
+    getProfile,
+    updateProfile,
+} from "../../api/profileApi";
+
+import { getApiErrorMessage } from "../../api/authApi";
+
+function Profile() {
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        organization: "",
+        position: "",
+        bio: "",
+        role: "",
+    });
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const data = await getProfile();
+
+                setFormData({
+                    name: data.user.name || "",
+                    email: data.user.email || "",
+                    phone: data.user.phone || "",
+                    organization: data.user.organization || "",
+                    position: data.user.position || "",
+                    bio: data.user.bio || "",
+                    role: data.user.role || "",
+                });
+
+                setError("");
+            } catch (err) {
+                setError(
+                    getApiErrorMessage(
+                        err,
+                        "Failed to load profile."
+                    )
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        void loadProfile();
+    }, []);
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            setSaving(true);
+
+            await updateProfile({
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                organization: formData.organization,
+                position: formData.position,
+                bio: formData.bio,
+            });
+
+            alert("Profile updated successfully.");
+        } catch (err) {
+            alert(
+                getApiErrorMessage(
+                    err,
+                    "Failed to update profile."
+                )
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return <p>Loading profile...</p>;
+    }
+
     return (
         <div className="profile-page">
 
-            {/* Header */}
             <div className="profile-page-header">
                 <div>
-                    <h1 className="profile-page-title">My Profile</h1>
+                    <h1 className="profile-page-title">
+                        My Profile
+                    </h1>
 
                     <p className="profile-page-subtitle">
                         Manage your personal information and account settings
                     </p>
                 </div>
 
-                <button className="btn-primary profile-page-save-btn">
-                    Save Changes
+                <button
+                    className="btn-primary profile-page-save-btn"
+                    type="submit"
+                    form="profileForm"
+                    disabled={saving}
+                >
+                    {saving ? "Saving..." : "Save Changes"}
                 </button>
             </div>
 
-            {/* Main Content */}
+            {error && (
+                <p className="error-message">
+                    {error}
+                </p>
+            )}
+
             <div className="profile-page-content">
 
-                {/* Left Card */}
                 <aside className="profile-page-sidebar card">
 
                     <div className="profile-page-avatar-wrapper">
 
                         <div className="profile-page-avatar">
-                            SF
+                            {formData.name
+                                ? formData.name
+                                    .split(" ")
+                                    .map((word) => word[0])
+                                    .join("")
+                                    .slice(0, 2)
+                                    .toUpperCase()
+                                : "U"}
                         </div>
 
                         <h2 className="profile-page-name">
-                            Sadia Farooq
+                            {formData.name}
                         </h2>
 
                         <span className="profile-page-role badge badge-info">
-                            Engineer
+                            {formData.role}
                         </span>
 
                         <p className="profile-page-member-since">
                             Member since Jan 2024
                         </p>
 
-                        <button className="btn-secondary profile-page-photo-btn">
+                        <button
+                            className="btn-secondary profile-page-photo-btn"
+                            type="button"
+                        >
                             Change Photo
                         </button>
 
@@ -52,7 +167,6 @@ const Profile = () => {
                     <div className="profile-page-divider"></div>
 
                     <div className="profile-page-activity">
-
                         <h3>Activity Summary</h3>
 
                         <div className="profile-page-activity-item">
@@ -74,12 +188,10 @@ const Profile = () => {
                             <span>Last Active</span>
                             <strong>Today</strong>
                         </div>
-
                     </div>
 
                 </aside>
 
-                {/* Form */}
                 <section className="profile-page-form card">
 
                     <div className="card-header">
@@ -88,23 +200,21 @@ const Profile = () => {
                         </h2>
                     </div>
 
-                    <form>
+                    <form
+                        id="profileForm"
+                        onSubmit={handleSubmit}
+                    >
 
                         <div className="profile-page-grid">
 
                             <div className="form-group">
-                                <label>First Name</label>
-                                <input
-                                    type="text"
-                                    placeholder="Sadia"
-                                />
-                            </div>
+                                <label>Name</label>
 
-                            <div className="form-group">
-                                <label>Last Name</label>
                                 <input
                                     type="text"
-                                    placeholder="Farooq"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
                                 />
                             </div>
 
@@ -115,7 +225,9 @@ const Profile = () => {
 
                             <input
                                 type="email"
-                                placeholder="sadiafarooq@gmail.com"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -124,7 +236,9 @@ const Profile = () => {
 
                             <input
                                 type="text"
-                                placeholder="+92 123 4567891"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -133,7 +247,9 @@ const Profile = () => {
 
                             <input
                                 type="text"
-                                placeholder="International Crack Detection"
+                                name="organization"
+                                value={formData.organization}
+                                onChange={handleChange}
                             />
                         </div>
 
@@ -142,7 +258,9 @@ const Profile = () => {
 
                             <input
                                 type="text"
-                                placeholder="Senior Officer"
+                                name="position"
+                                value={formData.role}
+                                disabled
                             />
                         </div>
 
@@ -150,23 +268,14 @@ const Profile = () => {
                             <label>Bio</label>
 
                             <textarea
+                                name="bio"
+                                value={formData.bio}
+                                onChange={handleChange}
                                 rows="5"
-                                placeholder="Experienced structural engineer specializing in bridge infrastructure."
                             />
                         </div>
 
-                        <div className="profile-page-grid">
-
-                            <div className="form-group">
-                                <label>Password</label>
-
-                                <input
-                                    type="password"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-
-                        </div>
+                        {/* Password section will be connected later */}
 
                     </form>
 
@@ -176,6 +285,6 @@ const Profile = () => {
 
         </div>
     );
-};
+}
 
 export default Profile;
