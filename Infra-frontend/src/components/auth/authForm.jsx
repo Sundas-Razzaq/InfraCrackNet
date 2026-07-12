@@ -1,3 +1,5 @@
+import PasswordInput from "../common/PasswordInput";
+
 const formFieldsByType = {
     login: [
         {
@@ -45,7 +47,6 @@ const formFieldsByType = {
             placeholder: "Confirm your password",
             halfWidth: true,
         },
-        // Role field is now defined here but will be rendered separately
     ],
 
     forgot: [
@@ -80,7 +81,7 @@ const submitLabelByType = {
     login: "Sign In",
     signup: "Create Account",
     forgot: "Send reset link",
-    reset: "Reset password",
+    reset: "Reset Password",
 };
 
 function AuthForm({
@@ -94,64 +95,112 @@ function AuthForm({
     submitLabel,
     onRoleSelect,
 }) {
-    const fields = formFieldsByType[type] ?? formFieldsByType.login;
-    const buttonLabel = submitLabel ?? submitLabelByType[type] ?? submitLabelByType.login;
+    const fields =
+        formFieldsByType[type] ??
+        formFieldsByType.login;
+
+    const buttonLabel =
+        submitLabel ??
+        submitLabelByType[type] ??
+        submitLabelByType.login;
 
     const handleRoleSelect = (role) => {
-        if (onRoleSelect) {
-            onRoleSelect(role);
-        }
+        onRoleSelect?.(role);
     };
 
     return (
         <form
-            className={`auth-form ${type === "signup" ? "auth-form-grid" : ""}`.trim()}
+            className={`auth-form ${type === "signup"
+                    ? "auth-form-grid"
+                    : ""
+                }`.trim()}
             onSubmit={onSubmit}
             noValidate
         >
-            {/* Render all form fields */}
             {fields.map((field) => (
                 <div
                     key={field.name}
-                    className={`auth-field ${field.fullWidth ? "auth-field-full" : "auth-field-half"}`.trim()}
+                    className={`auth-field ${field.fullWidth
+                            ? "auth-field-full"
+                            : "auth-field-half"
+                        }`}
                 >
-                    <label htmlFor={field.name}>{field.label}</label>
-                    <input
-                        id={field.name}
-                        name={field.name}
-                        type={field.type}
-                        value={values[field.name] ?? ""}
-                        onChange={onChange}
-                        required
-                        placeholder={field.placeholder}
-                        minLength={
-                            field.name === "password" || field.name === "confirmPassword"
-                                ? 6
-                                : undefined
-                        }
-                    />
+                    {field.type === "password" ? (
+                        <PasswordInput
+                            label={field.label}
+                            name={field.name}
+                            value={
+                                values[field.name] ??
+                                ""
+                            }
+                            onChange={onChange}
+                            placeholder={
+                                field.placeholder
+                            }
+                            required
+                        />
+                    ) : (
+                        <>
+                            <label htmlFor={field.name}>
+                                {field.label}
+                            </label>
+
+                            <input
+                                id={field.name}
+                                name={field.name}
+                                type={field.type}
+                                value={
+                                    values[
+                                    field.name
+                                    ] ?? ""
+                                }
+                                onChange={onChange}
+                                required
+                                placeholder={
+                                    field.placeholder
+                                }
+                            />
+                        </>
+                    )}
                 </div>
             ))}
 
-            {/* Role Selection for Signup - placed AFTER all fields */}
             {type === "signup" && (
                 <div className="auth-field auth-field-full auth-role-field">
-                    <label className="auth-role-label">Select Your Role</label>
+                    <label className="auth-role-label">
+                        Select Your Role
+                    </label>
+
                     <div className="auth-role-toggle">
                         <button
                             type="button"
-                            className={`auth-role-btn ${values.role === "Inspector" ? "active" : ""}`}
-                            onClick={() => handleRoleSelect("Inspector")}
+                            className={`auth-role-btn ${values.role ===
+                                    "Inspector"
+                                    ? "active"
+                                    : ""
+                                }`}
+                            onClick={() =>
+                                handleRoleSelect(
+                                    "Inspector"
+                                )
+                            }
                         >
-                            <span className="auth-role-icon"></span>
                             Inspector
                         </button>
+
                         <button
                             type="button"
-                            className={`auth-role-btn ${values.role === "Engineer" ? "active" : ""}`}
-                            onClick={() => handleRoleSelect("Engineer")}
+                            className={`auth-role-btn ${values.role ===
+                                    "Engineer"
+                                    ? "active"
+                                    : ""
+                                }`}
+                            onClick={() =>
+                                handleRoleSelect(
+                                    "Engineer"
+                                )
+                            }
                         >
-                            <span className="auth-role-icon"></span>
                             Engineer
                         </button>
                     </div>
@@ -159,13 +208,25 @@ function AuthForm({
             )}
 
             {message ? (
-                <p className={`auth-message auth-message-${messageTone}`}>{message}</p>
+                <p
+                    className={`auth-message auth-message-${messageTone}`}
+                >
+                    {message}
+                </p>
             ) : (
-                <p className="auth-message auth-message-placeholder">&nbsp;</p>
+                <p className="auth-message auth-message-placeholder">
+                    &nbsp;
+                </p>
             )}
 
-            <button className="auth-submit-button" type="submit" disabled={loading}>
-                {loading ? `${buttonLabel}...` : buttonLabel}
+            <button
+                className="auth-submit-button"
+                type="submit"
+                disabled={loading}
+            >
+                {loading
+                    ? `${buttonLabel}...`
+                    : buttonLabel}
             </button>
         </form>
     );

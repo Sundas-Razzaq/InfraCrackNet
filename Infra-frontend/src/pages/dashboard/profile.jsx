@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/useAuth";
+import PasswordInput from "../../components/common/PasswordInput";
 
 
 import "../../styles/profile.css";
@@ -400,47 +401,29 @@ function Profile() {
 
                     <form onSubmit={handlePasswordSubmit}>
                         <div className="form-group">
-                            <label>Current Password</label>
-
-                            <input
-                                type="password"
+                            <PasswordInput
+                                label="Current Password"
                                 name="currentPassword"
-                                value={
-                                    passwordData.currentPassword
-                                }
-                                onChange={
-                                    handlePasswordChange
-                                }
+                                value={passwordData.currentPassword}
+                                onChange={handlePasswordChange}
                             />
                         </div>
 
                         <div className="form-group">
-                            <label>New Password</label>
-
-                            <input
-                                type="password"
+                            <PasswordInput
+                                label="New Password"
                                 name="newPassword"
-                                value={
-                                    passwordData.newPassword
-                                }
-                                onChange={
-                                    handlePasswordChange
-                                }
+                                value={passwordData.newPassword}
+                                onChange={handlePasswordChange}
                             />
                         </div>
 
                         <div className="form-group">
-                            <label>Confirm Password</label>
-
-                            <input
-                                type="password"
+                            <PasswordInput
+                                label="Confirm Password"
                                 name="confirmPassword"
-                                value={
-                                    passwordData.confirmPassword
-                                }
-                                onChange={
-                                    handlePasswordChange
-                                }
+                                value={passwordData.confirmPassword}
+                                onChange={handlePasswordChange}
                             />
                         </div>
                         <br />

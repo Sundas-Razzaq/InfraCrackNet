@@ -3,6 +3,7 @@ import { getApiErrorMessage } from "../../api/authApi";
 import AuthForm from "../../components/auth/authForm";
 import { useAuth } from "../../context/useAuth";
 import AuthLayout from "../../layouts/authLayout";
+import PasswordInput from "../../components/common/PasswordInput";
 
 function LoginPage({ onNavigate }) {
     const { loginUser } = useAuth();

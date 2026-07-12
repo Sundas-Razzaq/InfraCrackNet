@@ -10,39 +10,34 @@ function PasswordInput({
     name,
     value,
     onChange,
-    placeholder = "••••••••",
-    disabled = false,
+    placeholder = "",
     required = false,
 }) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
         <div className="form-group">
-            {label && <label htmlFor={name}>{label}</label>}
+            <label>{label}</label>
 
             <div className="password-input-wrapper">
                 <input
-                    id={name}
-                    type={showPassword ? "text" : "password"}
+                    type={
+                        showPassword
+                            ? "text"
+                            : "password"
+                    }
                     name={name}
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}
-                    disabled={disabled}
                     required={required}
-                    autoComplete="off"
                 />
 
                 <button
                     type="button"
                     className="password-toggle-btn"
                     onClick={() =>
-                        setShowPassword((prev) => !prev)
-                    }
-                    aria-label={
-                        showPassword
-                            ? "Hide password"
-                            : "Show password"
+                        setShowPassword(!showPassword)
                     }
                 >
                     <FontAwesomeIcon

@@ -2,6 +2,7 @@ import { useState } from "react";
 import AuthForm from "../../components/auth/authForm";
 import { signup } from "../../api/authApi";
 import AuthLayout from "../../layouts/authLayout";
+import PasswordInput from "../../components/common/PasswordInput";
 
 function SignupPage({ onNavigate }) {
     const [formData, setFormData] = useState({
