@@ -62,6 +62,9 @@ export function AuthProvider({ children }) {
             setIsAuthLoading(false);
         }
     };
+    const updateUser = (updatedUser) => {
+        persistAuth(updatedUser, token);
+    };
 
     const loginUser = async (credentials) => {
         const data = await loginApi(credentials);
@@ -104,6 +107,7 @@ export function AuthProvider({ children }) {
         loginUser,
         logoutUser,
         checkAuth,
+        updateUser,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

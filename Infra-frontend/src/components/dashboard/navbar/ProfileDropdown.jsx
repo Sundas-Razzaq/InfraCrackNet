@@ -9,22 +9,41 @@ function getInitials(name = "") {
         .toUpperCase() || "U";
 }
 
-function ProfileDropdown({ user }) {
+function ProfileDropdown({ user = {} }) {
     const initials = getInitials(user.name);
 
     return (
-        <button type="button" className="profile-dropdown" aria-label="Profile menu">
-            <span className="profile-avatar" aria-hidden="true">
-                {initials}
+        <button
+            type="button"
+            className="profile-dropdown"
+            aria-label="Profile menu"
+        >
+            <span
+                className="profile-avatar"
+                aria-hidden="true"
+            >
+                {user?.profileImage?.url ? (
+                    <img
+                        src={user.profileImage.url}
+                        alt={user.name}
+                        className="profile-avatar-image"
+                    />
+                ) : (
+                    initials
+                )}
             </span>
 
             <span className="profile-info">
-                <span className="profile-name">{user.name || "Loading..."}</span>
-                <span className="profile-role">{user.role || ""}</span>
+                <span className="profile-name">
+                    {user?.name || "Loading..."}
+                </span>
+
+                <span className="profile-role">
+                    {user?.role || ""}
+                </span>
             </span>
         </button>
     );
-
 }
 
 export default ProfileDropdown;

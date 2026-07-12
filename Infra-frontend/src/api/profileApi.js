@@ -18,3 +18,21 @@ export const changePassword = async (payload) => {
 
     return data;
 };
+
+export const uploadProfilePhoto = async (file) => {
+    const formData = new FormData();
+
+    formData.append("profileImage", file);
+
+    const { data } = await authApi.put(
+        "/profile/photo",
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }
+    );
+
+    return data;
+};

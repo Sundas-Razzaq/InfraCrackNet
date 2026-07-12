@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useAuth } from "../../context/useAuth";
+
 
 import "../../styles/profile.css";
 
@@ -6,11 +8,14 @@ import {
     getProfile,
     updateProfile,
     changePassword,
+    uploadProfilePhoto,
 } from "../../api/profileApi";
 
 import { getApiErrorMessage } from "../../api/authApi";
 
 function Profile() {
+    const { updateUser } = useAuth();
+    const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -19,6 +24,8 @@ function Profile() {
         position: "",
         bio: "",
         role: "",
+        profileImage: "",
+        createdAt: "",
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -48,6 +55,8 @@ function Profile() {
                     position: data.user.position || "",
                     bio: data.user.bio || "",
                     role: data.user.role || "",
+                    profileImage: data.user.profileImage?.url || "",
+                    createdAt: data.user.createdAt || "",
                 });
 
                 setError("");
@@ -90,7 +99,7 @@ function Profile() {
         try {
             setSaving(true);
 
-            await updateProfile({
+            const data = await updateProfile({
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
@@ -98,6 +107,20 @@ function Profile() {
                 position: formData.position,
                 bio: formData.bio,
             });
+
+            setFormData((prev) => ({
+                ...prev,
+                name: data.user.name,
+                email: data.user.email,
+                phone: data.user.phone || "",
+                organization: data.user.organization || "",
+                position: data.user.position || "",
+                bio: data.user.bio || "",
+                role: data.user.role,
+                profileImage: data.user.profileImage?.url || "",
+            }));
+
+            updateUser(data.user);
 
             alert("Profile updated successfully.");
         } catch (err) {
@@ -109,6 +132,36 @@ function Profile() {
             );
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handlePhotoUpload = async (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        try {
+            const data = await uploadProfilePhoto(file);
+
+            setFormData((prev) => ({
+                ...prev,
+                profileImage: data.user.profileImage?.url || "",
+            }));
+
+            updateUser(data.user);
+
+            event.target.value = "";
+
+            alert("Profile photo updated successfully.");
+        } catch (err) {
+            alert(
+                getApiErrorMessage(
+                    err,
+                    "Failed to upload profile photo."
+                )
+            );
         }
     };
 
@@ -142,6 +195,14 @@ function Profile() {
     if (loading) {
         return <p>Loading profile...</p>;
     }
+    const formatMemberSince = (date) => {
+        if (!date) return "";
+
+        return new Date(date).toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+        });
+    };
 
     return (
         <div className="profile-page">
@@ -176,15 +237,30 @@ function Profile() {
             <div className="profile-page-content">
                 <aside className="profile-page-sidebar card">
                     <div className="profile-page-avatar-wrapper">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={handlePhotoUpload}
+                        />
                         <div className="profile-page-avatar">
-                            {formData.name
-                                ? formData.name
+
+                            {formData.profileImage ? (
+                                <img
+                                    src={formData.profileImage}
+                                    alt={formData.name}
+                                    className="profile-page-avatar-image"
+                                />
+                            ) : (
+                                formData.name
                                     .split(" ")
                                     .map((word) => word[0])
                                     .join("")
                                     .slice(0, 2)
                                     .toUpperCase()
-                                : "U"}
+                            )}
+
                         </div>
 
                         <h2 className="profile-page-name">
@@ -196,12 +272,13 @@ function Profile() {
                         </span>
 
                         <p className="profile-page-member-since">
-                            Member since Jan 2024
+                            Member since {formatMemberSince(formData.createdAt)}
                         </p>
 
                         <button
                             className="btn-secondary profile-page-photo-btn"
                             type="button"
+                            onClick={() => fileInputRef.current?.click()}
                         >
                             Change Photo
                         </button>
