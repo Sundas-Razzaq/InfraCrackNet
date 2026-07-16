@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/authRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 const profileRoutes = require("./routes/profileRoutes");
+const projectRoutes = require("./routes/projectRoutes");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/projects", projectRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
