@@ -1,4 +1,4 @@
-import Project from "../models/Project.js";
+const Project = require("../models/project");
 
 const generateProjectCode = async () => {
     const latestProject = await Project.findOne()
@@ -19,4 +19,4 @@ const generateProjectCode = async () => {
     return `PRJ-${String(nextNumber).padStart(3, "0")}`;
 };
 
-export default generateProjectCode;
+module.exports = generateProjectCode;

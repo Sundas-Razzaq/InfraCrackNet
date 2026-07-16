@@ -7,12 +7,12 @@ const {
     getProjectById,
     updateProject,
     deleteProject,
-} = require("../controllers/projectController");
+} = require("../controllers/projectControllers");
 
 const {
     createProjectValidation,
     updateProjectValidation,
-} = require("../validators/projectValidator");
+} = require("../validations/projectValidators");
 
 const validateRequest = require("../middleware/validateRequest");
 
@@ -72,9 +72,8 @@ router.put(
 );
 
 /*
- * @route   DELETE /api/projects/:id
- * @desc    Delete project
- * @access  Admin
+ * DELETE /api/projects/:id
+ * Delete project
  */
 router.delete(
     "/:id",

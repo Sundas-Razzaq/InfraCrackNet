@@ -1,9 +1,9 @@
-import Project from "../models/Project.js";
-import generateProjectCode from "../utils/projectCodeGenerator.js";
+const Project = require("../models/project");
+const generateProjectCode = require("../utils/projectCodeGenerator");
 /**
  * Create Project
  */
-export const createProject = async (req, res, next) => {
+const createProject = async (req, res, next) => {
     try {
         const projectCode = await generateProjectCode();
 
@@ -26,7 +26,7 @@ export const createProject = async (req, res, next) => {
 /**
  * Get All Projects
  */
-export const getProjects = async (req, res, next) => {
+const getProjects = async (req, res, next) => {
     try {
         const projects = await Project.find()
             .populate("createdBy", "name email role")
@@ -46,7 +46,7 @@ export const getProjects = async (req, res, next) => {
 /**
  * Get Single Project
  */
-export const getProjectById = async (req, res, next) => {
+const getProjectById = async (req, res, next) => {
     try {
         const project = await Project.findById(req.params.id)
             .populate("createdBy", "name email role")
@@ -71,7 +71,7 @@ export const getProjectById = async (req, res, next) => {
 /**
  * Update Project
  */
-export const updateProject = async (req, res, next) => {
+const updateProject = async (req, res, next) => {
     try {
         const project = await Project.findByIdAndUpdate(
             req.params.id,
@@ -102,7 +102,7 @@ export const updateProject = async (req, res, next) => {
 /**
  * Delete Project
  */
-export const deleteProject = async (req, res, next) => {
+const deleteProject = async (req, res, next) => {
     try {
         const project = await Project.findByIdAndDelete(req.params.id);
 
@@ -120,4 +120,12 @@ export const deleteProject = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+module.exports = {
+    createProject,
+    getProjects,
+    getProjectById,
+    updateProject,
+    deleteProject,
 };

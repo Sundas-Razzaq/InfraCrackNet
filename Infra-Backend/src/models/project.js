@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+const mongoose = require("mongoose");
 const projectSchema = new mongoose.Schema(
     {
         projectCode: {
@@ -82,6 +81,4 @@ projectSchema.index({ name: 1 });
 projectSchema.index({ status: 1 });
 projectSchema.index({ structureType: 1 });
 
-const Project = mongoose.model("Project", projectSchema);
-
-export default Project;
+module.exports = mongoose.model("Project", projectSchema);
