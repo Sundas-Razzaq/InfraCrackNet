@@ -10,7 +10,7 @@ const createProject = async (req, res, next) => {
         const project = await Project.create({
             ...req.body,
             projectCode,
-            createdBy: req.user._id,
+            createdBy: req.user.id,
         });
 
         res.status(201).json({

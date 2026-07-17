@@ -27,7 +27,7 @@ const {
 router.post(
     "/",
     protect,
-    authorizeRoles("admin", "engineer"),
+    authorizeRoles("Inspector", "Engineer"),
     createProjectValidation,
     createProject
 );
