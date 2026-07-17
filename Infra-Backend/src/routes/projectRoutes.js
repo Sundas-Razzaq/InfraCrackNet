@@ -14,24 +14,21 @@ const {
     updateProjectValidation,
 } = require("../validations/projectValidators");
 
-const validateRequest = require("../middleware/validateRequest");
-
 const {
     protect,
     authorizeRoles,
 } = require("../middleware/authMiddleware");
 
 /*
- * @route   POST /api/projects
- * @desc    Create a new project
- * @access  Admin, Engineer
+ *   POST /api/projects
+ *  Create a new project
+ *  Admin, Engineer
  */
 router.post(
     "/",
     protect,
     authorizeRoles("admin", "engineer"),
     createProjectValidation,
-    validateRequest,
     createProject
 );
 
@@ -67,7 +64,6 @@ router.put(
     protect,
     authorizeRoles("admin", "engineer"),
     updateProjectValidation,
-    validateRequest,
     updateProject
 );
 

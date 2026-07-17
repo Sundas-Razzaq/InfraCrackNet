@@ -1,50 +1,123 @@
-const { body } = require("express-validator");
+const Joi = require("joi");
+const { validateRequestBody } = require("../middleware/authMiddleware");
 
-const projectValidationRules = [
-    body("name")
+/* CREATE PROJECT */
+
+const createProjectSchema = Joi.object({
+    name: Joi.string()
         .trim()
-        .notEmpty()
-        .withMessage("Project name is required.")
-        .isLength({ max: 100 })
-        .withMessage("Project name cannot exceed 100 characters."),
+        .max(100)
+        .required()
+        .messages({
+            "string.base": "Project name must be a string.",
+            "string.empty": "Project name is required.",
+            "string.max": "Project name cannot exceed 100 characters.",
+            "any.required": "Project name is required.",
+        }),
 
-    body("description")
+    description: Joi.string()
         .trim()
-        .notEmpty()
-        .withMessage("Project description is required.")
-        .isLength({ max: 1000 })
-        .withMessage("Description cannot exceed 1000 characters."),
+        .max(1000)
+        .required()
+        .messages({
+            "string.base": "Project description must be a string.",
+            "string.empty": "Project description is required.",
+            "string.max": "Project description cannot exceed 1000 characters.",
+            "any.required": "Project description is required.",
+        }),
 
-    body("structureType")
-        .notEmpty()
-        .withMessage("Structure type is required.")
-        .isIn(["Bridge", "Building", "Road"])
-        .withMessage("Invalid structure type."),
+    structureType: Joi.string()
+        .valid("Bridge", "Building", "Road")
+        .required()
+        .messages({
+            "any.only": "Structure type must be Bridge, Building, or Road.",
+            "any.required": "Structure type is required.",
+        }),
 
-    body("location")
+    location: Joi.string()
         .trim()
-        .notEmpty()
-        .withMessage("Project location is required.")
-        .isLength({ max: 200 })
-        .withMessage("Location cannot exceed 200 characters."),
+        .max(200)
+        .required()
+        .messages({
+            "string.base": "Project location must be a string.",
+            "string.empty": "Project location is required.",
+            "string.max": "Project location cannot exceed 200 characters.",
+            "any.required": "Project location is required.",
+        }),
 
-    body("priority")
-        .notEmpty()
-        .withMessage("Project priority is required.")
-        .isIn(["Low", "Medium", "High", "Critical"])
-        .withMessage("Invalid project priority."),
+    priority: Joi.string()
+        .valid("Low", "Medium", "High", "Critical")
+        .required()
+        .messages({
+            "any.only": "Priority must be Low, Medium, High, or Critical.",
+            "any.required": "Project priority is required.",
+        }),
 
-    body("status")
+    status: Joi.string()
+        .valid("Active", "On Hold", "Completed")
         .optional()
-        .isIn(["Active", "On Hold", "Completed"])
-        .withMessage("Invalid project status."),
-];
+        .messages({
+            "any.only": "Status must be Active, On Hold, or Completed.",
+        }),
+});
 
-const createProjectValidation = projectValidationRules;
+/* UPDATE PROJECT */
 
-const updateProjectValidation = projectValidationRules;
+const updateProjectSchema = Joi.object({
+    name: Joi.string()
+        .trim()
+        .max(100)
+        .messages({
+            "string.base": "Project name must be a string.",
+            "string.max": "Project name cannot exceed 100 characters.",
+        }),
+
+    description: Joi.string()
+        .trim()
+        .max(1000)
+        .messages({
+            "string.base": "Project description must be a string.",
+            "string.max": "Project description cannot exceed 1000 characters.",
+        }),
+
+    structureType: Joi.string()
+        .valid("Bridge", "Building", "Road")
+        .messages({
+            "any.only": "Structure type must be Bridge, Building, or Road.",
+        }),
+
+    location: Joi.string()
+        .trim()
+        .max(200)
+        .messages({
+            "string.base": "Project location must be a string.",
+            "string.max": "Project location cannot exceed 200 characters.",
+        }),
+
+    priority: Joi.string()
+        .valid("Low", "Medium", "High", "Critical")
+        .messages({
+            "any.only": "Priority must be Low, Medium, High, or Critical.",
+        }),
+
+    status: Joi.string()
+        .valid("Active", "On Hold", "Completed")
+        .messages({
+            "any.only": "Status must be Active, On Hold, or Completed.",
+        }),
+});
+
+/* VALIDATION MIDDLEWARE */
+
+const createProjectValidation =
+    validateRequestBody(createProjectSchema);
+
+const updateProjectValidation =
+    validateRequestBody(updateProjectSchema);
 
 module.exports = {
+    createProjectSchema,
     createProjectValidation,
+    updateProjectSchema,
     updateProjectValidation,
 };
