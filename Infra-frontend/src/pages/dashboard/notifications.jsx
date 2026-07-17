@@ -1,5 +1,4 @@
 import DashboardLayout from "../../layouts/DashboardLayout";
-import "../../styles/notification.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {

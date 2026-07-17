@@ -2,9 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/useAuth";
 import PasswordInput from "../../components/common/PasswordInput";
 
-
-import "../../styles/profile.css";
-
 import {
     getProfile,
     updateProfile,

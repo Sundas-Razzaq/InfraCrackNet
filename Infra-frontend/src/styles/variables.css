@@ -41,6 +41,16 @@
 	--color-info: #3b82f6;
 	--color-info-bg: #dbeafe;
 
+	/* Layout */
+    --navbar-height: 72px;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 88px;
+
+    /* Z-index */
+    --z-sidebar: 100;
+    --z-navbar: 200;
+    --z-modal: 1000;
+
 	/* Typography */
 	--font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	--font-family-display: 'Inter', system-ui, sans-serif;

@@ -19,10 +19,11 @@ import DashboardHome from "./pages/dashboard/dashboardHome";
 import Profile from "./pages/dashboard/profile";
 import Notifications from "./pages/dashboard/notifications";
 import Settings from "./pages/dashboard/settings";
+import ProjectsPage from "./pages/dashboard/projects/projectsPage";
+import NewProjectPage from "./pages/dashboard/projects/newProject";
+import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-
-import "./App.css";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -92,6 +93,22 @@ function App() {
           <Route
             index
             element={<DashboardHome />}
+          />
+
+
+          <Route
+            path="projects"
+            element={<ProjectsPage />}
+          />
+
+          <Route
+            path="projects/new"
+            element={<NewProjectPage />}
+          />
+
+          <Route
+            path="projects/:id"
+            element={<ProjectDetailsPage />}
           />
 
           <Route

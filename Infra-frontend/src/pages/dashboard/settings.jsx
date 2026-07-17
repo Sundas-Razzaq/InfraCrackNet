@@ -1,5 +1,4 @@
 import DashboardLayout from "../../layouts/DashboardLayout";
-import "../../styles/settings.css";
 
 const Settings = () => {
     return (
