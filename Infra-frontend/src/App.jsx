@@ -22,6 +22,7 @@ import Settings from "./pages/dashboard/settings";
 import ProjectsPage from "./pages/dashboard/projects/projectsPage";
 import NewProjectPage from "./pages/dashboard/projects/newProject";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
+import EditProjectPage from "./pages/dashboard/projects/editProject";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -98,15 +99,17 @@ function App() {
             path="projects"
             element={<ProjectsPage />}
           />
-
           <Route
             path="projects/new"
             element={<NewProjectPage />}
           />
-
           <Route
             path="projects/:id"
             element={<ProjectDetailsPage />}
+          />
+          <Route
+            path="projects/:id/edit"
+            element={<EditProjectPage />}
           />
 
           <Route
