@@ -94,8 +94,6 @@ function App() {
             index
             element={<DashboardHome />}
           />
-
-
           <Route
             path="projects"
             element={<ProjectsPage />}

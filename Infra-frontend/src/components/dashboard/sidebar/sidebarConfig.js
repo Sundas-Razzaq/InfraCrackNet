@@ -8,6 +8,7 @@ import {
     faGear,
     faFileLines,
     faUser,
+    faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 
 export const sidebarItems = [
@@ -40,6 +41,12 @@ export const sidebarItems = [
         title: "Reports",
         path: "/dashboard/reports",
         icon: faFileLines,
+    },
+    {
+        id: "team",
+        title: "Team Management",
+        path: "/dashboard/team",
+        icon: faUsers,
     },
     {
         id: "history",

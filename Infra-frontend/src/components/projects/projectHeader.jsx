@@ -30,7 +30,7 @@ const ProjectHeader = () => {
                 >
                     <FontAwesomeIcon
                         icon={faPlus}
-                        className="btn-icon"
+                        className="project-btn-icon"
                     />
 
                     New Project
