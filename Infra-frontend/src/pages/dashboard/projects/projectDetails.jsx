@@ -5,6 +5,8 @@ import DashboardLayout from "../../../layouts/DashboardLayout";
 import ProjectDetails from "../../../components/projects/projectDetails";
 import DeleteProjectModal from "../../../components/projects/deleteProjectModal";
 
+import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../../../api/authApi";
 import {
     getProjectById,
     deleteProject,
@@ -31,9 +33,11 @@ const ProjectDetailsPage = () => {
 
                 setProject(response.data);
             } catch (error) {
-                console.error(
-                    "Failed to fetch project:",
-                    error
+                toast.error(
+                    getApiErrorMessage(
+                        error,
+                        "Failed to load project."
+                    )
                 );
             } finally {
                 setLoading(false);
@@ -49,11 +53,17 @@ const ProjectDetailsPage = () => {
 
             await deleteProject(project._id);
 
+            toast.success(
+                "Project deleted successfully."
+            );
+
             navigate("/dashboard/projects");
         } catch (error) {
-            console.error(
-                "Failed to delete project:",
-                error
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to delete project."
+                )
             );
         } finally {
             setDeleteLoading(false);
@@ -63,9 +73,17 @@ const ProjectDetailsPage = () => {
 
     if (loading) {
         return (
-            <>
-                <p>Loading project...</p>
-            </>
+            <div className="page-loading">
+                Loading project...
+            </div>
+        );
+    }
+
+    if (!project) {
+        return (
+            <div className="page-loading">
+                Project not found.
+            </div>
         );
     }
 

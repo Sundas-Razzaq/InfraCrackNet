@@ -28,6 +28,8 @@ const ProjectForm = ({
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (loading) return;
+
         try {
             setLoading(true);
 
@@ -59,6 +61,7 @@ const ProjectForm = ({
                         onChange={handleChange}
                         placeholder="Enter project name"
                         required
+                        disabled={loading}
                     />
                 </div>
 
@@ -75,6 +78,7 @@ const ProjectForm = ({
                         onChange={handleChange}
                         placeholder="Describe the project..."
                         required
+                        disabled={loading}
                     />
                 </div>
 
@@ -89,6 +93,7 @@ const ProjectForm = ({
                         value={formData.structureType}
                         onChange={handleChange}
                         required
+                        disabled={loading}
                     >
                         <option value="">
                             Select structure type
@@ -121,6 +126,7 @@ const ProjectForm = ({
                         onChange={handleChange}
                         placeholder="Enter location"
                         required
+                        disabled={loading}
                     />
                 </div>
 
@@ -134,6 +140,7 @@ const ProjectForm = ({
                         name="priority"
                         value={formData.priority}
                         onChange={handleChange}
+                        disabled={loading}
                     >
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
@@ -154,6 +161,7 @@ const ProjectForm = ({
                         name="status"
                         value={formData.status}
                         onChange={handleChange}
+                        disabled={loading}
                     >
                         <option value="Active">
                             Active

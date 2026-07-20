@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/useAuth";
 import PasswordInput from "../../components/common/PasswordInput";
+import { toast } from "react-toastify";
 
 import {
     getProfile,
@@ -34,6 +35,8 @@ function Profile() {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploadingPhoto, setUploadingPhoto] =
+        useState(false);
     const [changingPassword, setChangingPassword] =
         useState(false);
 
@@ -111,18 +114,22 @@ function Profile() {
                 name: data.user.name,
                 email: data.user.email,
                 phone: data.user.phone || "",
-                organization: data.user.organization || "",
+                organization:
+                    data.user.organization || "",
                 position: data.user.position || "",
                 bio: data.user.bio || "",
                 role: data.user.role,
-                profileImage: data.user.profileImage?.url || "",
+                profileImage:
+                    data.user.profileImage?.url || "",
             }));
 
             updateUser(data.user);
 
-            alert("Profile updated successfully.");
+            toast.success(
+                "Profile updated successfully."
+            );
         } catch (err) {
-            alert(
+            toast.error(
                 getApiErrorMessage(
                     err,
                     "Failed to update profile."
@@ -136,30 +143,36 @@ function Profile() {
     const handlePhotoUpload = async (event) => {
         const file = event.target.files[0];
 
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
         try {
-            const data = await uploadProfilePhoto(file);
+            setUploadingPhoto(true);
+
+            const data =
+                await uploadProfilePhoto(file);
 
             setFormData((prev) => ({
                 ...prev,
-                profileImage: data.user.profileImage?.url || "",
+                profileImage:
+                    data.user.profileImage?.url || "",
             }));
 
             updateUser(data.user);
 
             event.target.value = "";
 
-            alert("Profile photo updated successfully.");
+            toast.success(
+                "Profile photo updated successfully."
+            );
         } catch (err) {
-            alert(
+            toast.error(
                 getApiErrorMessage(
                     err,
                     "Failed to upload profile photo."
                 )
             );
+        } finally {
+            setUploadingPhoto(false);
         }
     };
 
@@ -171,7 +184,9 @@ function Profile() {
 
             await changePassword(passwordData);
 
-            alert("Password updated successfully.");
+            toast.success(
+                "Password updated successfully."
+            );
 
             setPasswordData({
                 currentPassword: "",
@@ -179,7 +194,7 @@ function Profile() {
                 confirmPassword: "",
             });
         } catch (err) {
-            alert(
+            toast.error(
                 getApiErrorMessage(
                     err,
                     "Failed to update password."
@@ -241,6 +256,7 @@ function Profile() {
                             accept="image/*"
                             hidden
                             onChange={handlePhotoUpload}
+                            disabled={saving}
                         />
                         <div className="profile-page-avatar">
 
@@ -277,8 +293,11 @@ function Profile() {
                             className="btn-secondary profile-page-photo-btn"
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingPhoto}
                         >
-                            Change Photo
+                            {uploadingPhoto
+                                ? "Uploading..."
+                                : "Change Photo"}
                         </button>
                     </div>
 
@@ -329,6 +348,7 @@ function Profile() {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
+                                    disabled={saving}
                                 />
                             </div>
                         </div>
@@ -341,6 +361,7 @@ function Profile() {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
+                                disabled={saving}
                             />
                         </div>
 
@@ -352,6 +373,7 @@ function Profile() {
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
+                                disabled={saving}
                             />
                         </div>
 
@@ -363,6 +385,7 @@ function Profile() {
                                 name="organization"
                                 value={formData.organization}
                                 onChange={handleChange}
+                                disabled={saving}
                             />
                         </div>
 
@@ -372,8 +395,7 @@ function Profile() {
                             <input
                                 type="text"
                                 value={formData.role}
-                                disabled
-                            />
+                                disabled={saving} />
                         </div>
 
                         <div className="form-group">
@@ -403,6 +425,7 @@ function Profile() {
                                 name="currentPassword"
                                 value={passwordData.currentPassword}
                                 onChange={handlePasswordChange}
+                                disabled={changingPassword}
                             />
                         </div>
 
@@ -412,6 +435,7 @@ function Profile() {
                                 name="newPassword"
                                 value={passwordData.newPassword}
                                 onChange={handlePasswordChange}
+                                disabled={changingPassword}
                             />
                         </div>
 
@@ -421,6 +445,7 @@ function Profile() {
                                 name="confirmPassword"
                                 value={passwordData.confirmPassword}
                                 onChange={handlePasswordChange}
+                                disabled={changingPassword}
                             />
                         </div>
                         <br />

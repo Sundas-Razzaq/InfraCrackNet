@@ -38,7 +38,7 @@ const EmptyProjects = () => {
                 >
                     <FontAwesomeIcon
                         icon={faPlus}
-                        className="btn-icon"
+                        className="project-btn-icon"
                     />
 
                     Create Project
