@@ -41,7 +41,7 @@ const uploadInspectionImages = async (req, res) => {
                     inspection: inspection,
                     imageUrl: uploadedImage.secure_url,
                     publicId: uploadedImage.public_id,
-                    originalFileName: file.originalname,
+                    originalFileName: Buffer.from(file.originalname, "latin1").toString("utf8"),
                     fileSize: file.size,
                     mimeType: file.mimetype,
                     width: uploadedImage.width,
