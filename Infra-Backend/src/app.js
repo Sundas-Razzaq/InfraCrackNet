@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 const profileRoutes = require("./routes/profileRoutes");
 const projectRoutes = require("./routes/projectRoutes");
+const inspectionRoutes = require("./routes/inspectionRoutes");
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/inspections", inspectionRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
