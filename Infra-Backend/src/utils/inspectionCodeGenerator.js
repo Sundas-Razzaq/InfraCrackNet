@@ -1,4 +1,4 @@
-const Inspection = require("../models/inspection.model");
+const Inspection = require("../models/inspection");
 
 const generateInspectionCode = async () => {
     const latestInspection = await Inspection.findOne()

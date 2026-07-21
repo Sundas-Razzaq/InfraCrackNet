@@ -198,6 +198,21 @@ const updateInspectionSchema = Joi.object({
                 "Priority must be Low, Medium, High, or Critical.",
         }),
 
+    status: Joi.string()
+        .valid(
+            "Draft",
+            "Images Uploaded",
+            "AI Processing",
+            "AI Completed",
+            "Validated",
+            "Report Generated",
+            "Completed"
+        )
+        .messages({
+            "any.only":
+                "Status must be Draft, Images Uploaded, AI Processing, AI Completed, Validated, Report Generated, or Completed.",
+        }),
+
     scheduledDate: Joi.date().messages({
         "date.base":
             "Scheduled date must be a valid date.",

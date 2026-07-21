@@ -135,7 +135,6 @@ const inspectionSchema = new mongoose.Schema(
 );
 
 // Indexes
-inspectionSchema.index({ inspectionCode: 1 });
 inspectionSchema.index({ project: 1 });
 inspectionSchema.index({ status: 1 });
 inspectionSchema.index({ priority: 1 });
