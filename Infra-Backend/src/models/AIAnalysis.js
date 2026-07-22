@@ -122,7 +122,6 @@ const aiAnalysisSchema = new mongoose.Schema(
 aiAnalysisSchema.index({ inspection: 1 });
 aiAnalysisSchema.index({ status: 1 });
 aiAnalysisSchema.index({ createdBy: 1 });
-aiAnalysisSchema.index({ analysisCode: 1 });
 
 module.exports = mongoose.model(
     "AIAnalysis",
