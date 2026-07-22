@@ -100,6 +100,33 @@ const crackDetectionSchema = new mongoose.Schema(
             default: "",
         },
 
+        validationStatus: {
+            type: String,
+            enum: [
+                "Pending",
+                "Validated",
+                "Edited",
+                "Removed",
+                "Added",
+            ],
+            default: "Pending",
+        },
+
+        reviewStatus: {
+            type: String,
+            enum: [
+                "Not Reviewed",
+                "In Review",
+                "Reviewed",
+            ],
+            default: "Not Reviewed",
+        },
+
+        reviewVersion: {
+            type: Number,
+            default: 1,
+        },
+
         aiNotes: {
             type: String,
             trim: true,
@@ -115,7 +142,7 @@ const crackDetectionSchema = new mongoose.Schema(
             default: false,
         },
 
-        manualSeverity: {
+        reviewedSeverity: {
             type: String,
             enum: {
                 values: [
@@ -124,17 +151,36 @@ const crackDetectionSchema = new mongoose.Schema(
                     "High",
                     "Critical",
                 ],
-                message: "Invalid manual severity.",
+                message: "Invalid review severity.",
             },
+            default: null,
         },
 
-        validatedBy: {
+        source: {
+            type: String,
+            enum: ["AI", "Manual"],
+            default: "AI",
+        },
+
+        reviewedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+            default: null,
         },
 
-        validatedAt: {
+        reviewedAt: {
             type: Date,
+            default: null,
+        },
+
+        reviewComments: {
+            type: String,
+            trim: true,
+            maxlength: [
+                1000,
+                "Review comments cannot exceed 1000 characters.",
+            ],
+            default: "",
         },
     },
     {
@@ -149,6 +195,11 @@ crackDetectionSchema.index({ severity: 1 });
 crackDetectionSchema.index({ crackClass: 1 });
 crackDetectionSchema.index({ confidence: -1 });
 crackDetectionSchema.index({ isValidated: 1 });
+crackDetectionSchema.index({ validationStatus: 1 });
+crackDetectionSchema.index({ reviewStatus: 1 });
+crackDetectionSchema.index({ reviewedSeverity: 1 });
+crackDetectionSchema.index({ reviewVersion: 1 });
+crackDetectionSchema.index({ source: 1 });
 
 module.exports = mongoose.model(
     "CrackDetection",
