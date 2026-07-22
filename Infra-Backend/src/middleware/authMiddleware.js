@@ -20,6 +20,21 @@ const validateRequestBody = (schema) => (req, res, next) => {
     return next();
 };
 
+const validateRequestParams = (schema) => {
+    return (req, res, next) => {
+        const { error } = schema.validate(req.params);
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+
+        next();
+    };
+};
+
 const getTokenFromRequest = (req) => {
     if (req.cookies?.token) return req.cookies.token;
 
@@ -77,6 +92,7 @@ const authorizeRoles = (...roles) => {
 
 module.exports = {
     validateRequestBody,
+    validateRequestParams,
     protect,
     authorizeRoles,
 };

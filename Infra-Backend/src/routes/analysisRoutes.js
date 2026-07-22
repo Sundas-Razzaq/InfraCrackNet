@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+console.log("Analysis Routes Loaded");
 const {
     startAnalysis,
     getAnalysisProgress,
@@ -19,7 +19,7 @@ const {
 
 // Start AI Analysis 
 router.post(
-    "/run",
+    "/run/:inspectionId",
     protect,
     authorizeRoles("Inspector", "Engineer"),
     startAnalysisValidation,

@@ -1,10 +1,10 @@
 const Joi = require("joi");
-const { validateRequestBody } = require("../middleware/authMiddleware");
+const { validateRequestParams } = require("../middleware/authMiddleware");
 
 /* START AI ANALYSIS */
 
 const startAnalysisSchema = Joi.object({
-    inspection: Joi.string()
+    inspectionId: Joi.string()
         .trim()
         .hex()
         .length(24)
@@ -18,10 +18,10 @@ const startAnalysisSchema = Joi.object({
         }),
 });
 
-/* VALIDATION MIDDLEWARE */
+/* VALIDATION */
 
 const startAnalysisValidation =
-    validateRequestBody(startAnalysisSchema);
+    validateRequestParams(startAnalysisSchema);
 
 module.exports = {
     startAnalysisSchema,

@@ -11,14 +11,14 @@ const {
     startMockAnalysis,
 } = require("../services/analysisService");
 
-//  START ANALYSIS 
+/* START AI ANALYSIS */
 
 const startAnalysis = async (req, res, next) => {
     try {
-        const { inspection } = req.body;
+        const { inspectionId } = req.params;
 
         const existingInspection =
-            await Inspection.findById(inspection);
+            await Inspection.findById(inspectionId);
 
         if (!existingInspection) {
             return res.status(404).json({
@@ -27,9 +27,22 @@ const startAnalysis = async (req, res, next) => {
             });
         }
 
+        // Prevent analysis on completed inspections
+        if (
+            ["Validated", "Report Generated"].includes(
+                existingInspection.status
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "This inspection can no longer be analyzed.",
+            });
+        }
+
         const totalImages =
             await InspectionImage.countDocuments({
-                inspection,
+                inspection: inspectionId,
             });
 
         if (totalImages === 0) {
@@ -42,7 +55,7 @@ const startAnalysis = async (req, res, next) => {
 
         const runningAnalysis =
             await AIAnalysis.findOne({
-                inspection,
+                inspection: inspectionId,
                 status: {
                     $in: [
                         "Queued",
@@ -64,13 +77,13 @@ const startAnalysis = async (req, res, next) => {
 
         const analysisVersion =
             (await AIAnalysis.countDocuments({
-                inspection,
+                inspection: inspectionId,
             })) + 1;
 
         const analysis =
             await AIAnalysis.create({
                 analysisCode,
-                inspection,
+                inspection: inspectionId,
 
                 analysisVersion,
 
@@ -89,10 +102,11 @@ const startAnalysis = async (req, res, next) => {
 
         await existingInspection.save();
 
-        // Run mock AI in background
+        // Run AI asynchronously
         setImmediate(() => {
             startMockAnalysis(analysis._id);
         });
+
         return res.status(201).json({
             success: true,
             message:
@@ -104,7 +118,7 @@ const startAnalysis = async (req, res, next) => {
     }
 };
 
-//  GET PROGRESS 
+/* GET ANALYSIS PROGRESS */
 
 const getAnalysisProgress = async (
     req,
@@ -158,7 +172,7 @@ const getAnalysisProgress = async (
     }
 };
 
-// GET RESULTS 
+/* GET ANALYSIS RESULTS */
 
 const getAnalysisResults = async (
     req,
@@ -180,10 +194,16 @@ const getAnalysisResults = async (
             });
         }
 
-        const analysis =
-            await AIAnalysis.findById(
-                analysisId
-            );
+        const analysis = await AIAnalysis.findById(analysisId)
+            .populate({
+                path: "inspection",
+                select:
+                    "inspectionCode structureArea status project",
+                populate: {
+                    path: "project",
+                    select: "projectCode name structureType",
+                },
+            });
 
         if (!analysis) {
             return res.status(404).json({
@@ -193,12 +213,23 @@ const getAnalysisResults = async (
             });
         }
 
-        const cracks =
-            await CrackDetection.find({
-                analysis: analysisId,
-            }).sort({
-                createdAt: 1,
+        // Results are only available after completion
+        if (
+            analysis.status !==
+            "Completed"
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Analysis has not completed yet.",
             });
+        }
+
+        const cracks = await CrackDetection.find({
+            analysis: analysisId,
+        })
+            .populate("inspectionImage", "imageUrl originalFileName")
+            .sort({ createdAt: 1 });
 
         return res.status(200).json({
             success: true,
@@ -206,17 +237,16 @@ const getAnalysisResults = async (
                 analysis,
 
                 summary: {
-                    totalCracks:
-                        cracks.length,
-                    averageConfidence:
-                        analysis.averageConfidence ||
-                        0,
-                    overallSeverity:
-                        analysis.overallSeverity ||
-                        null,
-                    riskScore:
-                        analysis.riskScore ||
-                        0,
+                    totalCracks: cracks.length,
+                    averageConfidence: analysis.averageConfidence || 0,
+                    overallSeverity: analysis.overallSeverity || null,
+                    riskScore: analysis.riskScore || 0,
+                    startedAt: analysis.startedAt,
+                    completedAt: analysis.completedAt,
+                    processingTime: analysis.completedAt && analysis.startedAt
+                        ? analysis.completedAt.getTime() -
+                        analysis.startedAt.getTime()
+                        : null,
                 },
 
                 cracks,
@@ -227,7 +257,7 @@ const getAnalysisResults = async (
     }
 };
 
-// CANCEL ANALYSIS 
+/* CANCEL ANALYSIS */
 
 const cancelAnalysis = async (
     req,
@@ -263,13 +293,17 @@ const cancelAnalysis = async (
         }
 
         if (
-            analysis.status ===
-            "Completed"
+            [
+                "Completed",
+                "Cancelled",
+                "Failed",
+            ].includes(
+                analysis.status
+            )
         ) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Completed analysis cannot be cancelled.",
+                message: `Analysis is already ${analysis.status.toLowerCase()}.`,
             });
         }
 
@@ -278,6 +312,9 @@ const cancelAnalysis = async (
 
         analysis.currentStep =
             "Analysis cancelled";
+
+        analysis.completedAt =
+            new Date();
 
         await analysis.save();
 
