@@ -8,6 +8,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const inspectionRoutes = require("./routes/inspectionRoutes");
 const inspectionImageRoutes = require("./routes/inspectionImageRoutes");
+const analysisRoutes = require("./routes/analysisRoutes");
 
 const app = express();
 
@@ -43,6 +44,8 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/inspections", inspectionRoutes);
 app.use("/api/inspection-images", inspectionImageRoutes);
+app.use("/api/analysis", analysisRoutes);
+
 // Test Route
 app.get("/", (req, res) => {
     res.send("Backend is running successfully ...............");
