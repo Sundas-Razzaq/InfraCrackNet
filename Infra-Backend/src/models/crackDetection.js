@@ -115,11 +115,11 @@ const crackDetectionSchema = new mongoose.Schema(
         reviewStatus: {
             type: String,
             enum: [
-                "Not Reviewed",
+                "Pending",
                 "In Review",
-                "Reviewed",
+                "Completed",
             ],
-            default: "Not Reviewed",
+            default: "Pending",
         },
 
         reviewVersion: {
@@ -132,7 +132,7 @@ const crackDetectionSchema = new mongoose.Schema(
             trim: true,
             maxlength: [
                 1000,
-                "AI notes cannot exceed 1000 characters.",
+                "",
             ],
             default: "",
         },
