@@ -10,6 +10,7 @@ const inspectionRoutes = require("./routes/inspectionRoutes");
 const inspectionImageRoutes = require("./routes/inspectionImageRoutes");
 const analysisRoutes = require("./routes/analysisRoutes");
 const annotationRoutes = require("./routes/annotationRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/api/inspections", inspectionRoutes);
 app.use("/api/inspection-images", inspectionImageRoutes);
 app.use("/api/analysis", analysisRoutes);
 app.use("/api/annotations", annotationRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
