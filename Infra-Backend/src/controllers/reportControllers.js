@@ -15,25 +15,20 @@ const generateReport = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                analysisId
-            )
-        ) {
+        if (!mongoose.Types.ObjectId.isValid(analysisId)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid analysis ID.",
             });
         }
 
-        const analysis =
-            await AIAnalysis.findById(analysisId)
-                .populate({
-                    path: "inspection",
-                    populate: {
-                        path: "project",
-                    },
-                });
+        const analysis = await AIAnalysis.findById(analysisId)
+            .populate({
+                path: "inspection",
+                populate: {
+                    path: "project",
+                },
+            });
 
         if (!analysis) {
             return res.status(404).json({
@@ -45,14 +40,14 @@ const generateReport = async (req, res, next) => {
         if (analysis.status !== "Completed") {
             return res.status(400).json({
                 success: false,
-                message:
-                    "AI analysis has not completed.",
+                message: "AI analysis has not completed.",
             });
         }
 
         if (
-            analysis.inspection.status !==
-            "Validated"
+            !["Validated", "Report Generated"].includes(
+                analysis.inspection.status
+            )
         ) {
             return res.status(400).json({
                 success: false,
@@ -61,10 +56,9 @@ const generateReport = async (req, res, next) => {
             });
         }
 
-        const existingReport =
-            await Report.findOne({
-                analysis: analysisId,
-            });
+        const existingReport = await Report.findOne({
+            analysis: analysisId,
+        });
 
         if (existingReport) {
             return res.status(409).json({
@@ -74,47 +68,53 @@ const generateReport = async (req, res, next) => {
             });
         }
 
-        const reportCode =
-            await generateReportCode();
+        // Generate report code
+        const reportCode = await generateReportCode();
 
+        // Generate recommendations
+        const recommendations = generateRecommendations(
+            analysis.overallSeverity,
+            analysis.riskScore
+        );
 
+        // Generate PDF and upload to Cloudinary
         const pdf = await generateReportPDF({
             reportCode,
             projectName: analysis.inspection.project.name,
-            inspectionCode: analysis.inspection.inspectionCode,
+            inspectionCode:
+                analysis.inspection.inspectionCode,
             analysisCode: analysis.analysisCode,
-            overallSeverity: analysis.overallSeverity,
-            riskScore: analysis.riskScore,
-            averageConfidence: analysis.averageConfidence,
-            recommendations: generateRecommendations(
+            overallSeverity:
                 analysis.overallSeverity,
-                analysis.riskScore
-            ),
+            riskScore: analysis.riskScore,
+            averageConfidence:
+                analysis.averageConfidence,
+            recommendations,
         });
-        console.log(pdf);
-        report.fileName = pdf.fileName;
-        await report.save();
 
-        const report =
-            await Report.create({
-                reportCode,
+        // Create report document
+        const report = await Report.create({
+            reportCode,
 
-                analysis: analysis._id,
+            inspection:
+                analysis.inspection._id,
 
-                inspection: analysis.inspection._id,
+            analysis:
+                analysis._id,
 
-                generatedBy: req.user.id,
+            generatedBy:
+                req.user.id,
 
-                reportUrl: pdf.reportUrl,
+            reportUrl:
+                pdf.reportUrl,
 
-                fileName: pdf.fileName,
+            fileName:
+                pdf.fileName,
 
-                recommendations: generateRecommendations(
-                    analysis.overallSeverity,
-                    analysis.riskScore
-                ),
-            });
+            recommendations,
+        });
 
+        // Update inspection status
         analysis.inspection.status =
             "Report Generated";
 
@@ -235,23 +235,15 @@ const downloadReport = async (req, res, next) => {
             });
         }
 
-        const filePath = path.join(
-            __dirname,
-            "../../temp",
-            `${report.reportCode}.pdf`
-        );
-
-        if (!fs.existsSync(filePath)) {
+        if (!report.reportUrl) {
             return res.status(404).json({
                 success: false,
-                message: "PDF file not found.",
+                message: "PDF not available.",
             });
         }
 
-        return res.download(
-            filePath,
-            `${report.reportCode}.pdf`
-        );
+        return res.redirect(report.reportUrl);
+
     } catch (error) {
         next(error);
     }

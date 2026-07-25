@@ -91,7 +91,6 @@ const generateReportPDF = async (reportData) => {
                         overwrite: true,
                     }
                 );
-
                 fs.unlinkSync(filePath);
 
                 resolve({
