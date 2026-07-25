@@ -11,7 +11,7 @@ const {
     getReport,
     downloadReport,
     getAllReports,
-} = require("../controllers/reportController");
+} = require("../controllers/reportControllers");
 
 const {
     analysisIdValidation,

@@ -73,7 +73,6 @@ const reportSchema = new mongoose.Schema(
 reportSchema.index({ inspection: 1 });
 reportSchema.index({ analysis: 1 });
 reportSchema.index({ generatedBy: 1 });
-reportSchema.index({ reportCode: 1 });
 reportSchema.index({ generatedAt: -1 });
 
 module.exports = mongoose.model(
