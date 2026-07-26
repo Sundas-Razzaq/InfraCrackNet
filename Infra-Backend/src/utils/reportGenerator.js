@@ -1,11 +1,9 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
-const cloudinary = require("../config/cloudinary");
 
 const generateReportPDF = async (reportData) => {
-    const reportsDir = path.join(__dirname, "../../temp");
-
+    const reportsDir = path.join(__dirname, "../reports");
     if (!fs.existsSync(reportsDir)) {
         fs.mkdirSync(reportsDir, { recursive: true });
     }
@@ -80,28 +78,12 @@ const generateReportPDF = async (reportData) => {
     doc.end();
 
     return new Promise((resolve, reject) => {
-        stream.on("finish", async () => {
-            try {
-                const result = await cloudinary.uploader.upload(
-                    filePath,
-                    {
-                        resource_type: "raw",
-                        folder: "InfraCrackNet/Reports",
-                        public_id: reportData.reportCode,
-                        overwrite: true,
-                    }
-                );
-                fs.unlinkSync(filePath);
-
-                resolve({
-                    fileName,
-                    reportUrl: result.secure_url,
-                });
-            } catch (error) {
-                reject(error);
-            }
+        stream.on("finish", () => {
+            resolve({
+                fileName,
+                filePath,
+            });
         });
-
         stream.on("error", reject);
     });
 };

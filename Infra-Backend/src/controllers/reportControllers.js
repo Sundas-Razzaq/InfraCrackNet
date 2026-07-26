@@ -106,7 +106,7 @@ const generateReport = async (req, res, next) => {
                 req.user.id,
 
             reportUrl:
-                pdf.reportUrl,
+                pdf.filePath,
 
             fileName:
                 pdf.fileName,
@@ -215,16 +215,10 @@ const getAllReports = async (req, res, next) => {
     }
 };
 
+
 const downloadReport = async (req, res, next) => {
     try {
         const { reportId } = req.params;
-
-        if (!mongoose.Types.ObjectId.isValid(reportId)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid report ID.",
-            });
-        }
 
         const report = await Report.findById(reportId);
 
@@ -235,20 +229,21 @@ const downloadReport = async (req, res, next) => {
             });
         }
 
-        if (!report.reportUrl) {
+        if (!fs.existsSync(report.reportUrl)) {
             return res.status(404).json({
                 success: false,
-                message: "PDF not available.",
+                message: "PDF file not found.",
             });
         }
 
-        return res.redirect(report.reportUrl);
-
+        return res.download(
+            report.reportUrl,
+            report.fileName
+        );
     } catch (error) {
         next(error);
     }
 };
-
 
 module.exports = {
     generateReport,

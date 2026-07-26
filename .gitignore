@@ -10,6 +10,8 @@ dist
 dist-ssr
 build
 
+reports/
+
 # Logs
 logs
 *.log
