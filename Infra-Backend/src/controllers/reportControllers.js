@@ -77,19 +77,57 @@ const generateReport = async (req, res, next) => {
             analysis.riskScore
         );
 
-        // Generate PDF and upload to Cloudinary
+        const cracks = await CrackDetection.find({
+            analysis: analysis._id,
+            validationStatus: {
+                $ne: "Removed",
+            },
+        })
+            .populate(
+                "inspectionImage",
+                "originalFileName imageUrl"
+            );
+
+        // Generate PDF 
         const pdf = await generateReportPDF({
             reportCode,
-            projectName: analysis.inspection.project.name,
-            inspectionCode:
-                analysis.inspection.inspectionCode,
+
             analysisCode: analysis.analysisCode,
-            overallSeverity:
-                analysis.overallSeverity,
+
+            projectCode: analysis.inspection.project.projectCode,
+
+            projectName: analysis.inspection.project.name,
+
+            structureType: analysis.inspection.project.structureType,
+
+            location: analysis.inspection.project.location,
+
+            priority: analysis.inspection.project.priority,
+
+            inspectionCode: analysis.inspection.inspectionCode,
+
+            inspectionType: analysis.inspection.inspectionType,
+
+            inspectionDate: analysis.inspection.inspectionDate,
+
+            structureArea: analysis.inspection.structureArea,
+
+            weather: analysis.inspection.weather,
+
+            gpsLocation: analysis.inspection.gpsLocation,
+
+            inspectionStatus: analysis.inspection.status,
+
+            overallSeverity: analysis.overallSeverity,
+
             riskScore: analysis.riskScore,
-            averageConfidence:
-                analysis.averageConfidence,
+
+            averageConfidence: analysis.averageConfidence,
+
             recommendations,
+
+            cracks,
+            totalImages: analysis.totalImages,
         });
 
         // Create report document
