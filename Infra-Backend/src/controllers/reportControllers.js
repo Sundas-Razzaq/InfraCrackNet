@@ -9,7 +9,7 @@ const path = require("path");
 
 const generateReportCode = require("../utils/reportCodeGenerator");
 const generateRecommendations = require("../utils/recommendationGenerator");
-const generateReportPDF = require("../utils/reportGenerator");
+const generateReportPDF = require("../pdf/generateReport");
 
 const generateReport = async (req, res, next) => {
     try {
