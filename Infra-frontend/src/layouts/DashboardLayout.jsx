@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import Sidebar from "../components/dashboard/sidebar/Sidebar";
 import DashboardNavbar from "../components/dashboard/navbar/DashboardNavbar";
 
 import { useAuth } from "../context/useAuth";
+import { pageTransition } from "../utils/animation";
 
 function DashboardLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,9 +27,14 @@ function DashboardLayout() {
                     onMenuClick={() => setSidebarOpen(true)}
                 />
 
-                <section className="dashboard-content">
+                <motion.section
+                    className="dashboard-content"
+                    variants={pageTransition}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <Outlet />
-                </section>
+                </motion.section>
             </main>
         </div>
     );

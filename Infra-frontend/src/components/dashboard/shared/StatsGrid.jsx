@@ -1,5 +1,17 @@
+import { motion } from "framer-motion";
+import { staggerContainer } from "../../../utils/animation";
+
 function StatsGrid({ children }) {
-    return <div className="stats-grid">{children}</div>;
+    return (
+        <motion.div
+            className="stats-grid"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+        >
+            {children}
+        </motion.div>
+    );
 }
 
 export default StatsGrid;

@@ -1,8 +1,14 @@
+import { motion } from "framer-motion";
+
+import { scaleIn } from "../../../utils/animation";
+
 function WidgetCard({ title, children, headerAction }) {
     return (
-        <div className="widget-card">
+        <motion.div
+            className="widget-card"
+            variants={scaleIn}
+        >
             <div className="widget-card-header">
-
                 <h3 className="widget-card-title">
                     {title}
                 </h3>
@@ -12,10 +18,12 @@ function WidgetCard({ title, children, headerAction }) {
                         {headerAction}
                     </div>
                 )}
-
             </div>
-            <div className="widget-card-body">{children}</div>
-        </div>
+
+            <div className="widget-card-body">
+                {children}
+            </div>
+        </motion.div>
     );
 }
 
