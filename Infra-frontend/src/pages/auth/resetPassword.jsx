@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AuthForm from "../../components/auth/authForm";
 import { getApiErrorMessage, resetPassword as resetPasswordApi } from "../../api/authApi";
 import AuthLayout from "../../layouts/authLayout";
@@ -8,7 +8,6 @@ function ResetPasswordPage({ onNavigate }) {
         password: "",
         confirmPassword: "",
     });
-    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -18,25 +17,26 @@ function ResetPasswordPage({ onNavigate }) {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    useEffect(() => {
+    const token = (() => {
         try {
             const params = new URLSearchParams(window.location.search);
-            const t = params.get("token");
-            if (t) {
-                setToken(t);
-                return;
+            const queryToken = params.get("token");
+
+            if (queryToken) {
+                return queryToken;
             }
 
-            // Fallback: token might be the last path segment
-            const parts = window.location.pathname.split("/").filter(Boolean);
+            const parts = window.location.pathname
+                .split("/")
+                .filter(Boolean);
+
             const last = parts[parts.length - 1];
-            if (last && last.length > 10) {
-                setToken(last);
-            }
+
+            return last && last.length > 10 ? last : null;
         } catch {
-            // Ignore - token will remain null
+            return null;
         }
-    }, []);
+    })();
 
     const validateInput = () => {
         const password = formData.password;
