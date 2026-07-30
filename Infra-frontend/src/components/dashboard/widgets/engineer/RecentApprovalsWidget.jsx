@@ -1,5 +1,10 @@
 import WidgetCard from "../../shared/widgetCard";
 import StatusBadge from "../../cards/statusBadge";
+import { motion } from "framer-motion";
+import {
+    staggerContainer,
+    fadeInUp,
+} from "../../../../utils/animation";
 
 function RecentApprovalsWidget() {
     const approvals = [
@@ -31,9 +36,14 @@ function RecentApprovalsWidget() {
 
     return (
         <WidgetCard title="Recent Approvals">
-            <ul className="approval-list">
+            <motion.ul className="approval-list"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+            >
                 {approvals.map((approval) => (
-                    <li key={`${approval.projectName}-${approval.approvalDate}`} className="approval-item">
+                    <motion.li key={`${approval.projectName}-${approval.approvalDate}`} className="approval-item" variants={fadeInUp}>
                         <div className="approval-info">
                             <div className="approval-project">{approval.projectName}</div>
                             <div className="approval-engineer">{approval.engineer}</div>
@@ -43,9 +53,9 @@ function RecentApprovalsWidget() {
                         <time className="approval-date" dateTime={approval.approvalDate}>
                             {approval.approvalDate}
                         </time>
-                    </li>
+                    </motion.li>
                 ))}
-            </ul>
+            </motion.ul>
         </WidgetCard>
     );
 }

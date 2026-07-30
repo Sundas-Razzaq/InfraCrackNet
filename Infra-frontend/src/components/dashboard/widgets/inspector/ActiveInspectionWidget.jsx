@@ -1,5 +1,10 @@
 import WidgetCard from "../../shared/widgetCard";
 import StatusBadge from "../../cards/statusBadge";
+import { motion } from "framer-motion";
+import {
+    staggerContainer,
+    fadeInUp,
+} from "../../../../utils/animation";
 
 function ActiveInspectionWidget() {
     const activeInspections = [
@@ -34,9 +39,14 @@ function ActiveInspectionWidget() {
 
     return (
         <WidgetCard title="Active Inspections">
-            <ul className="inspection-list">
+            <motion.ul className="inspection-list"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+            >
                 {activeInspections.map((inspection) => (
-                    <li key={inspection.id} className="inspection-item">
+                    <motion.li key={inspection.id} className="inspection-item" variants={fadeInUp}>
                         <div className="inspection-top">
                             <span className="inspection-id">
                                 {inspection.id}
@@ -55,9 +65,9 @@ function ActiveInspectionWidget() {
                         <div className="inspection-progress">
                             {inspection.progress}
                         </div>
-                    </li>
+                    </motion.li>
                 ))}
-            </ul>
+            </motion.ul>
         </WidgetCard>
     );
 }

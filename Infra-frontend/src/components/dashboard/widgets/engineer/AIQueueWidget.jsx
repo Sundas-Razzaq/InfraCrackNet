@@ -1,5 +1,10 @@
 import WidgetCard from "../../shared/widgetCard";
 import StatusBadge from "../../cards/statusBadge";
+import { motion } from "framer-motion";
+import {
+    staggerContainer,
+    fadeInUp,
+} from "../../../../utils/animation";
 
 function AIQueueWidget() {
     const queueItems = [
@@ -31,9 +36,14 @@ function AIQueueWidget() {
 
     return (
         <WidgetCard title="AI Analysis Queue">
-            <ul className="queue-list">
+            <motion.ul className="queue-list"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+            >
                 {queueItems.map((item) => (
-                    <li key={item.id} className="queue-item">
+                    <motion.li key={item.id} className="queue-item" variants={fadeInUp}>
                         <div className="queue-info">
                             <span className="queue-id">{item.id}</span>
                             <span className="queue-project">{item.projectName}</span>
@@ -41,9 +51,9 @@ function AIQueueWidget() {
                         </div>
 
                         <StatusBadge text={item.status.text} variant={item.status.variant} />
-                    </li>
+                    </motion.li>
                 ))}
-            </ul>
+            </motion.ul>
         </WidgetCard>
     );
 }

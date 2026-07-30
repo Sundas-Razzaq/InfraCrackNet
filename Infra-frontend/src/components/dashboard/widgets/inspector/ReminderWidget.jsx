@@ -1,12 +1,18 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { motion } from "framer-motion";
+import { slideLeft } from "../../../../utils/animation";
 
 function ReminderWidget() {
     return (
-        <aside
+        <motion.aside
             className="reminder-banner"
             role="status"
             aria-live="polite"
+            variants={slideLeft}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
         >
             <span
                 className="reminder-icon"
@@ -26,7 +32,7 @@ function ReminderWidget() {
                 </p>
 
             </div>
-        </aside>
+        </motion.aside>
     );
 }
 

@@ -1,9 +1,17 @@
 import WidgetCard from "../../shared/widgetCard";
+import { motion } from "framer-motion";
+import { scaleIn } from "../../../../utils/animation";
 
 function QuickUploadWidget() {
     return (
         <WidgetCard title="Quick Upload">
-            <div className="upload-area">
+            <motion.div
+                className="upload-area"
+                variants={scaleIn}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+            >
 
                 <p className="upload-text">
                     Drag &amp; drop inspection images here
@@ -31,7 +39,7 @@ function QuickUploadWidget() {
 
                 </div>
 
-            </div>
+            </motion.div>
         </WidgetCard>
     );
 }

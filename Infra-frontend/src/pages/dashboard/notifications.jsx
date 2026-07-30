@@ -1,5 +1,11 @@
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { motion } from "framer-motion";
+import {
+    pageTransition,
+    fadeInUp,
+    staggerContainer,
+} from "../../utils/animation";
 
 import {
     faTriangleExclamation,
@@ -76,12 +82,20 @@ const notifications = [
 const Notifications = () => {
     return (
         <>
-            <div className="notifications-page">
-
+            <motion.div
+                className="notifications-page"
+                variants={pageTransition}
+                initial="hidden"
+                animate="visible"
+            >
                 {/* Header */}
 
-                <div className="notifications-header">
-
+                <motion.div
+                    className="notifications-header"
+                    variants={fadeInUp}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <div>
                         <h1 className="notifications-title">
                             Notifications
@@ -102,12 +116,17 @@ const Notifications = () => {
                         </button>
                     </div>
 
-                </div>
+                </motion.div>
 
                 {/* Tabs */}
 
-                <div className="notification-tabs">
-
+                <motion.div
+                    className="notification-tabs"
+                    variants={fadeInUp}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: 0.1 }}
+                >
                     <button className="notification-tab active">
                         All (6)
                     </button>
@@ -124,16 +143,25 @@ const Notifications = () => {
                         Reports (2)
                     </button>
 
-                </div>
+                </motion.div>
 
                 {/* List */}
 
-                <div className="notification-list card">
-
+                <motion.div
+                    className="notification-list"
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="visible"
+                >
                     {notifications.map((notification) => (
-                        <div
+                        <motion.div
                             key={notification.id}
-                            className={`notification-item ${notification.type}`}
+                            className={`notification-item card ${notification.type}`}
+                            variants={fadeInUp}
+                            whileHover={{
+                                y: -3,
+                                transition: { duration: 0.2 },
+                            }}
                         >
                             <div className="notification-icon">
                                 <FontAwesomeIcon icon={notification.icon} />
@@ -167,12 +195,12 @@ const Notifications = () => {
 
                             </div>
 
-                        </div>
+                        </motion.div>
                     ))}
 
-                </div>
+                </motion.div>
 
-            </div>
+            </motion.div>
         </>
     );
 };

@@ -1,14 +1,29 @@
 import DashboardLayout from "../../layouts/DashboardLayout";
+import { motion } from "framer-motion";
+import {
+    pageTransition,
+    slideLeft,
+    slideRight,
+    fadeInUp,
+} from "../../utils/animation";
 
 const Settings = () => {
     return (
         <>
-            <div className="settings-page">
-
+            <motion.div
+                className="settings-page"
+                variants={pageTransition}
+                initial="hidden"
+                animate="visible"
+            >
                 {/* Header */}
 
-                <div className="settings-header">
-
+                <motion.div
+                    className="settings-header"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                >
                     <div>
                         <h1 className="settings-title">
                             Settings
@@ -23,108 +38,124 @@ const Settings = () => {
                         Save All Changes
                     </button>
 
-                </div>
+                </motion.div>
 
                 {/* Top Section */}
 
                 <div className="settings-grid">
 
-                    {/* Notification Preferences */}
-
-                    <section className="card settings-card">
-
-                        <div className="card-header">
-                            <h2 className="card-title">
-                                Notification Preferences
-                            </h2>
-                        </div>
-
-                        <div className="settings-list">
-
-                            <div className="settings-item">
-                                <div>
-                                    <h4>Critical severity alerts</h4>
-                                    <p>Notify immediately — always on</p>
-                                </div>
-
-                                <label className="switch">
-                                    <input type="checkbox" defaultChecked />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-
-                            <div className="settings-item">
-                                <div>
-                                    <h4>AI analysis completion</h4>
-                                    <p>When AI finishes processing</p>
-                                </div>
-
-                                <label className="switch">
-                                    <input type="checkbox" defaultChecked />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-
-                            <div className="settings-item">
-                                <div>
-                                    <h4>Report approvals</h4>
-                                    <p>On approve or reject</p>
-                                </div>
-
-                                <label className="switch">
-                                    <input type="checkbox" defaultChecked />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-
-                            <div className="settings-item">
-                                <div>
-                                    <h4>Inspection reminders</h4>
-                                    <p>Upcoming inspection alerts</p>
-                                </div>
-
-                                <label className="switch">
-                                    <input type="checkbox" defaultChecked />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-
-                            <div className="settings-item">
-                                <div>
-                                    <h4>Team activity</h4>
-                                    <p>New team member actions</p>
-                                </div>
-
-                                <label className="switch">
-                                    <input type="checkbox" />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-
-                            <div className="settings-item">
-                                <div>
-                                    <h4>System updates</h4>
-                                    <p>Platform updates & news</p>
-                                </div>
-
-                                <label className="switch">
-                                    <input type="checkbox" />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                    {/* Right Column */}
-
-                    <div className="settings-right-column">
-
-                        {/* Security */}
+                    <motion.section
+                        className="card settings-card"
+                        variants={slideLeft}
+                        initial="hidden"
+                        animate="visible"
+                        transition={{ delay: 0.15 }}>
+                        {/* Notification Preferences */}
 
                         <section className="card settings-card">
 
+                            <div className="card-header">
+                                <h2 className="card-title">
+                                    Notification Preferences
+                                </h2>
+                            </div>
+
+                            <div className="settings-list">
+
+                                <div className="settings-item">
+                                    <div>
+                                        <h4>Critical severity alerts</h4>
+                                        <p>Notify immediately — always on</p>
+                                    </div>
+
+                                    <label className="switch">
+                                        <input type="checkbox" defaultChecked />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div>
+                                        <h4>AI analysis completion</h4>
+                                        <p>When AI finishes processing</p>
+                                    </div>
+
+                                    <label className="switch">
+                                        <input type="checkbox" defaultChecked />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div>
+                                        <h4>Report approvals</h4>
+                                        <p>On approve or reject</p>
+                                    </div>
+
+                                    <label className="switch">
+                                        <input type="checkbox" defaultChecked />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div>
+                                        <h4>Inspection reminders</h4>
+                                        <p>Upcoming inspection alerts</p>
+                                    </div>
+
+                                    <label className="switch">
+                                        <input type="checkbox" defaultChecked />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div>
+                                        <h4>Team activity</h4>
+                                        <p>New team member actions</p>
+                                    </div>
+
+                                    <label className="switch">
+                                        <input type="checkbox" />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div>
+                                        <h4>System updates</h4>
+                                        <p>Platform updates & news</p>
+                                    </div>
+
+                                    <label className="switch">
+                                        <input type="checkbox" />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                        </section>
+                    </motion.section>
+                    {/* Right Column */}
+
+                    <motion.div
+                        className="settings-right-column"
+                        variants={slideRight}
+                        initial="hidden"
+                        animate="visible"
+                        transition={{ delay: 0.2 }}
+                    >
+                        {/* Security */}
+
+                        <motion.section
+                            className="card settings-card"
+                            variants={fadeInUp}
+                            initial="hidden"
+                            animate="visible"
+                            transition={{ delay: 0.3 }}
+                        >
                             <div className="card-header">
                                 <h2 className="card-title">
                                     Security
@@ -174,7 +205,7 @@ const Settings = () => {
 
                             </div>
 
-                        </section>
+                        </motion.section>
 
                         {/* Appearance */}
 
@@ -221,8 +252,7 @@ const Settings = () => {
 
                         </section>
 
-                    </div>
-
+                    </motion.div>
                 </div>
 
                 {/* AI Preferences */}
@@ -288,7 +318,7 @@ const Settings = () => {
 
                 </section>
 
-            </div>
+            </motion.div>
         </>
     );
 };

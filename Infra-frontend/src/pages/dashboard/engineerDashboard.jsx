@@ -18,6 +18,12 @@ import {
     faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { motion } from "framer-motion";
+import {
+    fadeInUp,
+    staggerContainer,
+} from "../../utils/animation";
+
 function EngineerDashboard() {
     const { user } = useAuth();
 
@@ -29,49 +35,58 @@ function EngineerDashboard() {
                 buttonText="New Inspection"
                 onButtonClick={() => { }}
             />
+            <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+            >
+                <StatsGrid>
+                    <StatsCard
+                        title="AI Queue"
+                        value="8"
+                        description="3 new today"
+                        icon={faRobot}
+                        iconVariant="primary"
+                    />
 
-            <StatsGrid>
-                <StatsCard
-                    title="AI Queue"
-                    value="8"
-                    description="3 new today"
-                    icon={faRobot}
-                    iconVariant="primary"
-                />
+                    <StatsCard
+                        title="Pending Review"
+                        value="12"
+                        description="4 urgent"
+                        icon={faClipboardCheck}
+                        iconVariant="warning"
+                    />
 
-                <StatsCard
-                    title="Pending Review"
-                    value="12"
-                    description="4 urgent"
-                    icon={faClipboardCheck}
-                    iconVariant="warning"
-                />
+                    <StatsCard
+                        title="Reports Generated"
+                        value="47"
+                        description="12% this week"
+                        icon={faFileLines}
+                        iconVariant="success"
+                    />
 
-                <StatsCard
-                    title="Reports Generated"
-                    value="47"
-                    description="12% this week"
-                    icon={faFileLines}
-                    iconVariant="success"
-                />
+                    <StatsCard
+                        title="Critical Findings"
+                        value="3"
+                        description="Immediate review"
+                        icon={faTriangleExclamation}
+                        iconVariant="danger"
+                    />
+                </StatsGrid>
+            </motion.div>
 
-                <StatsCard
-                    title="Critical Findings"
-                    value="3"
-                    description="Immediate review"
-                    icon={faTriangleExclamation}
-                    iconVariant="danger"
-                />
-            </StatsGrid>
-
-            <section className="dashboard-widgets">
+            <motion.section className="dashboard-widgets"
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+            >
                 <DashboardGrid>
                     <AIQueueWidget />
                     <SeverityChartWidget />
                     <RiskWidget />
                     <Approvals />
                 </DashboardGrid>
-            </section>
+            </motion.section>
         </>
     );
 }

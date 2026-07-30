@@ -1,5 +1,7 @@
 import WidgetCard from "../../shared/widgetCard";
 import StatusBadge from "../../cards/statusBadge";
+import { motion } from "framer-motion";
+import { fadeInUp } from "../../../../utils/animation";
 
 function RecentInspectionWidget() {
     const recentInspections = [
@@ -72,10 +74,15 @@ function RecentInspectionWidget() {
                 </thead>
 
                 <tbody className="inspection-table-body">
-                    {recentInspections.map((inspection) => (
-                        <tr
+                    {recentInspections.map((inspection, index) => (
+                        <motion.tr
                             key={inspection.id}
                             className="inspection-row"
+                            variants={fadeInUp}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.08 }}
                         >
                             <td className="inspection-cell">
                                 {inspection.id}
@@ -102,8 +109,7 @@ function RecentInspectionWidget() {
                                     variant={inspection.severity.variant}
                                 />
                             </td>
-
-                        </tr>
+                        </motion.tr>
                     ))}
                 </tbody>
 

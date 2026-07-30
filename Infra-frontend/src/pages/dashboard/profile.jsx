@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/useAuth";
 import PasswordInput from "../../components/common/PasswordInput";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
+import { pageTransition, slideLeft, slideRight } from "../../utils/animation";
 
 import {
     getProfile,
@@ -218,8 +220,16 @@ function Profile() {
     };
 
     return (
-        <div className="profile-page">
-            <div className="profile-page-header">
+        <motion.div
+            className="profile-page"
+            variants={pageTransition}
+            initial="hidden"
+            animate="visible">
+            <motion.div
+                className="profile-page-header"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}>
                 <div>
                     <h1 className="profile-page-title">
                         My Profile
@@ -239,7 +249,7 @@ function Profile() {
                 >
                     {saving ? "Saving..." : "Save Changes"}
                 </button>
-            </div>
+            </motion.div>
 
             {error && (
                 <p className="error-message">
@@ -248,7 +258,12 @@ function Profile() {
             )}
 
             <div className="profile-page-content">
-                <aside className="profile-page-sidebar card">
+                <motion.aside
+                    className="profile-page-sidebar card"
+                    variants={slideLeft}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: 0.15 }}>
                     <div className="profile-page-avatar-wrapper">
                         <input
                             ref={fileInputRef}
@@ -258,7 +273,13 @@ function Profile() {
                             onChange={handlePhotoUpload}
                             disabled={saving}
                         />
-                        <div className="profile-page-avatar">
+                        <motion.div className="profile-page-avatar"
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{
+                                duration: 0.35,
+                                delay: 0.25,
+                            }}>
 
                             {formData.profileImage ? (
                                 <img
@@ -275,7 +296,7 @@ function Profile() {
                                     .toUpperCase()
                             )}
 
-                        </div>
+                        </motion.div>
 
                         <h2 className="profile-page-name">
                             {formData.name}
@@ -326,9 +347,14 @@ function Profile() {
                             <strong>Today</strong>
                         </div>
                     </div>
-                </aside>
+                </motion.aside>
 
-                <section className="profile-page-form card">
+                <motion.section
+                    className="profile-page-form card"
+                    variants={slideRight}
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: 0.2 }}>
                     <div className="card-header">
                         <h2 className="card-title">
                             Personal Information
@@ -459,9 +485,9 @@ function Profile() {
                                 : "Update Password"}
                         </button>
                     </form>
-                </section>
+                </motion.section>
             </div>
-        </div>
+        </motion.div>
     );
 }
 

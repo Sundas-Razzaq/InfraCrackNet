@@ -1,5 +1,5 @@
 import WidgetCard from "../../shared/widgetCard";
-
+import { motion } from "framer-motion";
 function SeverityDistributionWidget() {
     const severityData = [
         {
@@ -27,12 +27,15 @@ function SeverityDistributionWidget() {
     return (
         <WidgetCard title="Severity Distribution (This Month)">
             <div className="severity-chart">
-                {severityData.map((item) => (
+                {severityData.map((item, index) => (
                     <div key={item.label} className="severity-column">
                         <div className="severity-bar-wrapper">
-                            <div
+                            <motion.div
                                 className={`severity-bar ${item.variant}`}
-                                style={{ height: `${item.value}%` }}
+                                initial={{ height: 0, opacity: 0 }}
+                                whileInView={{ height: `${item.value}%`, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: index * 0.12, ease: "easeOut" }}
+                                viewport={{ once: true }}
                             />
                         </div>
 

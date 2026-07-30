@@ -17,6 +17,12 @@ import {
     faFileCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { motion } from "framer-motion";
+import {
+    fadeInUp,
+    staggerContainer,
+} from "../../utils/animation";
+
 function InspectorDashboard() {
     const { user } = useAuth();
 
@@ -29,54 +35,72 @@ function InspectorDashboard() {
                 onButtonClick={() => { }}
             />
 
-            <StatsGrid>
-                <StatsCard
-                    title="Active Inspections"
-                    value="3"
-                    description="2 in progress"
-                    icon={faClipboardList}
-                    iconVariant="primary"
-                />
+            <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+            >
+                <StatsGrid>
+                    <StatsCard
+                        title="Active Inspections"
+                        value="3"
+                        description="2 in progress"
+                        icon={faClipboardList}
+                        iconVariant="primary"
+                    />
 
-                <StatsCard
-                    title="Images Uploaded"
-                    value="127"
-                    description="24 today"
-                    icon={faImages}
-                    iconVariant="success"
-                />
+                    <StatsCard
+                        title="Images Uploaded"
+                        value="127"
+                        description="24 today"
+                        icon={faImages}
+                        iconVariant="success"
+                    />
 
-                <StatsCard
-                    title="Pending Upload"
-                    value="2"
-                    description="Complete today"
-                    icon={faCloudArrowUp}
-                    iconVariant="warning"
-                />
+                    <StatsCard
+                        title="Pending Upload"
+                        value="2"
+                        description="Complete today"
+                        icon={faCloudArrowUp}
+                        iconVariant="warning"
+                    />
 
-                <StatsCard
-                    title="Reports Ready"
-                    value="8"
-                    description="To validate"
-                    icon={faFileCircleCheck}
-                    iconVariant="info"
-                />
-            </StatsGrid>
+                    <StatsCard
+                        title="Reports Ready"
+                        value="8"
+                        description="To validate"
+                        icon={faFileCircleCheck}
+                        iconVariant="info"
+                    />
+                </StatsGrid>
+            </motion.div >
 
-            <section className="dashboard-widgets">
+            <motion.section className="dashboard-widgets"
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+            >
                 <DashboardGrid>
                     <ActiveInspectionWidget />
                     <QuickUploadWidget />
                 </DashboardGrid>
-            </section>
+            </motion.section>
 
-            <section className="dashboard-reminder">
+            <motion.section className="dashboard-reminder"
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+            >
                 <ReminderWidget />
-            </section>
+            </motion.section>
 
-            <section className="dashboard-table">
+            <motion.section className="dashboard-table"
+                variants={fadeInUp}
+                initial="hidden"
+                animate="visible"
+            >
                 <RecentInspectionWidget />
-            </section>
+            </motion.section>
         </>
     );
 }
