@@ -1,8 +1,6 @@
 const Project = require("../models/project");
 const generateProjectCode = require("../utils/projectCodeGenerator");
-/**
- * Create Project
- */
+// Create Project
 const createProject = async (req, res, next) => {
     try {
         const projectCode = await generateProjectCode();
@@ -23,15 +21,15 @@ const createProject = async (req, res, next) => {
     }
 };
 
-/**
- * Get All Projects
- */
+//Get All Projects
 const getProjects = async (req, res, next) => {
     try {
-        const projects = await Project.find()
+        console.log("Logged in user:", req.user);
+        const projects = await Project.find({ createdBy: req.user.id })
             .populate("createdBy", "name email role")
             .populate("assignedEngineers", "name email")
             .sort({ createdAt: -1 });
+        console.log("Projects found:", projects.length);
 
         res.status(200).json({
             success: true,
@@ -43,12 +41,13 @@ const getProjects = async (req, res, next) => {
     }
 };
 
-/**
- * Get Single Project
- */
+// Get Single Project
 const getProjectById = async (req, res, next) => {
     try {
-        const project = await Project.findById(req.params.id)
+        const project = await Project.findOne({
+            _id: req.params.id,
+            createdBy: req.user.id
+        })
             .populate("createdBy", "name email role")
             .populate("assignedEngineers", "name email");
 
@@ -68,13 +67,14 @@ const getProjectById = async (req, res, next) => {
     }
 };
 
-/**
- * Update Project
- */
+// Update Project
 const updateProject = async (req, res, next) => {
     try {
-        const project = await Project.findByIdAndUpdate(
-            req.params.id,
+        const project = await Project.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                createdBy: req.user.id
+            },
             req.body,
             {
                 returnDocument: "after",
@@ -99,12 +99,13 @@ const updateProject = async (req, res, next) => {
     }
 };
 
-/**
- * Delete Project
- */
+// Delete Project
 const deleteProject = async (req, res, next) => {
     try {
-        const project = await Project.findByIdAndDelete(req.params.id);
+        const project = await Project.findOneAndDelete({
+            _id: req.params.id,
+            createdBy: req.user.id
+        });
 
         if (!project) {
             return res.status(404).json({
