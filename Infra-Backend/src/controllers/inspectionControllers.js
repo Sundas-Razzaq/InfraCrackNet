@@ -64,7 +64,7 @@ const createInspection = async (req, res, next) => {
         } = req.body;
 
         // Check if project exists
-        const existingProject = await Project.findById(project);
+        const existingProject = await Project.findById({ _id: project, createdBy: req.user.id });
 
         if (!existingProject) {
             return res.status(404).json({
@@ -107,7 +107,7 @@ const createInspection = async (req, res, next) => {
 
 const getInspections = async (req, res, next) => {
     try {
-        const inspections = await Inspection.find()
+        const inspections = await Inspection.find({ createdBy: req.user.id })
             .populate("project", "projectCode name")
             .populate("createdBy", "name email role")
             .populate(
@@ -132,14 +132,10 @@ const getInspections = async (req, res, next) => {
 
 /* Get Single Inspection */
 
-const getInspectionById = async (
-    req,
-    res,
-    next
-) => {
+const getInspectionById = async (req, res, next) => {
     try {
         const inspection =
-            await Inspection.findById(req.params.id)
+            await Inspection.findOne({ _id: req.params.id, createdBy: req.user.id })
                 .populate(
                     "project",
                     "projectCode name"
@@ -188,7 +184,7 @@ const updateInspection = async (
         // Validate project if changed
         if (req.body.project) {
             const existingProject =
-                await Project.findById(req.body.project);
+                await Project.findOne({ _id: req.body.project, createdBy: req.user.id });
 
             if (!existingProject) {
                 return res.status(404).json({
@@ -216,15 +212,14 @@ const updateInspection = async (
                 validatedAssignments.assignedInspectors;
         }
 
-        const inspection =
-            await Inspection.findByIdAndUpdate(
-                req.params.id,
-                req.body,
-                {
-                    returnDocument: "after",
-                    runValidators: true,
-                }
-            );
+        const inspection = await Inspection.findOneAndUpdate(
+            { _id: req.params.id, createdBy: req.user.id },
+            req.body,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
 
         if (!inspection) {
             return res.status(404).json({
@@ -253,9 +248,10 @@ const deleteInspection = async (
 ) => {
     try {
         const inspection =
-            await Inspection.findByIdAndDelete(
-                req.params.id
-            );
+            await Inspection.findOneAndDelete({
+                _id: req.params.id,
+                createdBy: req.user.id
+            });
 
         if (!inspection) {
             return res.status(404).json({

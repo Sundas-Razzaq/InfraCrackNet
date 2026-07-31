@@ -15,7 +15,7 @@ const getAnnotationWorkspace = async (
         const { analysisId } = req.params;
 
         const analysis =
-            await AIAnalysis.findById(analysisId)
+            await AIAnalysis.findOne({ _id: analysisId, createdBy: req.user.id })
                 .populate({
                     path: "inspection",
                     select:
@@ -119,6 +119,18 @@ const updateCrack = async (req, res, next) => {
             });
         }
 
+        const analysis = await AIAnalysis.findOne({
+            _id: crack.analysis,
+            createdBy: req.user.id,
+        });
+
+        if (!analysis) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
+            });
+        }
+
         const {
             crackClass,
             severity,
@@ -196,6 +208,18 @@ const removeCrack = async (
             });
         }
 
+        const analysis = await AIAnalysis.findOne({
+            _id: crack.analysis,
+            createdBy: req.user.id,
+        });
+
+        if (!analysis) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied."
+            });
+        }
+
         crack.validationStatus = "Removed";
         crack.reviewStatus = "Completed";
         crack.reviewedBy = req.user.id;
@@ -239,7 +263,7 @@ const addManualCrack = async (
 
         // Verify analysis exists
         const existingAnalysis =
-            await AIAnalysis.findById(analysis);
+            await AIAnalysis.findOne({ _id: analysis, createdBy: req.user.id });
 
         if (!existingAnalysis) {
             return res.status(404).json({
@@ -250,9 +274,10 @@ const addManualCrack = async (
 
         // Verify inspection image exists
         const image =
-            await InspectionImage.findById(
-                inspectionImage
-            );
+            await InspectionImage.findOne({
+                _id: inspectionImage,
+                uploadedBy: req.user.id
+            });
 
         if (!image) {
             return res.status(404).json({
@@ -357,6 +382,18 @@ const validateCrack = async (
             });
         }
 
+        const analysis = await AIAnalysis.findOne({
+            _id: crack.analysis,
+            createdBy: req.user.id,
+        });
+
+        if (!analysis) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied."
+            });
+        }
+
         crack.validationStatus =
             "Validated";
 
@@ -408,7 +445,7 @@ const completeAnnotationReview = async (
         }
 
         const analysis =
-            await AIAnalysis.findById(analysisId);
+            await AIAnalysis.findOne({ _id: analysisId, createdBy: req.user.id });
 
         if (!analysis) {
             return res.status(404).json({

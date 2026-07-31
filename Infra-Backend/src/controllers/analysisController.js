@@ -11,14 +11,14 @@ const {
     startMockAnalysis,
 } = require("../services/analysisService");
 
-/* START AI ANALYSIS */
+// START AI ANALYSIS 
 
 const startAnalysis = async (req, res, next) => {
     try {
         const { inspectionId } = req.params;
 
         const existingInspection =
-            await Inspection.findById(inspectionId);
+            await Inspection.findOne({ _id: inspectionId, createdBy: req.user.id });
 
         if (!existingInspection) {
             return res.status(404).json({
@@ -118,7 +118,7 @@ const startAnalysis = async (req, res, next) => {
     }
 };
 
-/* GET ANALYSIS PROGRESS */
+// GET ANALYSIS PROGRESS 
 
 const getAnalysisProgress = async (
     req,
@@ -141,9 +141,10 @@ const getAnalysisProgress = async (
         }
 
         const analysis =
-            await AIAnalysis.findById(
-                analysisId
-            );
+            await AIAnalysis.findOne({
+                _id: analysisId,
+                createdBy: req.user.id
+            });
 
         if (!analysis) {
             return res.status(404).json({
@@ -172,7 +173,7 @@ const getAnalysisProgress = async (
     }
 };
 
-/* GET ANALYSIS RESULTS */
+// GET ANALYSIS RESULTS 
 
 const getAnalysisResults = async (
     req,
@@ -194,7 +195,10 @@ const getAnalysisResults = async (
             });
         }
 
-        const analysis = await AIAnalysis.findById(analysisId)
+        const analysis = await AIAnalysis.findOne({
+            _id: analysisId,
+            createdBy: req.user.id
+        })
             .populate({
                 path: "inspection",
                 select:
@@ -257,7 +261,7 @@ const getAnalysisResults = async (
     }
 };
 
-/* CANCEL ANALYSIS */
+// CANCEL ANALYSIS 
 
 const cancelAnalysis = async (
     req,

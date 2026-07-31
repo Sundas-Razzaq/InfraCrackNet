@@ -20,7 +20,7 @@ const uploadInspectionImages = async (req, res) => {
         }
 
         const existingInspection =
-            await Inspection.findById(inspection).select(
+            await Inspection.findOne({ _id: inspection, createdBy: req.user.id }).select(
                 "inspectionCode status"
             );
 
@@ -89,7 +89,7 @@ const getInspectionImages = async (req, res) => {
         }
 
         const inspection =
-            await Inspection.findById(inspectionId).select(
+            await Inspection.findOne({ _id: inspectionId, createdBy: req.user.id }).select(
                 "inspectionCode"
             );
 
@@ -137,11 +137,26 @@ const deleteInspectionImage = async (
             });
         }
 
-        const image =
-            await InspectionImage.findById(imageId);
+        const image = await InspectionImage.findOne({
+            _id: imageId,
+            uploadedBy: req.user.id
+        });
 
         if (!image) {
             return res.status(404).json({
+                message: "Image not found.",
+            });
+        }
+
+        // Verify ownership of the parent inspection
+        const inspection = await Inspection.findOne({
+            _id: image.inspection,
+            createdBy: req.user.id,
+        });
+
+        if (!inspection) {
+            return res.status(404).json({
+                success: false,
                 message: "Image not found.",
             });
         }

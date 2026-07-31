@@ -24,12 +24,10 @@ const createProject = async (req, res, next) => {
 //Get All Projects
 const getProjects = async (req, res, next) => {
     try {
-        console.log("Logged in user:", req.user);
         const projects = await Project.find({ createdBy: req.user.id })
             .populate("createdBy", "name email role")
             .populate("assignedEngineers", "name email")
             .sort({ createdAt: -1 });
-        console.log("Projects found:", projects.length);
 
         res.status(200).json({
             success: true,
@@ -77,7 +75,7 @@ const updateProject = async (req, res, next) => {
             },
             req.body,
             {
-                returnDocument: "after",
+                new: true,
                 runValidators: true,
             }
         );

@@ -37,6 +37,16 @@ const generateReport = async (req, res, next) => {
             });
         }
 
+        if (
+            analysis.inspection.createdBy.toString() !== req.user.id &&
+            req.user.role !== "Admin"
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
+            });
+        }
+
         if (analysis.status !== "Completed") {
             return res.status(400).json({
                 success: false,
@@ -169,7 +179,7 @@ const generateReport = async (req, res, next) => {
     }
 };
 
-
+//GET REPORT
 const getReport = async (req, res, next) => {
     try {
         const { reportId } = req.params;
@@ -198,6 +208,16 @@ const getReport = async (req, res, next) => {
             });
         }
 
+        if (
+            report.inspection.createdBy.toString() !== req.user.id &&
+            req.user.role !== "Admin"
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
+            });
+        }
+
         const cracks = await CrackDetection.find({
             analysis: report.analysis._id,
             validationStatus: {
@@ -220,6 +240,7 @@ const getReport = async (req, res, next) => {
     }
 };
 
+//GET ALL REPORTS
 const getAllReports = async (req, res, next) => {
     try {
         const reports = await Report.find()
@@ -243,6 +264,16 @@ const getAllReports = async (req, res, next) => {
                 createdAt: -1,
             });
 
+        const filteredReports = reports.filter(
+            report => report.inspection !== null
+        );
+
+        return res.status(200).json({
+            success: true,
+            count: filteredReports.length,
+            data: filteredReports,
+        });
+
         return res.status(200).json({
             success: true,
             count: reports.length,
@@ -253,7 +284,7 @@ const getAllReports = async (req, res, next) => {
     }
 };
 
-
+// DOWNLOAD REPORT
 const downloadReport = async (req, res, next) => {
     try {
         const { reportId } = req.params;
@@ -264,6 +295,16 @@ const downloadReport = async (req, res, next) => {
             return res.status(404).json({
                 success: false,
                 message: "Report not found.",
+            });
+        }
+
+        if (
+            report.inspection.createdBy.toString() !== req.user.id &&
+            req.user.role !== "Admin"
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
             });
         }
 
