@@ -117,28 +117,36 @@ const StartInspectionPage = () => {
     };
 
     return (
-        <DashboardLayout>
+        <>
             <div className="start-inspection-page">
-                <InspectionHeader />
+                <InspectionHeader
+                    title="Start New Inspection"
+                    subtitle="Select a project and provide inspection details before uploading images."
+                >
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => navigate("/dashboard/inspection")}
+                    >
+                        Back to Inspections
+                    </button>
+                </InspectionHeader>
 
                 <InspectionStepper currentStep={1} />
 
                 {errors.api && (
-                    <p className="form-error">
-                        {errors.api}
-                    </p>
+                    <div className="inspection-api-error">
+                        <p className="form-error">
+                            {errors.api}
+                        </p>
+                    </div>
                 )}
 
                 <InspectionForm
                     formData={formData}
                     errors={errors}
                     projects={projects}
-                    loadingProjects={
-                        loadingProjects
-                    }
-                    isProjectLocked={
-                        isProjectLocked
-                    }
+                    loadingProjects={loadingProjects}
+                    isProjectLocked={isProjectLocked}
                     isSubmitting={isSubmitting}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
@@ -147,7 +155,7 @@ const StartInspectionPage = () => {
                     }
                 />
             </div>
-        </DashboardLayout>
+        </>
     );
 };
 

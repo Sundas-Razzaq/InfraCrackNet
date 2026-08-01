@@ -1,0 +1,511 @@
+/* Inspection Module - Shared Page Layout */
+.start-inspection-page,
+.inspections-page,
+.draft-inspections-page,
+.inspection-details-page,
+.upload-images-page,
+.ai-analysis-page,
+.validation-page,
+.report-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding: var(--space-24);
+}
+
+
+/*Inspection Header*/
+
+.inspection-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-24);
+}
+
+.inspection-header-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-24);
+    width: 100%;
+}
+
+.inspection-title {
+    margin: 0;
+}
+
+.inspection-subtitle {
+    margin-top: var(--space-6);
+    max-width: 700px;
+}
+
+.inspection-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    flex-shrink: 0;
+}
+
+
+/*Inspection Stepper*/
+
+.inspection-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-12);
+
+    padding: var(--space-24);
+
+    background: var(--color-bg-card);
+
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-card);
+
+    box-shadow: var(--shadow-card);
+}
+
+.inspection-step {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.inspection-step-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+
+    border-radius: var(--radius-full);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: var(--font-weight-semibold);
+
+    background: var(--color-secondary-light);
+    color: var(--color-text-secondary);
+
+    border: 2px solid var(--color-border-default);
+
+    flex-shrink: 0;
+}
+
+.inspection-step-circle.active {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border-color: var(--color-primary);
+}
+
+.inspection-step-circle.completed {
+    background: var(--color-success);
+    color: var(--color-text-inverse);
+    border-color: var(--color-success);
+}
+
+.inspection-step-label {
+    margin-left: var(--space-12);
+
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+
+    color: var(--color-text-muted);
+}
+
+.inspection-step-label.active {
+    color: var(--color-text-primary);
+}
+
+.inspection-step-line {
+    flex: 1;
+    height: 2px;
+
+    margin: 0 var(--space-12);
+
+    background: var(--color-border-default);
+}
+
+.inspection-step-line.completed {
+    background: var(--color-success);
+}
+
+/* Start Inspection Form*/
+
+.inspection-form {
+    width: 100%;
+}
+
+.inspection-form-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+
+    padding: var(--space-32);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+}
+
+.inspection-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24);
+}
+
+.inspection-form textarea {
+    min-height: 8rem;
+}
+
+
+/* Project Selector*/
+
+.project-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+
+/* Assignment Section */
+
+.assignment-section {
+    border-top: 1px solid var(--color-border-divider);
+    padding-top: var(--space-32);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+}
+
+.assignment-section-header h3 {
+    margin-bottom: var(--space-4);
+}
+
+.assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24);
+}
+
+.assignment-grid select {
+    min-height: 8rem;
+}
+
+
+/*Inspection Actions*/
+
+.inspection-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-16);
+
+    padding-top: var(--space-24);
+
+    border-top: 1px solid var(--color-border-divider);
+}
+
+.inspection-api-error {
+    padding: var(--space-16);
+    border: 1px solid var(--color-error);
+    background: var(--color-error-bg);
+    border-radius: var(--radius-card);
+}
+
+/* Inspection Listing */
+
+.inspection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--space-24);
+    align-items: stretch;
+}
+
+
+/* Inspection Card */
+
+.inspection-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+
+    padding: var(--space-24);
+
+    background: var(--color-bg-card);
+
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-card);
+
+    box-shadow: var(--shadow-card);
+}
+
+.inspection-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-16);
+}
+
+.inspection-card-title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.inspection-card-title h3 {
+    font-size: var(--font-size-h6);
+    font-weight: var(--font-weight-semibold);
+}
+
+.inspection-code {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-caption);
+}
+
+.inspection-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+}
+
+.inspection-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-12);
+
+    font-size: var(--font-size-small);
+}
+
+.inspection-detail-label {
+    color: var(--color-text-muted);
+}
+
+.inspection-detail-value {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.inspection-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-12);
+
+    margin-top: auto;
+    padding-top: var(--space-20);
+
+    border-top: 1px solid var(--color-border-divider);
+}
+
+
+/* Inspection Status Badge */
+
+.inspection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-6);
+
+    padding: var(--space-4) var(--space-10);
+
+    border-radius: var(--radius-full);
+
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-semibold);
+}
+
+.inspection-status.draft {
+    background: var(--color-secondary-light);
+    color: var(--color-secondary);
+}
+
+.inspection-status.processing {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+.inspection-status.completed {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.inspection-status.report {
+    background: var(--color-info-bg);
+    color: var(--color-info);
+}
+
+
+/* Empty Inspection State*/
+
+.empty-inspection-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 500px;
+
+    padding: var(--space-32);
+}
+
+.empty-inspection-content {
+    max-width: 520px;
+    text-align: center;
+}
+
+.empty-inspection-icon {
+    width: 88px;
+    height: 88px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto var(--space-24);
+
+    border-radius: var(--radius-full);
+
+    background: var(--color-secondary-light);
+
+    color: var(--color-primary);
+
+    font-size: 2rem;
+}
+
+.empty-inspection-title {
+    margin-bottom: var(--space-12);
+}
+
+.empty-inspection-description {
+    margin-bottom: var(--space-32);
+}
+
+.empty-inspection-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-16);
+    flex-wrap: wrap;
+}
+
+.inspection-btn-icon {
+    font-size: 1rem;
+    margin-right: 0.55rem;
+}
+
+/* Responsive */
+
+@media (max-width: 992px) {
+
+    .inspection-form-grid,
+    .assignment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inspection-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .inspection-stepper {
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .inspection-step {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .start-inspection-page,
+    .inspections-page,
+    .draft-inspections-page,
+    .inspection-details-page,
+    .upload-images-page,
+    .ai-analysis-page,
+    .validation-page,
+    .report-page {
+        padding: var(--space-16);
+    }
+
+    .inspection-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .inspection-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .inspection-form-card {
+        padding: var(--space-24);
+    }
+
+    .inspection-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .inspection-actions .btn-primary,
+    .inspection-actions .btn-secondary {
+        width: 100%;
+    }
+
+    .inspection-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inspection-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .inspection-card-footer {
+        flex-wrap: wrap;
+    }
+
+    .empty-inspection-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .empty-inspection-actions .btn-primary,
+    .empty-inspection-actions .btn-secondary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .inspection-step-label {
+        display: none;
+    }
+
+    .inspection-step {
+        min-width: 70px;
+    }
+
+    .inspection-step-line {
+        margin: 0 var(--space-8);
+    }
+
+    .inspection-card {
+        padding: var(--space-20);
+    }
+
+    .inspection-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+
+    .empty-inspection-icon {
+        width: 72px;
+        height: 72px;
+        font-size: 1.6rem;
+    }
+}

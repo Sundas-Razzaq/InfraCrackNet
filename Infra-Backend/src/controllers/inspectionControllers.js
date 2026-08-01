@@ -130,6 +130,38 @@ const getInspections = async (req, res, next) => {
     }
 };
 
+/* Get Draft Inspections */
+const getDraftInspections = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const inspections = await Inspection.find({
+            createdBy: req.user.id,
+            status: "Draft",
+        })
+            .populate("project", "projectCode name")
+            .populate(
+                "assignedEngineers",
+                "name email role"
+            )
+            .populate(
+                "assignedInspectors",
+                "name email role"
+            )
+            .sort({ updatedAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: inspections.length,
+            data: inspections,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 /* Get Single Inspection */
 
 const getInspectionById = async (req, res, next) => {
@@ -270,9 +302,11 @@ const deleteInspection = async (
     }
 };
 
+
 module.exports = {
     createInspection,
     getInspections,
+    getDraftInspections,
     getInspectionById,
     updateInspection,
     deleteInspection,

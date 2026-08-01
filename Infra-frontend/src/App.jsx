@@ -23,7 +23,10 @@ import ProjectsPage from "./pages/dashboard/projects/projectsPage";
 import NewProjectPage from "./pages/dashboard/projects/newProject";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
 import EditProjectPage from "./pages/dashboard/projects/editProject";
+import InspectionsPage from "./pages/dashboard/inspection/InspectionPage";
+import DraftInspectionsPage from "./pages/dashboard/inspection/DraftInspectionsPage";
 import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPage";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function LoginRoute() {
@@ -95,6 +98,7 @@ function App() {
             index
             element={<DashboardHome />}
           />
+          {/* project routes */}
           <Route
             path="projects"
             element={<ProjectsPage />}
@@ -110,6 +114,22 @@ function App() {
           <Route
             path="projects/:id/edit"
             element={<EditProjectPage />}
+          />
+
+          {/* inspection routes */}
+          <Route
+            path="inspection"
+            element={<InspectionsPage />}
+          />
+
+          <Route
+            path="inspection/new"
+            element={<StartInspectionPage />}
+          />
+
+          <Route
+            path="inspection/drafts"
+            element={<DraftInspectionsPage />}
           />
 
           <Route

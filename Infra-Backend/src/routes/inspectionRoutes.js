@@ -7,6 +7,7 @@ const {
     getInspectionById,
     updateInspection,
     deleteInspection,
+    getDraftInspections,
 } = require("../controllers/inspectionControllers");
 
 const {
@@ -33,6 +34,13 @@ router.get(
     "/",
     protect,
     getInspections
+);
+
+// Get draft inspections
+router.get(
+    "/drafts",
+    protect,
+    getDraftInspections
 );
 
 /* Get single inspection */

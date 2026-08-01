@@ -4,9 +4,10 @@ import {
     faLocationDot,
     faCalendarDays,
     faUserTie,
+    faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 
-const ProjectDetails = ({ project, onDelete }) => {
+const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
     const navigate = useNavigate();
 
     if (!project) {
@@ -35,6 +36,17 @@ const ProjectDetails = ({ project, onDelete }) => {
                 </div>
 
                 <div className="project-actions">
+
+                    <button
+                        className="btn btn-primary"
+                        onClick={onStartInspection}
+                    >
+                        <FontAwesomeIcon
+                            icon={faPlay}
+                            className="project-btn-icon"
+                        />
+                        Start Inspection
+                    </button>
 
                     <button
                         className="btn btn-secondary"

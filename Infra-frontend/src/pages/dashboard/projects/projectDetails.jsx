@@ -47,6 +47,14 @@ const ProjectDetailsPage = () => {
         fetchProject();
     }, [id]);
 
+    const handleStartInspection = () => {
+        navigate("/dashboard/inspection/new", {
+            state: {
+                projectId: project._id,
+            },
+        });
+    };
+
     const handleDelete = async () => {
         try {
             setDeleteLoading(true);
@@ -91,6 +99,7 @@ const ProjectDetailsPage = () => {
         <>
             <ProjectDetails
                 project={project}
+                onStartInspection={handleStartInspection}
                 onDelete={() =>
                     setShowDeleteModal(true)
                 }

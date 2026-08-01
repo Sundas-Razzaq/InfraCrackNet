@@ -1,17 +1,26 @@
 const InspectionHeader = ({
-    title = "Start New Inspection",
-    subtitle = "Configure inspection details before uploading images.",
+    title,
+    subtitle,
+    children,
 }) => {
     return (
         <div className="inspection-header">
             <div className="inspection-header-content">
-                <h1 className="inspection-title">
-                    {title}
-                </h1>
+                <div className="inspection-header-text">
+                    <h1 className="inspection-title">
+                        {title}
+                    </h1>
 
-                <p className="inspection-subtitle">
-                    {subtitle}
-                </p>
+                    <p className="inspection-subtitle">
+                        {subtitle}
+                    </p>
+                </div>
+
+                {children && (
+                    <div className="inspection-header-actions">
+                        {children}
+                    </div>
+                )}
             </div>
         </div>
     );

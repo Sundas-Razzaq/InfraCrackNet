@@ -1,7 +1,7 @@
 import {
     faBell,
     faChartLine,
-    faCirclePlus,
+    faClipboardCheck,
     faClock,
     faFolderOpen,
     faGaugeHigh,
@@ -26,9 +26,9 @@ export const sidebarItems = [
     },
     {
         id: "new-inspection",
-        title: "New Inspection",
-        path: "/dashboard/upload-inspection",
-        icon: faCirclePlus,
+        title: "Inspection",
+        path: "/dashboard/inspection",
+        icon: faClipboardCheck,
     },
     {
         id: "analytics",

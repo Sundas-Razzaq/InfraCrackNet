@@ -17,6 +17,15 @@ export const getInspections = async () => {
     return data;
 };
 
+// Get Draft Inspections 
+export const getDraftInspections = async () => {
+    const { data } = await authApi.get(
+        "/inspections/drafts"
+    );
+
+    return data;
+};
+
 // Get Single Inspection 
 export const getInspectionById = async (inspectionId) => {
     const { data } = await authApi.get(
