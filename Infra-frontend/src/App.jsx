@@ -23,7 +23,7 @@ import ProjectsPage from "./pages/dashboard/projects/projectsPage";
 import NewProjectPage from "./pages/dashboard/projects/newProject";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
 import EditProjectPage from "./pages/dashboard/projects/editProject";
-
+import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function LoginRoute() {

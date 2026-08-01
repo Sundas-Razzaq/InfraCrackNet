@@ -284,9 +284,10 @@ const cancelAnalysis = async (
         }
 
         const analysis =
-            await AIAnalysis.findById(
-                analysisId
-            );
+            await AIAnalysis.findOne({
+                _id: analysisId,
+                createdBy: req.user.id
+            });
 
         if (!analysis) {
             return res.status(404).json({
