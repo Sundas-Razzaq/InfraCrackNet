@@ -28,6 +28,7 @@ import DraftInspectionsPage from "./pages/dashboard/inspection/DraftInspectionsP
 import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPage";
 import InspectionDetailsPage from "./pages/dashboard/inspection/inspectionDetailsPage";
 import EditInspectionPage from "./pages/dashboard/inspection/editInspectionPage";
+import UploadImagesPage from "./pages/dashboard/inspection/UploadImagesPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -142,6 +143,11 @@ function App() {
           <Route
             path="inspections/:id/edit"
             element={<EditInspectionPage />}
+          />
+
+          <Route
+            path="inspection/:id/upload-images"
+            element={<UploadImagesPage />}
           />
 
           <Route
