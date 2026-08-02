@@ -1,4 +1,4 @@
-import InspectionCard from "./inspectionCard";
+import InspectionCard from "./InspectionCard";
 import EmptyInspectionState from "./emptyInspectionState";
 
 const InspectionGrid = ({

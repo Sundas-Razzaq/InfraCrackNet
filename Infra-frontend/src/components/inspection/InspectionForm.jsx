@@ -1,6 +1,6 @@
-import AssignmentSection from "./assignmentSection";
-import InspectionActions from "./inspectionActions";
-import ProjectSelector from "./projectSelector";
+import AssignmentSection from "./AssignmentSection";
+import InspectionActions from "./InspectionActions";
+import ProjectSelector from "./ProjectSelector";
 
 const InspectionForm = ({
     formData,
