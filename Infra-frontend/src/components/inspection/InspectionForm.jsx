@@ -12,6 +12,9 @@ const InspectionForm = ({
     onChange,
     onSubmit,
     onSaveDraft,
+    submitButtonText = "Continue to Upload",
+    draftButtonText = "Save as Draft",
+    submittingText = "Creating Inspection...",
 }) => {
     return (
         <form
@@ -211,6 +214,9 @@ const InspectionForm = ({
                 <InspectionActions
                     onSaveDraft={onSaveDraft}
                     isSubmitting={isSubmitting}
+                    submitButtonText={submitButtonText}
+                    draftButtonText={draftButtonText}
+                    submittingText={submittingText}
                 />
             </div>
         </form>

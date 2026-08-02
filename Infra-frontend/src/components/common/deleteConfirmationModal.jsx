@@ -1,44 +1,43 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
-const DeleteProjectModal = ({
+const DeleteConfirmationModal = ({
     isOpen,
+    title = "Delete Item",
+    description = "Are you sure you want to delete this item?",
+    warning = "This action cannot be undone.",
+    confirmText = "Delete",
+    loading = false,
     onClose,
     onConfirm,
-    loading = false,
 }) => {
-
     if (!isOpen) {
         return null;
     }
 
     return (
         <div className="modal-overlay">
-
             <div className="delete-modal">
 
                 <div className="delete-modal-icon">
-
                     <FontAwesomeIcon
                         icon={faTriangleExclamation}
                     />
-
                 </div>
 
                 <h2 className="delete-modal-title">
-                    Delete Project
+                    {title}
                 </h2>
 
                 <p className="delete-modal-description">
-                    Are you sure you want to delete this project?
+                    {description}
                 </p>
 
                 <p className="delete-warning">
-                    This action cannot be undone.
+                    {warning}
                 </p>
 
                 <div className="modal-actions">
-
                     <button
                         className="btn btn-secondary"
                         onClick={onClose}
@@ -54,15 +53,13 @@ const DeleteProjectModal = ({
                     >
                         {loading
                             ? "Deleting..."
-                            : "Delete"}
+                            : confirmText}
                     </button>
-
                 </div>
 
             </div>
-
         </div>
     );
 };
 
-export default DeleteProjectModal;
+export default DeleteConfirmationModal;

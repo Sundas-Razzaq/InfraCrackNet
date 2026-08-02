@@ -1,6 +1,9 @@
 const InspectionActions = ({
     onSaveDraft,
     isSubmitting = false,
+    submitButtonText = "Continue to Upload",
+    draftButtonText = "Save as Draft",
+    submittingText = "Creating Inspection...",
 }) => {
     return (
         <div className="inspection-actions">
@@ -10,7 +13,7 @@ const InspectionActions = ({
                 onClick={onSaveDraft}
                 disabled={isSubmitting}
             >
-                Save as Draft
+                {draftButtonText}
             </button>
 
             <button
@@ -19,8 +22,8 @@ const InspectionActions = ({
                 disabled={isSubmitting}
             >
                 {isSubmitting
-                    ? "Creating Inspection..."
-                    : "Continue to Upload"}
+                    ? submittingText
+                    : submitButtonText}
             </button>
         </div>
     );

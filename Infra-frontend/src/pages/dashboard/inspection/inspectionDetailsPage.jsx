@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import DashboardLayout from "../../../layouts/DashboardLayout";
-import ProjectDetails from "../../../components/projects/projectDetails";
+import InspectionDetails from "../../../components/inspection/inspectionDetails";
 import DeleteConfirmationModal from "../../../components/common/deleteConfirmationModal";
 
-import { toast } from "react-toastify";
-import { getApiErrorMessage } from "../../../api/authApi";
 import {
-    getProjectById,
-    deleteProject,
-} from "../../../api/projectApi";
+    getInspectionById,
+    deleteInspection,
+} from "../../../api/inspectionApi";
 
-const ProjectDetailsPage = () => {
+import { getApiErrorMessage } from "../../../api/authApi";
+import { toast } from "react-toastify";
+
+const InspectionDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [project, setProject] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [inspection, setInspection] =
+        useState(null);
+
+    const [loading, setLoading] =
+        useState(true);
 
     const [showDeleteModal, setShowDeleteModal] =
         useState(false);
@@ -26,17 +29,17 @@ const ProjectDetailsPage = () => {
         useState(false);
 
     useEffect(() => {
-        const fetchProject = async () => {
+        const fetchInspection = async () => {
             try {
                 const response =
-                    await getProjectById(id);
+                    await getInspectionById(id);
 
-                setProject(response.data);
+                setInspection(response.data);
             } catch (error) {
                 toast.error(
                     getApiErrorMessage(
                         error,
-                        "Failed to load project."
+                        "Failed to load inspection."
                     )
                 );
             } finally {
@@ -44,33 +47,33 @@ const ProjectDetailsPage = () => {
             }
         };
 
-        fetchProject();
+        fetchInspection();
     }, [id]);
 
-    const handleStartInspection = () => {
-        navigate("/dashboard/inspection/new", {
-            state: {
-                projectId: project._id,
-            },
-        });
+    const handleEdit = () => {
+        navigate(
+            `/dashboard/inspections/${inspection._id}/edit`
+        );
     };
 
     const handleDelete = async () => {
         try {
             setDeleteLoading(true);
 
-            await deleteProject(project._id);
-
-            toast.success(
-                "Project deleted successfully."
+            await deleteInspection(
+                inspection._id
             );
 
-            navigate("/dashboard/projects");
+            toast.success(
+                "Inspection deleted successfully."
+            );
+
+            navigate("/dashboard/inspection");
         } catch (error) {
             toast.error(
                 getApiErrorMessage(
                     error,
-                    "Failed to delete project."
+                    "Failed to delete inspection."
                 )
             );
         } finally {
@@ -82,24 +85,24 @@ const ProjectDetailsPage = () => {
     if (loading) {
         return (
             <div className="page-loading">
-                Loading project...
+                Loading inspection...
             </div>
         );
     }
 
-    if (!project) {
+    if (!inspection) {
         return (
             <div className="page-loading">
-                Project not found.
+                Inspection not found.
             </div>
         );
     }
 
     return (
         <>
-            <ProjectDetails
-                project={project}
-                onStartInspection={handleStartInspection}
+            <InspectionDetails
+                inspection={inspection}
+                onEdit={handleEdit}
                 onDelete={() =>
                     setShowDeleteModal(true)
                 }
@@ -107,10 +110,10 @@ const ProjectDetailsPage = () => {
 
             <DeleteConfirmationModal
                 isOpen={showDeleteModal}
-                title="Delete Project"
-                description="Are you sure you want to delete this project?"
-                warning="This will permanently delete the project and all related inspections, uploaded images, AI analyses, crack detections, and reports. This action cannot be undone."
-                confirmText="Delete Project"
+                title="Delete Inspection"
+                description="Are you sure you want to delete this inspection?"
+                warning="This will permanently delete all uploaded images, AI analyses, crack detections and generated reports related to this inspection."
+                confirmText="Delete Inspection"
                 loadingText="Deleting..."
                 isLoading={deleteLoading}
                 onClose={() =>
@@ -122,4 +125,4 @@ const ProjectDetailsPage = () => {
     );
 };
 
-export default ProjectDetailsPage;
+export default InspectionDetailsPage;

@@ -26,6 +26,8 @@ import EditProjectPage from "./pages/dashboard/projects/editProject";
 import InspectionsPage from "./pages/dashboard/inspection/InspectionPage";
 import DraftInspectionsPage from "./pages/dashboard/inspection/DraftInspectionsPage";
 import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPage";
+import InspectionDetailsPage from "./pages/dashboard/inspection/inspectionDetailsPage";
+import EditInspectionPage from "./pages/dashboard/inspection/editInspectionPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -130,6 +132,16 @@ function App() {
           <Route
             path="inspection/drafts"
             element={<DraftInspectionsPage />}
+          />
+
+          <Route
+            path="inspections/:id"
+            element={<InspectionDetailsPage />}
+          />
+
+          <Route
+            path="inspections/:id/edit"
+            element={<EditInspectionPage />}
           />
 
           <Route
