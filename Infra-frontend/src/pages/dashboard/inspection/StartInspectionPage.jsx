@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../../layouts/DashboardLayout";
 
-import InspectionHeader from "../../../components/inspection/inspectionHeader";
-import InspectionStepper from "../../../components/inspection/inspectionStepper";
-import InspectionForm from "../../../components/inspection/inspectionForm";
+import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import InspectionStepper from "../../../components/inspection/InspectionStepper";
+import InspectionForm from "../../../components/inspection/InspectionForm";
 
 import { getProjects } from "../../../api/projectApi";
 import { createInspection } from "../../../api/inspectionApi";

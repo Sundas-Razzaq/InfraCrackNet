@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../../layouts/DashboardLayout";
 
-import InspectionHeader from "../../../components/inspection/inspectionHeader";
+import InspectionHeader from "../../../components/inspection/InspectionHeader";
 import InspectionGrid from "../../../components/inspection/inspectionGrid";
 
 import { getDraftInspections } from "../../../api/inspectionApi";
