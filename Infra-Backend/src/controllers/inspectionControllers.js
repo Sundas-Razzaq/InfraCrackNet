@@ -1,6 +1,10 @@
 const Inspection = require("../models/inspection");
 const Project = require("../models/project");
 const User = require("../models/user");
+const InspectionImage = require("../models/InspectionImage");
+const AIAnalysis = require("../models/AIAnalysis");
+const CrackDetection = require("../models/CrackDetection");
+const Report = require("../models/Report");
 
 const generateInspectionCode = require("../utils/inspectionCodeGenerator");
 
@@ -271,8 +275,7 @@ const updateInspection = async (
     }
 };
 
-/* Delete Inspection */
-
+// Delete Inspection
 const deleteInspection = async (
     req,
     res,
@@ -280,9 +283,9 @@ const deleteInspection = async (
 ) => {
     try {
         const inspection =
-            await Inspection.findOneAndDelete({
+            await Inspection.findOne({
                 _id: req.params.id,
-                createdBy: req.user.id
+                createdBy: req.user.id,
             });
 
         if (!inspection) {
@@ -291,6 +294,38 @@ const deleteInspection = async (
                 message: "Inspection not found.",
             });
         }
+
+        // Find AI analyses
+        const analyses = await AIAnalysis.find({
+            inspection: inspection._id,
+        }).select("_id");
+
+        const analysisIds = analyses.map(
+            (analysis) => analysis._id
+        );
+
+        // Delete reports
+        await Report.deleteMany({
+            inspection: inspection._id,
+        });
+
+        // Delete crack detections
+        await CrackDetection.deleteMany({
+            analysis: { $in: analysisIds },
+        });
+
+        // Delete AI analyses
+        await AIAnalysis.deleteMany({
+            inspection: inspection._id,
+        });
+
+        // Delete uploaded images
+        await InspectionImage.deleteMany({
+            inspection: inspection._id,
+        });
+
+        // Delete inspection
+        await inspection.deleteOne();
 
         res.status(200).json({
             success: true,
@@ -301,7 +336,6 @@ const deleteInspection = async (
         next(error);
     }
 };
-
 
 module.exports = {
     createInspection,

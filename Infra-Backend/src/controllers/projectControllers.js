@@ -1,5 +1,11 @@
 const Project = require("../models/project");
 const generateProjectCode = require("../utils/projectCodeGenerator");
+const Inspection = require("../models/Inspection");
+const InspectionImage = require("../models/InspectionImage");
+const AIAnalysis = require("../models/AIAnalysis");
+const CrackDetection = require("../models/CrackDetection");
+const Report = require("../models/Report");
+
 // Create Project
 const createProject = async (req, res, next) => {
     try {
@@ -100,9 +106,9 @@ const updateProject = async (req, res, next) => {
 // Delete Project
 const deleteProject = async (req, res, next) => {
     try {
-        const project = await Project.findOneAndDelete({
+        const project = await Project.findOne({
             _id: req.params.id,
-            createdBy: req.user.id
+            createdBy: req.user.id,
         });
 
         if (!project) {
@@ -111,6 +117,54 @@ const deleteProject = async (req, res, next) => {
                 message: "Project not found.",
             });
         }
+
+        // Find all inspections of this project
+        const inspections = await Inspection.find({
+            project: project._id,
+        }).select("_id");
+
+        const inspectionIds = inspections.map(
+            (inspection) => inspection._id
+        );
+
+        if (inspectionIds.length > 0) {
+            // Find all AI analyses
+            const analyses = await AIAnalysis.find({
+                inspection: { $in: inspectionIds },
+            }).select("_id");
+
+            const analysisIds = analyses.map(
+                (analysis) => analysis._id
+            );
+
+            // Delete reports
+            await Report.deleteMany({
+                inspection: { $in: inspectionIds },
+            });
+
+            // Delete crack detections
+            await CrackDetection.deleteMany({
+                analysis: { $in: analysisIds },
+            });
+
+            // Delete AI analyses
+            await AIAnalysis.deleteMany({
+                inspection: { $in: inspectionIds },
+            });
+
+            // Delete uploaded images
+            await InspectionImage.deleteMany({
+                inspection: { $in: inspectionIds },
+            });
+
+            // Delete inspections
+            await Inspection.deleteMany({
+                _id: { $in: inspectionIds },
+            });
+        }
+
+        // Finally delete project
+        await project.deleteOne();
 
         res.status(200).json({
             success: true,
