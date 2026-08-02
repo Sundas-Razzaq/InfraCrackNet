@@ -1,10 +1,10 @@
 const Inspection = require("../models/inspection");
 const Project = require("../models/project");
 const User = require("../models/user");
-const InspectionImage = require("../models/InspectionImage");
+const InspectionImage = require("../models/inspectionImage");
 const AIAnalysis = require("../models/AIAnalysis");
-const CrackDetection = require("../models/CrackDetection");
-const Report = require("../models/Report");
+const CrackDetection = require("../models/crackDetection");
+const Report = require("../models/report");
 
 const generateInspectionCode = require("../utils/inspectionCodeGenerator");
 

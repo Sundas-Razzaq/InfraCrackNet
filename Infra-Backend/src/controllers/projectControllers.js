@@ -1,10 +1,10 @@
 const Project = require("../models/project");
 const generateProjectCode = require("../utils/projectCodeGenerator");
-const Inspection = require("../models/Inspection");
-const InspectionImage = require("../models/InspectionImage");
+const Inspection = require("../models/inspection");
+const InspectionImage = require("../models/inspectionImage");
 const AIAnalysis = require("../models/AIAnalysis");
-const CrackDetection = require("../models/CrackDetection");
-const Report = require("../models/Report");
+const CrackDetection = require("../models/crackDetection");
+const Report = require("../models/report");
 
 // Create Project
 const createProject = async (req, res, next) => {
