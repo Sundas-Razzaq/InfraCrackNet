@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react"; import { useParams } from "react-router-dom";
-import InspectionHeader from "../../../components/inspection/inspectionHeader";
-import InspectionStepper from "../../../components/inspection/inspectionStepper";
+import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
 import ImageUploadZone from "../../../components/inspectionImage/ImageUploadZone";
 import UploadRequirements from "../../../components/inspectionImage/UploadRequirements";
