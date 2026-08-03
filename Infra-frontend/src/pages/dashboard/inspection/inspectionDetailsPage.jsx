@@ -56,6 +56,12 @@ const InspectionDetailsPage = () => {
         );
     };
 
+    const handleUploadImages = () => {
+        navigate(
+            `/dashboard/inspection/${inspection._id}/upload-images`
+        );
+    };
+
     const handleDelete = async () => {
         try {
             setDeleteLoading(true);
@@ -103,9 +109,8 @@ const InspectionDetailsPage = () => {
             <InspectionDetails
                 inspection={inspection}
                 onEdit={handleEdit}
-                onDelete={() =>
-                    setShowDeleteModal(true)
-                }
+                onDelete={() => setShowDeleteModal(true)}
+                onUploadImages={handleUploadImages}
             />
 
             <DeleteConfirmationModal

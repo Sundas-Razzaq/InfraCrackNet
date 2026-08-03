@@ -6,22 +6,55 @@ import {
     faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 
-const ImageUploadZone = ({ onFilesSelected }) => {
+const ImageUploadZone = ({
+    onFilesSelected,
+}) => {
     const browseInputRef = useRef(null);
     const captureInputRef = useRef(null);
+
     const handleFileSelection = (event) => {
-        const files = Array.from(event.target.files || []);
+        const files = Array.from(
+            event.target.files || []
+        );
+
         if (files.length === 0) {
             return;
         }
+
         onFilesSelected(files);
+
+        // Allow selecting the same file again
         event.target.value = "";
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault();
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault();
+
+        const files = Array.from(
+            event.dataTransfer.files || []
+        ).filter((file) =>
+            file.type.startsWith("image/")
+        );
+
+        if (files.length === 0) {
+            return;
+        }
+
+        onFilesSelected(files);
     };
 
     return (
         <div className="image-upload-card">
 
-            <div className="image-upload-zone">
+            <div
+                className="image-upload-zone"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+            >
 
                 <div className="image-upload-icon">
                     <FontAwesomeIcon
@@ -34,13 +67,13 @@ const ImageUploadZone = ({ onFilesSelected }) => {
                 </h3>
 
                 <p className="image-upload-description">
-                    Drop images here or choose one of the
-                    options below.
+                    Drop images here or choose one of
+                    the options below.
                 </p>
 
                 <p className="image-upload-supported">
-                    JPG • PNG • HEIC • TIFF •
-                    Maximum 50 MB per image
+                    JPG • PNG • HEIC • TIFF • Maximum
+                    50 MB per image
                 </p>
 
                 <div className="image-upload-actions">
@@ -60,7 +93,7 @@ const ImageUploadZone = ({ onFilesSelected }) => {
 
                     <button
                         type="button"
-                        className="btn btn-primary"
+                        className="btn btn-secondary"
                         onClick={() =>
                             captureInputRef.current.click()
                         }
@@ -73,7 +106,7 @@ const ImageUploadZone = ({ onFilesSelected }) => {
 
                 </div>
 
-                {/* Browse Files */}
+                {/* Browse */}
 
                 <input
                     ref={browseInputRef}
@@ -81,7 +114,9 @@ const ImageUploadZone = ({ onFilesSelected }) => {
                     multiple
                     accept="image/*"
                     hidden
-                    onChange={handleFileSelection}
+                    onChange={
+                        handleFileSelection
+                    }
                 />
 
                 {/* Camera */}
@@ -93,7 +128,9 @@ const ImageUploadZone = ({ onFilesSelected }) => {
                     accept="image/*"
                     capture="environment"
                     hidden
-                    onChange={handleFileSelection}
+                    onChange={
+                        handleFileSelection
+                    }
                 />
 
             </div>

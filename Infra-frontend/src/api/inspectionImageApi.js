@@ -1,10 +1,22 @@
 import authApi from "./authApi";
 
-/* Upload Inspection Images */
+// Upload Inspection Images
 
 export const uploadInspectionImages = async (
-    formData
+    inspectionId,
+    files
 ) => {
+    const formData = new FormData();
+
+    formData.append(
+        "inspection",
+        inspectionId
+    );
+
+    files.forEach((file) => {
+        formData.append("images", file);
+    });
+
     const { data } = await authApi.post(
         "/inspection-images/upload",
         formData,
@@ -19,7 +31,7 @@ export const uploadInspectionImages = async (
     return data;
 };
 
-/* Get Inspection Images */
+// Get Inspection Images
 
 export const getInspectionImages = async (
     inspectionId
@@ -31,7 +43,7 @@ export const getInspectionImages = async (
     return data;
 };
 
-/* Delete Inspection Image */
+// Delete Inspection Image
 
 export const deleteInspectionImage = async (
     imageId

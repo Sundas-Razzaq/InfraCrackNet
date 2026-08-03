@@ -12,6 +12,7 @@ const InspectionDetails = ({
     inspection,
     onEdit,
     onDelete,
+    onUploadImages,
 }) => {
 
     if (!inspection) {
@@ -40,6 +41,13 @@ const InspectionDetails = ({
                 </div>
 
                 <div className="inspection-actions">
+
+                    <button
+                        className="btn btn-secondary"
+                        onClick={onUploadImages}
+                    >
+                        Upload Images
+                    </button>
 
                     <button
                         className="btn btn-primary"
