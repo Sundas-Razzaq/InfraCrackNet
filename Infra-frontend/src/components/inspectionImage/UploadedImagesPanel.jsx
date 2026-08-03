@@ -109,7 +109,9 @@ const UploadedImagesPanel = ({
 
                 <button
                     className="btn btn-primary"
-                    disabled={images.length === 0}
+                    disabled={images.length === 0 || uploading
+                        ? "Uploading Images..."
+                        : "Run AI Analysis"}
                     onClick={onRunAI}
                 >
                     <FontAwesomeIcon icon={faRobot} />

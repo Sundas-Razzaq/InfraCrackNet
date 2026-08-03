@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from "react"; import { useParams } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import InspectionHeader from "../../../components/inspection/InspectionHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
@@ -19,7 +20,7 @@ import { toast } from "react-toastify";
 
 const UploadImagesPage = () => {
     const { id } = useParams();
-
+    const navigate = useNavigate();
     const [inspection, setInspection] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -63,10 +64,37 @@ const UploadImagesPage = () => {
 
     // Local file selection
     const handleFilesSelected = (files) => {
-        setSelectedFiles((prev) => [
-            ...prev,
-            ...files,
-        ]);
+        setSelectedFiles((prev) => {
+            const existingFiles = [
+                ...prev,
+                ...images,
+            ];
+
+            const newFiles = files.filter((file) => {
+                return !existingFiles.some((existing) => {
+                    const existingName =
+                        existing.originalFileName ||
+                        existing.name;
+
+                    const existingSize =
+                        existing.fileSize ||
+                        existing.size;
+
+                    return (
+                        existingName === file.name &&
+                        existingSize === file.size
+                    );
+                });
+            });
+
+            if (newFiles.length !== files.length) {
+                toast.warning(
+                    "Some duplicate images were skipped."
+                );
+            }
+
+            return [...prev, ...newFiles];
+        });
     };
 
     // Upload images
@@ -131,6 +159,7 @@ const UploadImagesPage = () => {
 
     // AI module placeholder
     const handleRunAI = () => {
+        navigate(`/dashboard/inspection/${inspection._id}/ai-analysis`);
         toast.info(
             "AI Analysis module will be implemented next."
         );
@@ -178,19 +207,11 @@ const UploadImagesPage = () => {
 
                     <UploadedImagesPanel
                         images={images}
-                        selectedFiles={
-                            selectedFiles
-                        }
+                        selectedFiles={selectedFiles}
                         uploading={uploading}
-                        onUpload={
-                            handleUploadImages
-                        }
-                        onDelete={
-                            handleDeleteImage
-                        }
-                        deletingImageId={
-                            deletingImageId
-                        }
+                        onUpload={handleUploadImages}
+                        onDelete={handleDeleteImage}
+                        deletingImageId={deletingImageId}
                         onRunAI={handleRunAI}
                     />
 
