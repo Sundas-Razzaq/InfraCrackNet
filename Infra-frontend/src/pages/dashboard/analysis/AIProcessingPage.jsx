@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback, } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import InspectionHeader from "../../../components/inspection/inspectionHeader";
-import InspectionStepper from "../../../components/inspection/inspectionStepper";
+import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
 import ProcessingTimeline from "../../../components/analysis/ProcessingTimeline";
 import AnalysisProgressCard from "../../../components/analysis/AnalysisProgressCard";
