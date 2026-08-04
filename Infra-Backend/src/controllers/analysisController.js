@@ -225,7 +225,7 @@ const getAnalysisProgress = async (
     }
 };
 
-// GET ANALYSIS RESULTS 
+// GET ANALYSIS RESULTS
 
 const getAnalysisResults = async (
     req,
@@ -242,38 +242,32 @@ const getAnalysisResults = async (
         ) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Invalid analysis ID.",
+                message: "Invalid analysis ID.",
             });
         }
 
         const analysis = await AIAnalysis.findOne({
             _id: analysisId,
-            createdBy: req.user.id
-        })
-            .populate({
-                path: "inspection",
+            createdBy: req.user.id,
+        }).populate({
+            path: "inspection",
+            select:
+                "inspectionCode structureArea status totalImages project",
+            populate: {
+                path: "project",
                 select:
-                    "inspectionCode structureArea status project",
-                populate: {
-                    path: "project",
-                    select: "projectCode name structureType",
-                },
-            });
+                    "projectCode name structureType",
+            },
+        });
 
         if (!analysis) {
             return res.status(404).json({
                 success: false,
-                message:
-                    "Analysis not found.",
+                message: "Analysis not found.",
             });
         }
 
-        // Results are only available after completion
-        if (
-            analysis.status !==
-            "Completed"
-        ) {
+        if (analysis.status !== "Completed") {
             return res.status(400).json({
                 success: false,
                 message:
@@ -284,25 +278,104 @@ const getAnalysisResults = async (
         const cracks = await CrackDetection.find({
             analysis: analysisId,
         })
-            .populate("inspectionImage", "imageUrl originalFileName")
+            .populate(
+                "inspectionImage",
+                "imageUrl originalFileName"
+            )
             .sort({ createdAt: 1 });
+
+        // ----------------------------
+        // Aggregated Statistics
+        // ----------------------------
+
+        const maxWidth =
+            cracks.length > 0
+                ? Math.max(
+                    ...cracks.map(
+                        (crack) => crack.width
+                    )
+                )
+                : 0;
+
+        const maxLength =
+            cracks.length > 0
+                ? Math.max(
+                    ...cracks.map(
+                        (crack) => crack.length
+                    )
+                )
+                : 0;
+
+        const totalAffectedArea =
+            cracks.reduce(
+                (sum, crack) =>
+                    sum + (crack.area || 0),
+                0
+            );
+
+        const severityBreakdown = {
+            Low: 0,
+            Medium: 0,
+            High: 0,
+            Critical: 0,
+        };
+
+        cracks.forEach((crack) => {
+            severityBreakdown[
+                crack.severity
+            ]++;
+        });
+
+        const processingTime =
+            analysis.completedAt &&
+                analysis.startedAt
+                ? analysis.completedAt.getTime() -
+                analysis.startedAt.getTime()
+                : null;
 
         return res.status(200).json({
             success: true,
+
             data: {
                 analysis,
 
                 summary: {
-                    totalCracks: cracks.length,
-                    averageConfidence: analysis.averageConfidence || 0,
-                    overallSeverity: analysis.overallSeverity || null,
-                    riskScore: analysis.riskScore || 0,
-                    startedAt: analysis.startedAt,
-                    completedAt: analysis.completedAt,
-                    processingTime: analysis.completedAt && analysis.startedAt
-                        ? analysis.completedAt.getTime() -
-                        analysis.startedAt.getTime()
-                        : null,
+                    totalCracks:
+                        cracks.length,
+
+                    averageConfidence:
+                        analysis.averageConfidence ??
+                        0,
+
+                    overallSeverity:
+                        analysis.overallSeverity ??
+                        null,
+
+                    riskScore:
+                        analysis.riskScore ??
+                        0,
+
+                    totalImages:
+                        analysis.totalImages,
+
+                    processedImages:
+                        analysis.processedImages,
+
+                    maxWidth,
+
+                    maxLength,
+
+                    totalAffectedArea,
+
+                    severityBreakdown,
+
+                    startedAt:
+                        analysis.startedAt,
+
+                    completedAt:
+                        analysis.completedAt,
+
+                    processingTime,
                 },
 
                 cracks,

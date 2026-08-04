@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState, useCallback, } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+
+import {
+    useNavigate,
+    useParams,
+} from "react-router-dom";
 
 import InspectionHeader from "../../../components/inspection/InspectionHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
-import ProcessingTimeline from "../../../components/analysis/ProcessingTimeline";
 import AnalysisProgressCard from "../../../components/analysis/AnalysisProgressCard";
+import ProcessingTimeline from "../../../components/analysis/ProcessingTimeline";
 
 import {
     startAnalysis,
@@ -29,9 +33,6 @@ const AIProcessingPage = () => {
     const [inspection, setInspection] =
         useState(null);
 
-    const [analysisId, setAnalysisId] =
-        useState(null);
-
     const [analysis, setAnalysis] =
         useState(null);
 
@@ -41,150 +42,139 @@ const AIProcessingPage = () => {
     const [cancelLoading, setCancelLoading] =
         useState(false);
 
-    // Poll Progress
+    const stopPolling = () => {
+        if (pollingRef.current) {
+            clearInterval(pollingRef.current);
+            pollingRef.current = null;
+        }
+    };
 
     const startPolling = useCallback(
         (id) => {
-            pollingRef.current =
-                setInterval(async () => {
+            stopPolling();
+
+            pollingRef.current = setInterval(
+                async () => {
                     try {
                         const response =
                             await getAnalysisProgress(id);
 
-                        setAnalysis(response.data);
+                        const analysisData =
+                            response.data;
+
+                        setAnalysis(analysisData);
 
                         if (
-                            response.data.status ===
+                            analysisData.status ===
                             "Completed"
                         ) {
-                            clearInterval(
-                                pollingRef.current
-                            );
+                            stopPolling();
 
                             navigate(
                                 `/dashboard/inspection/${inspectionId}/ai-results/${id}`
                             );
+
+                            return;
                         }
 
                         if (
-                            response.data.status ===
+                            analysisData.status ===
                             "Cancelled" ||
-                            response.data.status ===
+                            analysisData.status ===
                             "Failed"
                         ) {
-                            clearInterval(
-                                pollingRef.current
-                            );
+                            stopPolling();
                         }
                     } catch (error) {
-                        clearInterval(
-                            pollingRef.current
-                        );
+                        stopPolling();
 
                         toast.error(
                             getApiErrorMessage(error)
                         );
                     }
-                }, 1000);
+                },
+                1000
+            );
         },
         [inspectionId, navigate]
     );
 
-    // Initial Load
-
     useEffect(() => {
-        const initialize =
-            async () => {
-                try {
-                    const inspectionResponse =
-                        await getInspectionById(
-                            inspectionId
-                        );
-
-                    setInspection(
-                        inspectionResponse.data
-                    );
-
-                    const existingAnalysis =
-                        await getInspectionAnalysis(
-                            inspectionId
-                        );
-
-                    if (
-                        existingAnalysis.data
-                    ) {
-                        setAnalysisId(
-                            existingAnalysis.data
-                                ._id
-                        );
-
-                        startPolling(
-                            existingAnalysis.data
-                                ._id
-                        );
-                    } else {
-                        const created =
-                            await startAnalysis(
-                                inspectionId
-                            );
-
-                        setAnalysisId(
-                            created.data._id
-                        );
-
-                        startPolling(
-                            created.data._id
-                        );
-                    }
-                } catch (error) {
-                    toast.error(
-                        getApiErrorMessage(
-                            error
-                        )
-                    );
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-        initialize();
-
-        return () => {
-            if (pollingRef.current) {
-                clearInterval(
-                    pollingRef.current
-                );
-            }
-        };
-    }, [inspectionId, startPolling]);
-
-    // Cancel
-    const handleCancel =
-        async () => {
+        const initialize = async () => {
             try {
-                setCancelLoading(true);
+                const inspectionResponse =
+                    await getInspectionById(
+                        inspectionId
+                    );
 
-                await cancelAnalysis(
-                    analysisId
+                setInspection(
+                    inspectionResponse.data
                 );
 
-                toast.success(
-                    "Analysis cancelled."
-                );
+                let analysisResponse =
+                    await getInspectionAnalysis(
+                        inspectionId
+                    );
 
-                navigate(
-                    `/dashboard/inspection/${inspectionId}/upload-images`
+                let analysisData =
+                    analysisResponse.data;
+
+                if (!analysisData) {
+                    const created =
+                        await startAnalysis(
+                            inspectionId
+                        );
+
+                    analysisData =
+                        created.data;
+                }
+
+                setAnalysis(analysisData);
+
+                startPolling(
+                    analysisData._id
                 );
             } catch (error) {
                 toast.error(
                     getApiErrorMessage(error)
                 );
             } finally {
-                setCancelLoading(false);
+                setLoading(false);
             }
         };
 
-    if (loading) {
+        initialize();
+
+        return () => stopPolling();
+    }, [inspectionId, startPolling]);
+
+    const handleCancel = async () => {
+        try {
+            setCancelLoading(true);
+
+            await cancelAnalysis(
+                analysis._id
+            );
+
+            toast.success(
+                "Analysis cancelled."
+            );
+
+            stopPolling();
+
+            navigate(
+                `/dashboard/inspection/${inspectionId}/upload-images`
+            );
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(error)
+            );
+        } finally {
+            setCancelLoading(false);
+        }
+    };
+
+    if (loading || !inspection || !analysis) {
         return (
             <div className="page-loading">
                 Starting AI Analysis...
@@ -202,23 +192,27 @@ const AIProcessingPage = () => {
 
             <InspectionStepper currentStep={3} />
 
-            <div className="analysis-layout">
+            <div className="analysis-container">
 
-                <AnalysisProgressCard
-                    analysis={analysis}
-                    onCancel={
-                        handleCancel
-                    }
-                    cancelling={
-                        cancelLoading
-                    }
-                />
+                <div className="analysis-layout">
 
-                <ProcessingTimeline
-                    currentStep={
-                        analysis?.currentStep
-                    }
-                />
+                    <AnalysisProgressCard
+                        analysis={analysis}
+                        onCancel={
+                            handleCancel
+                        }
+                        cancelling={
+                            cancelLoading
+                        }
+                    />
+
+                    <ProcessingTimeline
+                        currentStep={
+                            analysis.currentStep
+                        }
+                    />
+
+                </div>
 
             </div>
 

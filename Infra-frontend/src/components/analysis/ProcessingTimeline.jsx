@@ -1,4 +1,9 @@
-import ProgressCard from "./timelineStepCard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faCircleCheck,
+    faSpinner,
+    faCircle,
+} from "@fortawesome/free-solid-svg-icons";
 
 const PROCESSING_STEPS = [
     {
@@ -14,52 +19,89 @@ const PROCESSING_STEPS = [
     {
         title: "Severity classification",
         description:
-            "Classifying each detected crack by severity level.",
+            "Classifying detected cracks by severity level.",
     },
     {
         title: "Structural risk assessment",
         description:
-            "Calculating the overall structural risk score.",
+            "Calculating overall structural risk score.",
     },
     {
         title: "Compiling analysis",
         description:
-            "Preparing final analysis results and summary.",
+            "Preparing final analysis results.",
     },
 ];
 
-const ProcessingTimeline = ({ currentStep }) => {
+const ProcessingTimeline = ({
+    currentStep,
+}) => {
     const activeIndex =
         PROCESSING_STEPS.findIndex(
-            (step) => step.title === currentStep
+            (step) =>
+                step.title === currentStep
         );
 
     return (
         <div className="processing-timeline">
 
-            <h3 className="processing-timeline-title">
+            <h2 className="processing-title">
                 AI Processing Timeline
-            </h3>
+            </h2>
 
-            <div className="processing-timeline-list">
+            <div className="processing-list">
 
                 {PROCESSING_STEPS.map(
-                    (step, index) => (
-                        <ProgressCard
-                            key={step.title}
-                            title={step.title}
-                            description={
-                                step.description
-                            }
-                            completed={
-                                activeIndex !== -1 &&
-                                index < activeIndex
-                            }
-                            active={
-                                index === activeIndex
-                            }
-                        />
-                    )
+                    (step, index) => {
+                        const completed =
+                            activeIndex > index;
+
+                        const active =
+                            activeIndex === index;
+
+                        return (
+                            <div
+                                key={step.title}
+                                className={`timeline-item ${completed
+                                        ? "completed"
+                                        : active
+                                            ? "active"
+                                            : ""
+                                    }`}
+                            >
+
+                                <div className="timeline-marker">
+
+                                    <FontAwesomeIcon
+                                        icon={
+                                            completed
+                                                ? faCircleCheck
+                                                : active
+                                                    ? faSpinner
+                                                    : faCircle
+                                        }
+                                        spin={active}
+                                    />
+
+                                </div>
+
+                                <div className="timeline-content">
+
+                                    <h4>
+                                        {step.title}
+                                    </h4>
+
+                                    <p>
+                                        {
+                                            step.description
+                                        }
+                                    </p>
+
+                                </div>
+
+                            </div>
+                        );
+                    }
                 )}
 
             </div>
