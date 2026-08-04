@@ -1,0 +1,250 @@
+/*AI Analysis Page*/
+
+.analysis-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+}
+
+.analysis-layout {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: var(--spacing-6);
+    align-items: start;
+}
+/*Analysis Progress Card*/
+
+.analysis-status-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-sm);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
+}
+
+.analysis-status-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+}
+
+.analysis-status-icon {
+    width: 60px;
+    height: 60px;
+
+    border-radius: 50%;
+
+    background: rgba(30, 58, 138, 0.08);
+
+    color: var(--color-primary);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.5rem;
+}
+
+.analysis-status-header h2 {
+    margin-bottom: .35rem;
+}
+
+.analysis-status-header p {
+    color: var(--color-text-secondary);
+}
+
+.analysis-progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: .75rem;
+}
+
+.analysis-progress-row strong {
+    color: var(--color-primary);
+}
+
+/* Progress bar */
+.analysis-progress-bar {
+    width: 100%;
+    height: 10px;
+
+    background: var(--color-border);
+
+    border-radius: 999px;
+
+    overflow: hidden;
+}
+
+.analysis-progress-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: linear-gradient(
+        90deg,
+        var(--color-primary),
+        var(--color-accent)
+    );
+
+    transition: width .35s ease;
+}
+
+/* status grid */
+.analysis-status-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+
+    margin-top: var(--spacing-6);
+}
+
+.analysis-status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding-bottom: var(--spacing-3);
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.analysis-status-item:last-child {
+    border-bottom: none;
+}
+
+.analysis-status-item label {
+    font-size: .9rem;
+
+    color: var(--color-text-secondary);
+}
+
+.analysis-status-item p {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+/* footer */
+.analysis-status-footer {
+    margin-top: auto;
+}
+
+/*Processing Timeline*/
+
+.processing-timeline {
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-xl);
+
+    padding: var(--spacing-6);
+
+    box-shadow: var(--shadow-sm);
+}
+
+.processing-timeline-title {
+    margin-bottom: var(--spacing-5);
+}
+
+.processing-timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+/* Timeline Cards */
+.analysis-progress-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+
+    padding: var(--spacing-4);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-lg);
+
+    transition: all .25s ease;
+}
+
+.analysis-progress-card.active {
+    border-color: var(--color-primary);
+
+    background: rgba(30,58,138,.05);
+}
+
+.analysis-progress-card.completed {
+    border-color: rgba(34,197,94,.25);
+
+    background: rgba(34,197,94,.08);
+}
+
+.analysis-progress-icon {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(30,58,138,.08);
+
+    color: var(--color-primary);
+}
+
+.analysis-progress-content {
+    flex: 1;
+}
+
+.analysis-progress-content h4 {
+    margin-bottom: .35rem;
+}
+
+.analysis-progress-content p {
+    font-size: .9rem;
+
+    color: var(--color-text-secondary);
+
+    line-height: 1.5;
+}
+
+.analysis-progress-status {
+    font-size: .85rem;
+
+    font-weight: 600;
+
+    color: var(--color-primary);
+}
+
+/*Responsive*/
+
+@media (max-width: 992px) {
+
+    .analysis-layout {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .analysis-status-card,
+    .processing-timeline {
+        padding: var(--spacing-4);
+    }
+
+    .analysis-progress-card {
+        align-items: flex-start;
+    }
+
+}

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import InspectionHeader from "../../../components/inspection/InspectionHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
-
+import { startAnalysis } from "../../../api/analysisApi";
 import ImageUploadZone from "../../../components/inspectionImage/ImageUploadZone";
 import UploadRequirements from "../../../components/inspectionImage/UploadRequirements";
 import UploadedImagesPanel from "../../../components/inspectionImage/UploadedImagesPanel";
@@ -158,11 +158,25 @@ const UploadImagesPage = () => {
     };
 
     // AI module placeholder
-    const handleRunAI = () => {
-        navigate(`/dashboard/inspection/${inspection._id}/ai-analysis`);
-        toast.info(
-            "AI Analysis module will be implemented next."
-        );
+    const handleRunAI = async () => {
+        try {
+            const response = await startAnalysis(
+                inspection._id
+            );
+
+            toast.success(response.message);
+
+            navigate(
+                `/dashboard/inspection/${inspection._id}/ai-analysis/${response.data._id}`
+            );
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to start AI analysis."
+                )
+            );
+        }
     };
 
     if (loading) {

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
     startAnalysis,
+    getInspectionAnalysis,
     getAnalysisProgress,
     getAnalysisResults,
     cancelAnalysis,
@@ -23,6 +24,13 @@ router.post(
     authorizeRoles("Inspector", "Engineer"),
     startAnalysisValidation,
     startAnalysis
+);
+
+// Get Latest Analysis For Inspection
+router.get(
+    "/inspection/:inspectionId",
+    protect,
+    getInspectionAnalysis
 );
 
 // Get Analysis Progress 

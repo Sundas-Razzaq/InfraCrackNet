@@ -18,20 +18,31 @@ const severityLevels = [
     "Critical",
 ];
 
+const delay = (ms) =>
+    new Promise((resolve) =>
+        setTimeout(resolve, ms)
+    );
+
 const startMockAnalysis = async (analysisId) => {
     try {
-        const analysis = await AIAnalysis.findById(
-            analysisId
-        );
+        const analysis =
+            await AIAnalysis.findById(analysisId);
 
         if (!analysis) return;
 
-        // Start Analysis
+        /* -----------------------------
+           STEP 1 : Preparing Images
+        ------------------------------*/
+
         analysis.status = "Processing";
         analysis.startedAt = new Date();
-        analysis.currentStep = "Preparing images";
+        analysis.currentStep =
+            "Preparing images";
+        analysis.progress = 5;
 
         await analysis.save();
+
+        await delay(1000);
 
         const images =
             await InspectionImage.find({
@@ -45,29 +56,42 @@ const startMockAnalysis = async (analysisId) => {
         let totalCracks = 0;
         let highestSeverityIndex = 0;
 
-        // Process each uploaded image
-        for (let imageIndex = 0; imageIndex < totalImages; imageIndex++) {
+        /* -----------------------------
+           STEP 2 : Crack Detection
+        ------------------------------*/
+
+        analysis.currentStep =
+            "Running crack detection";
+
+        await analysis.save();
+
+        for (
+            let imageIndex = 0;
+            imageIndex < totalImages;
+            imageIndex++
+        ) {
             const image = images[imageIndex];
 
-            await new Promise((resolve) =>
-                setTimeout(resolve, 750)
-            );
+            await delay(750);
 
             analysis.processedImages =
                 imageIndex + 1;
 
-            analysis.progress = Math.round(
-                ((imageIndex + 1) / totalImages) * 100
-            );
-
-            analysis.currentStep =
-                "Running crack detection";
+            // 10% -> 70%
+            analysis.progress =
+                10 +
+                Math.round(
+                    ((imageIndex + 1) /
+                        totalImages) *
+                    60
+                );
 
             await analysis.save();
 
-            // Generate 1-3 fake cracks for this image
             const cracksInImage =
-                Math.floor(Math.random() * 3) + 1;
+                Math.floor(
+                    Math.random() * 3
+                ) + 1;
 
             for (
                 let i = 0;
@@ -90,7 +114,9 @@ const startMockAnalysis = async (analysisId) => {
                     severityIndex
                     ];
 
-                totalConfidence += confidence;
+                totalConfidence +=
+                    confidence;
+
                 totalCracks++;
 
                 if (
@@ -171,11 +197,17 @@ const startMockAnalysis = async (analysisId) => {
             }
         }
 
-        // Complete Analysis
-        analysis.status = "Completed";
-        analysis.progress = 100;
+        /* -----------------------------
+           STEP 3 : Severity Classification
+        ------------------------------*/
+
         analysis.currentStep =
-            "Analysis completed";
+            "Severity classification";
+        analysis.progress = 80;
+
+        await analysis.save();
+
+        await delay(1000);
 
         analysis.averageConfidence =
             totalCracks > 0
@@ -192,7 +224,18 @@ const startMockAnalysis = async (analysisId) => {
             highestSeverityIndex
             ];
 
-        // Simple mock risk score
+        /* -----------------------------
+           STEP 4 : Risk Assessment
+        ------------------------------*/
+
+        analysis.currentStep =
+            "Structural risk assessment";
+        analysis.progress = 90;
+
+        await analysis.save();
+
+        await delay(1000);
+
         const riskScores = {
             Low: 25,
             Medium: 50,
@@ -205,11 +248,30 @@ const startMockAnalysis = async (analysisId) => {
             analysis.overallSeverity
             ];
 
+        /* -----------------------------
+           STEP 5 : Compiling Analysis
+        ------------------------------*/
+
+        analysis.currentStep =
+            "Compiling analysis";
+        analysis.progress = 98;
+
+        await analysis.save();
+
+        await delay(1000);
+
+        /* -----------------------------
+           COMPLETED
+        ------------------------------*/
+
+        analysis.status = "Completed";
+        analysis.currentStep =
+            "Analysis completed";
+        analysis.progress = 100;
         analysis.completedAt = new Date();
 
         await analysis.save();
 
-        // Update Inspection Status
         await Inspection.findByIdAndUpdate(
             analysis.inspection,
             {

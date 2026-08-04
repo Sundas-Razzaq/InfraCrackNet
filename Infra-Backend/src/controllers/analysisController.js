@@ -118,6 +118,58 @@ const startAnalysis = async (req, res, next) => {
     }
 };
 
+// GET LATEST ANALYSIS FOR AN INSPECTION
+
+const getInspectionAnalysis = async (
+    req,
+    res,
+    next
+) => {
+    try {
+        const { inspectionId } = req.params;
+
+        if (
+            !mongoose.Types.ObjectId.isValid(
+                inspectionId
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Invalid inspection ID.",
+            });
+        }
+
+        const inspection =
+            await Inspection.findOne({
+                _id: inspectionId,
+                createdBy: req.user.id,
+            });
+
+        if (!inspection) {
+            return res.status(404).json({
+                success: false,
+                message:
+                    "Inspection not found.",
+            });
+        }
+
+        const analysis =
+            await AIAnalysis.findOne({
+                inspection: inspectionId,
+            }).sort({
+                createdAt: -1,
+            });
+
+        return res.status(200).json({
+            success: true,
+            data: analysis,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // GET ANALYSIS PROGRESS 
 
 const getAnalysisProgress = async (
@@ -344,6 +396,7 @@ const cancelAnalysis = async (
 
 module.exports = {
     startAnalysis,
+    getInspectionAnalysis,
     getAnalysisProgress,
     getAnalysisResults,
     cancelAnalysis,

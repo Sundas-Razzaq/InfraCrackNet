@@ -106,16 +106,16 @@ const UploadedImagesPanel = ({
             </div>
 
             <div className="uploaded-images-footer">
-
                 <button
                     className="btn btn-primary"
-                    disabled={images.length === 0 || uploading
-                        ? "Uploading Images..."
-                        : "Run AI Analysis"}
+                    disabled={images.length === 0 || uploading}
                     onClick={onRunAI}
                 >
                     <FontAwesomeIcon icon={faRobot} />
-                    Run AI Analysis
+
+                    {uploading
+                        ? "Uploading Images..."
+                        : "Run AI Analysis"}
                 </button>
 
             </div>

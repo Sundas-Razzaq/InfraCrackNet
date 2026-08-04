@@ -29,6 +29,8 @@ import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPag
 import InspectionDetailsPage from "./pages/dashboard/inspection/inspectionDetailsPage";
 import EditInspectionPage from "./pages/dashboard/inspection/editInspectionPage";
 import UploadImagesPage from "./pages/dashboard/inspection/UploadImagesPage";
+import AIProcessingPage from "./pages/dashboard/analysis/AIProcessingPage";
+import AIResultsPage from "./pages/dashboard/analysis/AIResultsPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -148,6 +150,17 @@ function App() {
           <Route
             path="inspection/:id/upload-images"
             element={<UploadImagesPage />}
+          />
+
+          {/* analysis routes */}
+          <Route
+            path="inspection/:inspectionId/ai-analysis/:analysisId"
+            element={<AIProcessingPage />}
+          />
+
+          <Route
+            path="inspection/:inspectionId/ai-results/:analysisId"
+            element={<AIResultsPage />}
           />
 
           <Route
