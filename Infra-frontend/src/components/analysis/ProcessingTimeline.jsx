@@ -63,10 +63,10 @@ const ProcessingTimeline = ({
                             <div
                                 key={step.title}
                                 className={`timeline-item ${completed
-                                        ? "completed"
-                                        : active
-                                            ? "active"
-                                            : ""
+                                    ? "completed"
+                                    : active
+                                        ? "active"
+                                        : ""
                                     }`}
                             >
 

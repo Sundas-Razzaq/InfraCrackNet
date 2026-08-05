@@ -1,14 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faBrain,
-    faSpinner,
-    faXmark,
-} from "@fortawesome/free-solid-svg-icons";
-
 const AnalysisProgressCard = ({
     analysis,
-    onCancel,
-    cancelling,
 }) => {
     const progress =
         analysis?.progress ?? 0;
@@ -16,26 +7,12 @@ const AnalysisProgressCard = ({
     return (
         <div className="analysis-status-card">
 
-            <div className="analysis-status-header">
+            <div className="analysis-status-description">
 
-                <div className="analysis-status-icon">
-                    <FontAwesomeIcon
-                        icon={faBrain}
-                    />
-                </div>
-
-                <div>
-
-                    <h2>
-                        AI Crack Detection
-                    </h2>
-
-                    <p>
-                        The AI engine is analyzing the uploaded
-                        inspection images.
-                    </p>
-
-                </div>
+                <p>
+                    The AI engine is analyzing the uploaded
+                    inspection images.
+                </p>
 
             </div>
 
@@ -104,30 +81,6 @@ const AnalysisProgressCard = ({
                     </div>
 
                 </div>
-
-            </div>
-
-            <div className="analysis-status-footer">
-
-                <button
-                    className="btn btn-danger"
-                    onClick={onCancel}
-                    disabled={cancelling}
-                >
-                    <FontAwesomeIcon
-                        icon={
-                            cancelling
-                                ? faSpinner
-                                : faXmark
-                        }
-                        spin={cancelling}
-                    />
-
-                    {cancelling
-                        ? "Cancelling..."
-                        : "Cancel Analysis"}
-
-                </button>
 
             </div>
 

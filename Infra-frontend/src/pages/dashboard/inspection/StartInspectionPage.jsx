@@ -87,7 +87,7 @@ const StartInspectionPage = () => {
                 await createInspection(formData);
 
             navigate(
-                `/dashboard/inspections/${response.data._id}/upload-images`
+                `/dashboard/inspection/${response.data._id}/upload-images`
             );
         } catch (error) {
             setErrors((prev) => ({

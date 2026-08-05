@@ -62,17 +62,16 @@ const AIProcessingPage = () => {
                         const analysisData =
                             response.data;
 
-                        setAnalysis(analysisData);
-
-                        if (
-                            analysisData.status ===
-                            "Completed"
-                        ) {
+                        setAnalysis((prev) => ({
+                            ...prev,
+                            ...analysisData,
+                        }));
+                        if (analysisData.status === "Completed") {
                             stopPolling();
 
-                            navigate(
-                                `/dashboard/inspection/${inspectionId}/ai-results/${id}`
-                            );
+                            const latest = await getInspectionAnalysis(inspectionId);
+
+                            setAnalysis(latest.data);
 
                             return;
                         }
@@ -96,7 +95,7 @@ const AIProcessingPage = () => {
                 1000
             );
         },
-        [inspectionId, navigate]
+        [inspectionId]
     );
 
     useEffect(() => {
@@ -194,23 +193,40 @@ const AIProcessingPage = () => {
 
             <div className="analysis-container">
 
-                <div className="analysis-layout">
+                <AnalysisProgressCard
+                    analysis={analysis}
+                />
 
-                    <AnalysisProgressCard
-                        analysis={analysis}
-                        onCancel={
-                            handleCancel
-                        }
-                        cancelling={
-                            cancelLoading
-                        }
-                    />
+                <ProcessingTimeline
+                    currentStep={analysis.currentStep}
+                />
 
-                    <ProcessingTimeline
-                        currentStep={
-                            analysis.currentStep
-                        }
-                    />
+                <div className="analysis-actions">
+
+                    <button
+                        className="btn btn-danger"
+                        onClick={handleCancel}
+                        disabled={cancelLoading}
+                    >
+                        {cancelLoading
+                            ? "Cancelling..."
+                            : "Cancel Analysis"}
+                    </button>
+
+                    {analysis.status === "Completed" && (
+
+                        <button
+                            className="btn btn-primary"
+                            onClick={() =>
+                                navigate(
+                                    `/dashboard/inspection/${inspectionId}/ai-results/${analysis._id}`
+                                )
+                            }
+                        >
+                            View Results
+                        </button>
+
+                    )}
 
                 </div>
 
