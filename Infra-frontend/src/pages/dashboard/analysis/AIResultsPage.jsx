@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import InspectionHeader from "../../../components/inspection/InspectionHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 
 const AIResultsPage = () => {
     const { analysisId } = useParams();
-
+    const navigate = useNavigate();
     const [loading, setLoading] =
         useState(true);
 
@@ -72,10 +72,40 @@ const AIResultsPage = () => {
     return (
         <div className="analysis-results-page">
 
-            <InspectionHeader
-                title="AI Analysis Results"
-                subtitle={`${analysis.inspection.inspectionCode} • ${analysis.inspection.project.name}`}
-            />
+            <div className="results-header">
+
+                <InspectionHeader
+                    title="AI Analysis Results"
+                    subtitle={`${analysis.inspection.inspectionCode} • ${analysis.inspection.project.name}`}
+                />
+
+                <div className="results-actions">
+
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() =>
+                            navigate(
+                                `/dashboard/inspection/${analysis.inspection._id}/annotation/${analysis._id}`
+                            )
+                        }
+                    >
+                        Annotate
+                    </button>
+
+                    <button
+                        className="btn btn-primary"
+                        onClick={() =>
+                            navigate(
+                                `/dashboard/inspection/${analysis.inspection._id}/validation/${analysis._id}`
+                            )
+                        }
+                    >
+                        Validate
+                    </button>
+
+                </div>
+
+            </div>
 
             <InspectionStepper currentStep={4} />
 
