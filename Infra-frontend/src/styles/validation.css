@@ -1,0 +1,445 @@
+/* =========Validation Page========= */
+
+.validation-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: var(--space-24);
+
+    background-color: var(--color-bg-main);
+}
+
+/* =========Page Header========= */
+
+.validation-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-24);
+
+    margin-bottom: var(--space-24);
+}
+
+.validation-header h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+}
+
+.validation-header p {
+    margin: var(--space-8) 0 0;
+    max-width: 650px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body);
+}
+
+
+/* =========Header Actions========= */
+
+.validation-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-8);
+
+    flex-shrink: 0;
+}
+
+/* Validation-specific danger button */
+
+.validation-actions .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 2.75rem;
+    padding: var(--space-8) var(--space-20);
+
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-button);
+
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-small);
+
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.validation-actions .btn-danger:hover,
+.validation-actions .btn-danger:focus-visible {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    box-shadow: var(--shadow-hover);
+}
+
+.validation-actions .btn-danger:focus-visible {
+    outline: 2px solid var(--color-error);
+    outline-offset: 2px;
+}
+
+.validation-actions .btn-danger:active {
+    background-color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* =========Comparison Section========= */
+
+.validation-comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16);
+
+    width: 100%;
+}
+
+
+/* =========Validation Cards============= */
+
+.validation-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-card);
+
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+
+    transition:
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.validation-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* =========================================================
+   Card Header
+   ========================================================= */
+
+.validation-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-16);
+
+    padding: var(--space-20);
+
+    border-bottom: 1px solid var(--color-border-divider);
+}
+
+.validation-card-header h2 {
+    margin: 0;
+
+    font-size: var(--font-size-h5);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-h5);
+
+    color: var(--color-text-primary);
+}
+
+.validation-card-header span {
+    display: inline-flex;
+    align-items: center;
+
+    margin-top: var(--space-4);
+    padding: var(--space-2) var(--space-8);
+
+    border-radius: var(--radius-full);
+
+    background-color: var(--color-secondary-light);
+    color: var(--color-text-secondary);
+
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-caption);
+}
+
+/* =========================================================
+   Image Area
+   ========================================================= */
+
+.validation-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 360px;
+    padding: var(--space-16);
+
+    background-color: var(--color-bg-main);
+    border-bottom: 1px solid var(--color-border-divider);
+
+    overflow: hidden;
+}
+
+.validation-image-container img {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+    max-height: 520px;
+
+    object-fit: contain;
+
+    border-radius: var(--radius-button);
+}
+
+.validation-image-container p {
+    margin: 0;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-size-small);
+    text-align: center;
+}
+
+/* =========================================================
+   Statistics
+   ========================================================= */
+
+.validation-statistics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    padding: var(--space-16);
+    gap: var(--space-8);
+}
+
+.validation-statistics > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+
+    min-width: 0;
+    padding: var(--space-12);
+
+    background-color: var(--color-secondary-light);
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-button);
+}
+
+.validation-statistics span {
+    color: var(--color-text-muted);
+
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-caption);
+}
+
+.validation-statistics strong {
+    color: var(--color-text-primary);
+
+    font-size: var(--font-size-h6);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-h6);
+
+    word-break: break-word;
+}
+
+/* =========================================================
+   Validation Summary
+   ========================================================= */
+
+.validation-summary {
+    margin-top: var(--space-16);
+    padding: var(--space-20);
+
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-card);
+
+    box-shadow: var(--shadow-card);
+}
+
+.validation-summary > h2 {
+    margin: 0 0 var(--space-16);
+
+    font-size: var(--font-size-h5);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-h5);
+
+    color: var(--color-text-primary);
+}
+
+/* =========================================================
+   Summary Cards
+   ========================================================= */
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-12);
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+
+    min-width: 0;
+    padding: var(--space-16);
+
+    background-color: var(--color-secondary-light);
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-button);
+}
+
+.summary-card strong {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    min-width: 2.75rem;
+    height: 2.75rem;
+    padding: var(--space-4);
+
+    border-radius: var(--radius-full);
+
+    background-color: var(--color-info-bg);
+    color: var(--color-primary);
+
+    font-size: var(--font-size-h6);
+    font-weight: var(--font-weight-bold);
+}
+
+.summary-card span {
+    color: var(--color-text-secondary);
+
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-small);
+}
+
+/* =========================================================
+   Validation Notes
+   ========================================================= */
+
+.validation-notes {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-8);
+
+    margin-top: var(--space-16);
+    padding: var(--space-12) var(--space-16);
+
+    background-color: var(--color-secondary-light);
+    border: 1px solid var(--color-border-divider);
+    border-radius: var(--radius-button);
+}
+
+.validation-notes strong {
+    flex-shrink: 0;
+
+    color: var(--color-text-primary);
+
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
+}
+
+.validation-notes span {
+    color: var(--color-text-secondary);
+
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+}
+
+/* =========================================================
+   Loading / Error State
+   ========================================================= */
+
+.validation-page > p {
+    margin: 0;
+    padding: var(--space-48) var(--space-24);
+
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+/* =========================================================
+   Responsive — Tablet
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .validation-statistics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .validation-header {
+        flex-direction: column;
+    }
+
+    .validation-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* =========================================================
+   Responsive — Smaller Tablet
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .validation-page {
+        padding: var(--space-16);
+    }
+
+    .validation-comparison {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .validation-image-container {
+        min-height: 280px;
+    }
+}
+
+/* =========================================================
+   Responsive — Mobile
+   ========================================================= */
+
+@media (max-width: 480px) {
+    .validation-page {
+        padding: var(--space-12);
+    }
+
+    .validation-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .validation-actions .btn-primary,
+    .validation-actions .btn-secondary,
+    .validation-actions .btn-danger {
+        width: 100%;
+    }
+
+    .validation-card-header {
+        padding: var(--space-16);
+    }
+
+    .validation-statistics {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .validation-summary {
+        padding: var(--space-16);
+    }
+
+    .validation-notes {
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+}
