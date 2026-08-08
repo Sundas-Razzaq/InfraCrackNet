@@ -173,7 +173,6 @@ const updateCrack = async (req, res, next) => {
         crack.reviewedBy = req.user.id;
         crack.reviewedAt = new Date();
         crack.reviewVersion += 1;
-        crack.isValidated = true;
 
         await crack.save();
 

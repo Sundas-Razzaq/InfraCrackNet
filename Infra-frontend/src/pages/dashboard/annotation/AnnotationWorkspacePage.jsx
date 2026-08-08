@@ -13,7 +13,7 @@ import CompleteReviewBar from "../../../components/annotation/CompleteReviewBar"
 import { getApiErrorMessage } from "../../../api/authApi";
 
 import { toast } from "react-toastify";
-import { completeAnnotationReview, getAnnotationWorkspace, addManualCrack, updateCrack, removeCrack } from "../../../api/annotationApi";
+import { completeAnnotationReview, getAnnotationWorkspace, addManualCrack, updateCrack, removeCrack, validateCrack, } from "../../../api/annotationApi";
 import CrackEditorModal from "../../../components/annotation/CrackEditorModal";
 import ManualCrackModal from "../../../components/annotation/ManualCrackModal";
 import { useNavigate } from "react-router-dom";
@@ -129,6 +129,30 @@ const AnnotationWorkspacePage = () => {
         }
     };
 
+    const handleValidateCrack = async (crackId) => {
+        try {
+            setSaving(true);
+
+            await validateCrack(crackId);
+
+            toast.success("Crack validated successfully.");
+
+            setShowEditor(false);
+            setSelectedCrack(null);
+
+            await fetchWorkspace();
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to validate crack."
+                )
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const handleRemoveCrack = async (crackId) => {
         try {
             setSaving(true);
@@ -228,6 +252,7 @@ const AnnotationWorkspacePage = () => {
 
                     <ImageNavigator
                         images={images}
+                        cracks={cracks}
                         selectedImage={selectedImage}
                         onSelectImage={setSelectedImage}
                     />
@@ -264,6 +289,7 @@ const AnnotationWorkspacePage = () => {
                 onClose={handleCloseEditor}
                 onSave={handleSaveCrack}
                 onRemove={handleRemoveCrack}
+                onValidate={handleValidateCrack}
             />
 
             <ManualCrackModal

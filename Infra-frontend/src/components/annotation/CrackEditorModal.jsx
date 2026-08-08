@@ -38,6 +38,7 @@ const CrackEditorModal = ({
     onClose,
     onSave,
     onRemove,
+    onValidate,
 }) => {
     const [formData, setFormData] = useState(() =>
         buildFormData(crack)
@@ -232,6 +233,20 @@ const CrackEditorModal = ({
                     </div>
 
                     <div className="annotation-modal-actions">
+
+                        <button
+                            type="button"
+                            className="btn btn-success"
+                            disabled={
+                                isSaving ||
+                                crack.validationStatus === "Validated"
+                            }
+                            onClick={() =>
+                                onValidate(crack._id)
+                            }
+                        >
+                            Validate
+                        </button>
 
                         <button
                             type="button"
