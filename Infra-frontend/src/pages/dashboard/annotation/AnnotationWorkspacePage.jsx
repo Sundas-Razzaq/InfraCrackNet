@@ -14,8 +14,7 @@ import CompleteReviewBar from "../../../components/annotation/CompleteReviewBar"
 import { getApiErrorMessage } from "../../../api/authApi";
 
 import { toast } from "react-toastify";
-// import { completeAnnotationReview, getAnnotationWorkspace, , updateCrack, removeCrack, validateCrack, } from "../../../api/annotationApi";
-import { getAnnotationWorkspace, completeAnnotationReview, addManualCrack, } from "../../../api/annotationApi";
+import { getAnnotationWorkspace, completeAnnotationReview, addManualCrack, updateCrack, removeCrack, validateCrack, } from "../../../api/annotationApi";
 
 import CrackEditorModal from "../../../components/annotation/CrackEditorModal";
 import ManualCrackModal from "../../../components/annotation/ManualCrackModal";
@@ -29,8 +28,8 @@ const AnnotationWorkspacePage = () => {
     const [workspace, setWorkspace] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [selectedCrack, setSelectedCrack] = useState(null);
-    // const [showEditor, setShowEditor] = useState(false);
-    // const [saving, setSaving] = useState(false);
+    const [showEditor, setShowEditor] = useState(false);
+    const [saving, setSaving] = useState(false);
     const [showManualModal, setShowManualModal] = useState(false);
     const [manualModalSession, setManualModalSession] = useState(0);
     const [savingManualCrack, setSavingManualCrack] = useState(false);
@@ -43,10 +42,9 @@ const AnnotationWorkspacePage = () => {
                 await getAnnotationWorkspace(
                     analysisId
                 );
-            console.log("Annotation workspace response:", response.data);
-
 
             setWorkspace(response.data);
+
             if (
                 response.data.images.length > 0
             ) {
@@ -97,84 +95,92 @@ const AnnotationWorkspacePage = () => {
         summary,
     } = workspace;
 
-    // const handleCloseEditor = () => {
-    //     setShowEditor(false);
-    //     setSelectedCrack(null);
-    // };
 
+    const handleOpenEditor = (crack) => {
 
-    // const handleSaveCrack = async (
-    //     crackId,
-    //     updatedData
-    // ) => {
-    //     try {
-    //         setSaving(true);
+        if (crack.validationStatus === "Removed") {
+            return;
+        }
+        setSelectedCrack(crack);
+        setShowEditor(true);
+    };
 
-    //         await updateCrack(
-    //             crackId,
-    //             updatedData
-    //         );
+    const handleCloseEditor = () => {
+        setShowEditor(false);
+        setSelectedCrack(null);
+    };
 
-    //         toast.success(
-    //             "Crack updated successfully."
-    //         );
+    const handleSaveCrack = async (
+        crackId,
+        updatedData
+    ) => {
+        try {
+            setSaving(true);
 
-    //         setShowEditor(false);
+            await updateCrack(
+                crackId,
+                updatedData
+            );
 
-    //         setSelectedCrack(null);
+            toast.success(
+                "Crack updated successfully."
+            );
 
-    //         await fetchWorkspace();
-    //     } catch (error) {
-    //         toast.error(
-    //             getApiErrorMessage(error)
-    //         );
-    //     } finally {
-    //         setSaving(false);
-    //     }
-    // };
+            setShowEditor(false);
 
-    // const handleValidateCrack = async (crackId) => {
-    //     try {
-    //         setSaving(true);
+            setSelectedCrack(null);
 
-    //         await validateCrack(crackId);
+            await fetchWorkspace();
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(error)
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
 
-    //         toast.success("Crack validated successfully.");
+    const handleValidateCrack = async (crackId) => {
+        try {
+            setSaving(true);
+            await validateCrack(crackId);
 
-    //         setShowEditor(false);
-    //         setSelectedCrack(null);
+            toast.success("Crack validated successfully.");
 
-    //         await fetchWorkspace();
-    //     } catch (error) {
-    //         toast.error(
-    //             getApiErrorMessage(
-    //                 error,
-    //                 "Failed to validate crack."
-    //             )
-    //         );
-    //     } finally {
-    //         setSaving(false);
-    //     }
-    // };
+            setShowEditor(false);
+            setSelectedCrack(null);
 
-    // const handleRemoveCrack = async (crackId) => {
-    //     try {
-    //         setSaving(true);
+            await fetchWorkspace();
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to validate crack."
+                )
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
 
-    //         await removeCrack(crackId);
+    const handleRemoveCrack = async (crackId) => {
+        try {
+            setSaving(true);
 
-    //         toast.success("Crack removed successfully.");
+            await removeCrack(crackId);
 
-    //         setShowEditor(false);
-    //         setSelectedCrack(null);
+            toast.success("Crack removed successfully.");
 
-    //         await fetchWorkspace();
-    //     } catch (error) {
-    //         toast.error(getApiErrorMessage(error));
-    //     } finally {
-    //         setSaving(false);
-    //     }
-    // };
+            setShowEditor(false);
+            setSelectedCrack(null);
+
+            await fetchWorkspace();
+        } catch (error) {
+            toast.error(getApiErrorMessage(error));
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const handleOpenManualModal = () => {
         setManualModalSession((prev) => prev + 1);
@@ -265,7 +271,7 @@ const AnnotationWorkspacePage = () => {
                         image={selectedImage || images[0]}
                         cracks={cracks}
                         selectedCrack={selectedCrack}
-                        onSelectCrack={setSelectedCrack}
+                        onSelectCrack={handleOpenEditor}
                     />
 
                 </div>
@@ -274,7 +280,7 @@ const AnnotationWorkspacePage = () => {
                     summary={summary}
                     cracks={cracks}
                     selectedCrack={selectedCrack}
-                    onSelectCrack={setSelectedCrack}
+                    onSelectCrack={handleOpenEditor}
                 />
 
             </div>
@@ -285,7 +291,7 @@ const AnnotationWorkspacePage = () => {
                 onComplete={handleCompleteReview}
             />
 
-            {/* <CrackEditorModal
+            <CrackEditorModal
                 key={`${selectedCrack?._id || "crack-editor"}-${showEditor ? "open" : "closed"}`}
                 crack={selectedCrack}
                 isOpen={showEditor}
@@ -294,7 +300,7 @@ const AnnotationWorkspacePage = () => {
                 onSave={handleSaveCrack}
                 onRemove={handleRemoveCrack}
                 onValidate={handleValidateCrack}
-            /> */}
+            />
             <ManualCrackModal
                 key={manualModalSession}
                 isOpen={showManualModal}

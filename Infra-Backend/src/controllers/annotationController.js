@@ -76,25 +76,24 @@ const getAnnotationWorkspace = async (
                 cracks,
 
                 summary: {
-                    totalImages:
-                        images.length,
+                    totalImages: images.length,
 
-                    totalCracks:
-                        cracks.length,
+                    totalCracks: cracks.filter(
+                        crack =>
+                            crack.validationStatus !== "Removed"
+                    ).length,
 
-                    reviewedCracks:
-                        cracks.filter(
-                            crack =>
-                                crack.reviewStatus ===
-                                "Reviewed"
-                        ).length,
+                    reviewedCracks: cracks.filter(
+                        crack =>
+                            crack.validationStatus !== "Removed" &&
+                            crack.reviewStatus === "Completed"
+                    ).length,
 
-                    pendingReview:
-                        cracks.filter(
-                            crack =>
-                                crack.reviewStatus !==
-                                "Reviewed"
-                        ).length,
+                    pendingReview: cracks.filter(
+                        crack =>
+                            crack.validationStatus !== "Removed" &&
+                            crack.reviewStatus !== "Completed"
+                    ).length,
                 },
             },
         });
@@ -111,6 +110,12 @@ const updateCrack = async (req, res, next) => {
         const { crackId } = req.params;
 
         const crack = await CrackDetection.findById(crackId);
+        if (crack.validationStatus === "Removed") {
+            return res.status(400).json({
+                success: false,
+                message: "Removed cracks cannot be edited.",
+            });
+        }
 
         if (!crack) {
             return res.status(404).json({
@@ -199,7 +204,12 @@ const removeCrack = async (
         const crack = await CrackDetection.findById(
             crackId
         );
-
+        if (crack.validationStatus === "Removed") {
+            return res.status(400).json({
+                success: false,
+                message: "Crack is already removed.",
+            });
+        }
         if (!crack) {
             return res.status(404).json({
                 success: false,
@@ -373,6 +383,13 @@ const validateCrack = async (
             await CrackDetection.findById(
                 crackId
             );
+
+        if (crack.validationStatus === "Removed") {
+            return res.status(400).json({
+                success: false,
+                message: "Removed cracks cannot be validated.",
+            });
+        }
 
         if (!crack) {
             return res.status(404).json({

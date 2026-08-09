@@ -17,18 +17,18 @@ const severityLevels = [
     "Critical",
 ];
 
-const buildFormData = (crack = {}) => ({
-    crackClass: crack.crackClass || "",
-    severity: crack.severity || "",
+const buildFormData = (crack) => ({
+    crackClass: crack?.crackClass || "",
+    severity: crack?.severity || "",
     reviewedSeverity:
-        crack.reviewedSeverity ||
-        crack.severity ||
+        crack?.reviewedSeverity ||
+        crack?.severity ||
         "",
-    width: crack.width || "",
-    length: crack.length || "",
-    area: crack.area || "",
+    width: crack?.width || "",
+    length: crack?.length || "",
+    area: crack?.area || "",
     reviewComments:
-        crack.reviewComments || "",
+        crack?.reviewComments || "",
 });
 
 const CrackEditorModal = ({
@@ -67,7 +67,7 @@ const CrackEditorModal = ({
         );
     };
 
-    if (!isOpen || !crack) return null;
+    if (!isOpen || !crack || crack.validationStatus === "Removed") return null;
 
     return (
         <div className="annotation-modal-overlay">
