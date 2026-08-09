@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import DashboardLayout from "../../layouts/DashboardLayout";
-import { getValidationResults } from "../../api/validationApi";
+import DashboardLayout from "../../../layouts/DashboardLayout";
+import { getValidationResults } from "../../../api/validationApi";
 
 const ValidationPage = () => {
     const { analysisId } = useParams();
@@ -88,21 +88,21 @@ const ValidationPage = () => {
 
     if (loading) {
         return (
-            <DashboardLayout>
+            <>
                 <div className="validation-page">
                     <p>Loading validation...</p>
                 </div>
-            </DashboardLayout>
+            </>
         );
     }
 
     if (error) {
         return (
-            <DashboardLayout>
+            <>
                 <div className="validation-page">
                     <p>{error}</p>
                 </div>
-            </DashboardLayout>
+            </>
         );
     }
 
@@ -139,7 +139,7 @@ const ValidationPage = () => {
         summary?.averageConfidence ?? 0;
 
     return (
-        <DashboardLayout>
+        <>
 
             <div className="validation-page">
 
@@ -438,7 +438,7 @@ const ValidationPage = () => {
 
             </div>
 
-        </DashboardLayout>
+        </>
     );
 };
 

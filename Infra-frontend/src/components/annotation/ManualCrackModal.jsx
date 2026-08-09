@@ -11,7 +11,8 @@ const buildFormData = () => ({
 
 const ManualCrackModal = ({
     isOpen,
-    image,
+    images,
+    selectedImage,
     analysisId,
     isSaving,
     onClose,
@@ -19,6 +20,10 @@ const ManualCrackModal = ({
 }) => {
     const [formData, setFormData] = useState(() =>
         buildFormData()
+    );
+
+    const [selectedImageId, setSelectedImageId] = useState(
+        selectedImage?._id || ""
     );
 
     if (!isOpen) return null;
@@ -37,7 +42,7 @@ const ManualCrackModal = ({
 
         onSave({
             analysis: analysisId,
-            inspectionImage: image._id,
+            inspectionImage: selectedImageId,
 
             crackClass: formData.crackClass,
             severity: formData.severity,
@@ -60,14 +65,15 @@ const ManualCrackModal = ({
     };
 
     return (
-        <div className="modal-overlay">
-            <div className="modal manual-crack-modal">
+        <div className="annotation-modal-overlay">
+            <div className="annotation-modal">
 
-                <div className="modal-header">
+                <div className="annotation-modal-header">
                     <h2>Add Manual Crack</h2>
 
                     <button
                         type="button"
+                        className="modal-close-btn"
                         onClick={onClose}
                     >
                         ✕
@@ -75,7 +81,30 @@ const ManualCrackModal = ({
                 </div>
 
                 <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Inspection Image</label>
 
+                        <select
+                            name="inspectionImage"
+                            value={selectedImageId}
+                            onChange={(e) =>
+                                setSelectedImageId(e.target.value)
+                            }
+                            required
+                        >
+                            {images.map((imageItem, index) => (
+                                <option
+                                    key={imageItem._id}
+                                    value={imageItem._id}
+                                >
+                                    Image {index + 1}
+                                    {imageItem.originalName
+                                        ? ` — ${imageItem.originalName}`
+                                        : ""}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="form-group">
                         <label>Crack Class</label>
 
@@ -166,7 +195,7 @@ const ManualCrackModal = ({
 
                     </div>
 
-                    <div className="modal-actions">
+                    <div className="annotation-modal-actions">
 
                         <button
                             type="button"
