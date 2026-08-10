@@ -144,7 +144,7 @@ const EditInspectionPage = () => {
             );
 
             navigate(
-                `/dashboard/inspections/${id}`
+                `/dashboard/inspection/${id}`
             );
         } catch (error) {
             setErrors((prev) => ({

@@ -57,7 +57,7 @@ const InspectionCard = ({ inspection }) => {
                     className="btn btn-primary"
                     onClick={() =>
                         navigate(
-                            `/dashboard/inspections/${inspection._id}`
+                            `/dashboard/inspection/${inspection._id}`
                         )
                     }
                 >

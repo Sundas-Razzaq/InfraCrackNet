@@ -140,12 +140,12 @@ function App() {
           />
 
           <Route
-            path="inspections/:id"
+            path="inspection/:id"
             element={<InspectionDetailsPage />}
           />
 
           <Route
-            path="inspections/:id/edit"
+            path="inspection/:id/edit"
             element={<EditInspectionPage />}
           />
 

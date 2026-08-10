@@ -52,7 +52,7 @@ const InspectionDetailsPage = () => {
 
     const handleEdit = () => {
         navigate(
-            `/dashboard/inspections/${inspection._id}/edit`
+            `/dashboard/inspection/${inspection._id}/edit`
         );
     };
 

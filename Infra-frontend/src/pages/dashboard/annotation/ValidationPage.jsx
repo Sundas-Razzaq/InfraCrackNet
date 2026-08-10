@@ -1,16 +1,63 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { startAnalysis } from "../../../api/analysisApi";
 import { getValidationResults } from "../../../api/validationApi";
 
+import {
+    faChevronLeft,
+    faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+const EMPTY_CRACKS = [];
+
 const ValidationPage = () => {
     const { analysisId } = useParams();
+    const navigate = useNavigate();
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [reanalyzing, setReanalyzing] = useState(false);
-    const navigate = useNavigate();
+
+    const [currentImageIndex, setCurrentImageIndex] =
+        useState(0);
+
+    const analysis = data?.analysis;
+    const summary = data?.summary;
+    const cracks = data?.cracks ?? EMPTY_CRACKS;
+
+    /*
+     * VALIDATION IMAGES
+     *
+     * Group cracks by their inspection image.
+     * This gives us one image entry per uploaded image.
+     */
+
+    const validationImages = useMemo(() => {
+        const map = new Map();
+
+        cracks.forEach((crack) => {
+            const image = crack.inspectionImage;
+
+            if (!image?._id) {
+                return;
+            }
+
+            if (!map.has(image._id)) {
+                map.set(image._id, {
+                    ...image,
+                    cracks: [],
+                });
+            }
+
+            map.get(image._id).cracks.push(crack);
+        });
+
+        return [...map.values()];
+    }, [cracks]);
 
     useEffect(() => {
         const fetchValidationData = async () => {
@@ -27,6 +74,7 @@ const ValidationPage = () => {
                 );
 
                 setData(response.data);
+                setCurrentImageIndex(0);
             } catch (error) {
                 console.error(
                     "Failed to load validation data:",
@@ -47,9 +95,14 @@ const ValidationPage = () => {
         }
     }, [analysisId]);
 
+    /*
+     * RE-ANALYZE
+     */
+
     const handleReanalyze = async () => {
         try {
-            const inspectionId = data?.analysis?.inspection?._id;
+            const inspectionId =
+                data?.analysis?.inspection?._id;
 
             if (!inspectionId) {
                 setError(
@@ -61,9 +114,8 @@ const ValidationPage = () => {
             setReanalyzing(true);
             setError("");
 
-            const response = await startAnalysis(
-                inspectionId
-            );
+            const response =
+                await startAnalysis(inspectionId);
 
             console.log(
                 "RE-ANALYSIS RESPONSE:",
@@ -98,11 +150,66 @@ const ValidationPage = () => {
         }
     };
 
-    /*VALIDATION DATA*/
+    /*
+     * LOADING / ERROR STATES
+     */
 
-    const validationStats = useMemo(() => {
-        const cracks = data?.cracks || [];
+    if (loading) {
+        return (
+            <div className="validation-page">
+                <p>Loading validation...</p>
+            </div>
+        );
+    }
 
+    if (error) {
+        return (
+            <div className="validation-page">
+                <p>{error}</p>
+            </div>
+        );
+    }
+
+    if (!data) {
+        return null;
+    }
+
+    /*
+     * CURRENT IMAGE
+     */
+
+    const activeImageIndex = Math.min(
+        currentImageIndex,
+        Math.max(validationImages.length - 1, 0)
+    );
+
+    const currentImage =
+        validationImages[activeImageIndex] || null;
+
+    /*
+     * IMAGE NAVIGATION
+     */
+
+    const handlePreviousImage = () => {
+        setCurrentImageIndex((prev) =>
+            Math.max(prev - 1, 0)
+        );
+    };
+
+    const handleNextImage = () => {
+        setCurrentImageIndex((prev) =>
+            Math.min(
+                prev + 1,
+                validationImages.length - 1
+            )
+        );
+    };
+
+    /*
+     * VALIDATION DATA
+     */
+
+    const validationStats = (() => {
         const aiCracks = cracks.filter(
             (crack) => crack.source === "AI"
         );
@@ -134,51 +241,7 @@ const ValidationPage = () => {
             removed,
             added,
         };
-    }, [data]);
-
-    /*CHECK WHETHER ENGINEER REVIEW HAS HAPPENED*/
-
-    const hasAnnotation = useMemo(() => {
-        const cracks = data?.cracks || [];
-
-        return cracks.some(
-            (crack) =>
-                crack.source === "Manual" ||
-                crack.validationStatus !== "Pending" ||
-                crack.reviewStatus !== "Pending" ||
-                crack.isValidated === true
-        );
-    }, [data]);
-
-    /*LOADING / ERROR STATES */
-
-    if (loading) {
-        return (
-            <div className="validation-page">
-                <p>Loading validation...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="validation-page">
-                <p>{error}</p>
-            </div>
-        );
-    }
-
-    if (!data) {
-        return null;
-    }
-
-    /* BACKEND DATA*/
-
-    const {
-        analysis,
-        summary,
-        cracks = [],
-    } = data;
+    })();
 
     const {
         aiCracks,
@@ -188,7 +251,21 @@ const ValidationPage = () => {
         added,
     } = validationStats;
 
-    /*AI ANALYSIS VALUES*/
+    /*
+     * CHECK WHETHER ENGINEER REVIEW HAS HAPPENED
+     */
+
+    const hasAnnotation = cracks.some(
+        (crack) =>
+            crack.source === "Manual" ||
+            crack.validationStatus !== "Pending" ||
+            crack.reviewStatus !== "Pending" ||
+            crack.isValidated === true
+    );
+
+    /*
+     * AI ANALYSIS VALUES
+     */
 
     const totalCracks =
         summary?.totalCracks ??
@@ -216,30 +293,70 @@ const ValidationPage = () => {
         analysis?.riskScore ??
         0;
 
-    /*ENGINEER REVIEW VALUES*/
+    /*
+     * ENGINEER REVIEW VALUES
+     */
 
     const engineerCorrections =
         edited.length +
         removed.length +
         added.length;
 
-    /*Active detections after engineer review:*/
-
     const finalDetectionCount =
         confirmed.length +
         edited.length +
         added.length;
 
-    /*PREVIEW IMAGE*/
+    /*
+     * IMAGE NAVIGATION CONTROLS
+     */
 
-    const previewImage =
-        cracks.find(
-            (crack) =>
-                crack.inspectionImage?.imageUrl
-        )?.inspectionImage?.imageUrl || null;
+    const imageNavigation = (
+        <>
+            <button
+                type="button"
+                className="btn btn-outline"
+                disabled={activeImageIndex === 0}
+                onClick={handlePreviousImage}
+            >
+                <FontAwesomeIcon
+                    icon={faChevronLeft}
+                />
+            </button>
 
+            <div className="detection-summary">
+                <strong>
+                    {validationImages.length > 0
+                        ? `${activeImageIndex + 1} / ${validationImages.length}`
+                        : "0 / 0"}
+                </strong>
 
-    /*AI-ONLY VIEW*/
+                <span>
+                    {currentImage?.originalFileName ||
+                        "Inspection image"}
+                </span>
+            </div>
+
+            <button
+                type="button"
+                className="btn btn-outline"
+                disabled={
+                    validationImages.length === 0 ||
+                    activeImageIndex ===
+                    validationImages.length - 1
+                }
+                onClick={handleNextImage}
+            >
+                <FontAwesomeIcon
+                    icon={faChevronRight}
+                />
+            </button>
+        </>
+    );
+
+    /*
+     * AI-ONLY VIEW
+     */
 
     if (!hasAnnotation) {
         return (
@@ -269,6 +386,7 @@ const ValidationPage = () => {
                         >
                             Reject
                         </button>
+
                         <button
                             type="button"
                             className="btn btn-secondary"
@@ -357,10 +475,13 @@ const ValidationPage = () => {
 
                     <div className="validation-image-container">
 
-                        {previewImage ? (
+                        {currentImage?.imageUrl ? (
                             <img
-                                src={previewImage}
-                                alt="AI detection preview"
+                                src={currentImage.imageUrl}
+                                alt={
+                                    currentImage.originalFileName ||
+                                    "AI detection preview"
+                                }
                             />
                         ) : (
                             <p>
@@ -368,6 +489,10 @@ const ValidationPage = () => {
                             </p>
                         )}
 
+                    </div>
+
+                    <div className="detection-footer">
+                        {imageNavigation}
                     </div>
 
                 </div>
@@ -388,7 +513,6 @@ const ValidationPage = () => {
                         <div className="summary-cards">
 
                             <div className="summary-card">
-
                                 <strong>
                                     {aiCracks.length}
                                 </strong>
@@ -396,11 +520,9 @@ const ValidationPage = () => {
                                 <span>
                                     AI Detections
                                 </span>
-
                             </div>
 
                             <div className="summary-card">
-
                                 <strong>
                                     {overallSeverity}
                                 </strong>
@@ -408,11 +530,9 @@ const ValidationPage = () => {
                                 <span>
                                     Overall Severity
                                 </span>
-
                             </div>
 
                             <div className="summary-card">
-
                                 <strong>
                                     {riskScore}%
                                 </strong>
@@ -420,7 +540,6 @@ const ValidationPage = () => {
                                 <span>
                                     Risk Score
                                 </span>
-
                             </div>
 
                         </div>
@@ -432,7 +551,9 @@ const ValidationPage = () => {
         );
     }
 
-    /*AI VS ENGINEER COMPARISON*/
+    /*
+     * AI VS ENGINEER COMPARISON
+     */
 
     return (
         <div className="validation-page">
@@ -508,10 +629,13 @@ const ValidationPage = () => {
 
                     <div className="validation-image-container">
 
-                        {previewImage ? (
+                        {currentImage?.imageUrl ? (
                             <img
-                                src={previewImage}
-                                alt="AI detection"
+                                src={currentImage.imageUrl}
+                                alt={
+                                    currentImage.originalFileName ||
+                                    "AI detection"
+                                }
                             />
                         ) : (
                             <p>
@@ -519,6 +643,10 @@ const ValidationPage = () => {
                             </p>
                         )}
 
+                    </div>
+
+                    <div className="detection-footer">
+                        {imageNavigation}
                     </div>
 
                     <div className="validation-statistics">
@@ -587,10 +715,13 @@ const ValidationPage = () => {
 
                     <div className="validation-image-container">
 
-                        {previewImage ? (
+                        {currentImage?.imageUrl ? (
                             <img
-                                src={previewImage}
-                                alt="Engineer reviewed result"
+                                src={currentImage.imageUrl}
+                                alt={
+                                    currentImage.originalFileName ||
+                                    "Engineer reviewed result"
+                                }
                             />
                         ) : (
                             <p>
@@ -598,6 +729,10 @@ const ValidationPage = () => {
                             </p>
                         )}
 
+                    </div>
+
+                    <div className="detection-footer">
+                        {imageNavigation}
                     </div>
 
                     <div className="validation-statistics">
@@ -659,7 +794,6 @@ const ValidationPage = () => {
                 <div className="summary-cards">
 
                     <div className="summary-card">
-
                         <strong>
                             {confirmed.length}
                         </strong>
@@ -667,11 +801,9 @@ const ValidationPage = () => {
                         <span>
                             Confirmed by Engineer
                         </span>
-
                     </div>
 
                     <div className="summary-card">
-
                         <strong>
                             {edited.length}
                         </strong>
@@ -679,11 +811,9 @@ const ValidationPage = () => {
                         <span>
                             AI Detections Edited
                         </span>
-
                     </div>
 
                     <div className="summary-card">
-
                         <strong>
                             {removed.length}
                         </strong>
@@ -691,11 +821,9 @@ const ValidationPage = () => {
                         <span>
                             AI False Positives Removed
                         </span>
-
                     </div>
 
                     <div className="summary-card">
-
                         <strong>
                             {added.length}
                         </strong>
@@ -703,7 +831,6 @@ const ValidationPage = () => {
                         <span>
                             Added by Engineer
                         </span>
-
                     </div>
 
                 </div>

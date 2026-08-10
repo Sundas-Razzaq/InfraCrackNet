@@ -1,28 +1,23 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 function SidebarItem({ item, onClick }) {
+    const location = useLocation();
+
+    const isActive = item.activeMatch
+        ? item.activeMatch(location.pathname)
+        : false;
+
     return (
-        <li className="sidebar-item">
+        <li className="sidebar-nav-item">
             <NavLink
                 to={item.path}
-                end={item.path === "/dashboard"}
+                end
                 onClick={onClick}
-                className={({ isActive }) =>
-                    [
-                        "sidebar-link",
-                        isActive ? "active" : "",
-                    ]
-                        .filter(Boolean)
-                        .join(" ")
-                }
+                className={`sidebar-link ${isActive ? "active" : ""
+                    }`}
             >
-                <span
-                    className="sidebar-icon"
-                    aria-hidden="true"
-                >
-                    <FontAwesomeIcon icon={item.icon} />
-                </span>
+                <FontAwesomeIcon icon={item.icon} />
 
                 <span className="sidebar-label">
                     {item.title}
