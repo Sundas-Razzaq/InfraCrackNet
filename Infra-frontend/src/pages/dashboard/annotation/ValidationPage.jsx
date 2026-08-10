@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
-
-import DashboardLayout from "../../../layouts/DashboardLayout";
+import { useNavigate, useParams } from "react-router-dom";
+import { startAnalysis } from "../../../api/analysisApi";
 import { getValidationResults } from "../../../api/validationApi";
 
 const ValidationPage = () => {
@@ -10,6 +9,8 @@ const ValidationPage = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [reanalyzing, setReanalyzing] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchValidationData = async () => {
@@ -19,6 +20,11 @@ const ValidationPage = () => {
 
                 const response =
                     await getValidationResults(analysisId);
+
+                console.log(
+                    "VALIDATION DATA:",
+                    response.data
+                );
 
                 setData(response.data);
             } catch (error) {
@@ -41,18 +47,61 @@ const ValidationPage = () => {
         }
     }, [analysisId]);
 
-    const validationStats = useMemo(() => {
-        if (!data?.cracks) {
-            return {
-                aiCracks: [],
-                confirmed: [],
-                removed: [],
-                added: [],
-                edited: [],
-            };
-        }
+    const handleReanalyze = async () => {
+        try {
+            const inspectionId = data?.analysis?.inspection?._id;
 
-        const cracks = data.cracks;
+            if (!inspectionId) {
+                setError(
+                    "Inspection information is not available."
+                );
+                return;
+            }
+
+            setReanalyzing(true);
+            setError("");
+
+            const response = await startAnalysis(
+                inspectionId
+            );
+
+            console.log(
+                "RE-ANALYSIS RESPONSE:",
+                response
+            );
+
+            const newAnalysisId =
+                response?.data?._id;
+
+            if (!newAnalysisId) {
+                throw new Error(
+                    "New analysis could not be created."
+                );
+            }
+
+            navigate(
+                `/dashboard/inspection/${inspectionId}/ai-analysis/${newAnalysisId}`
+            );
+        } catch (error) {
+            console.error(
+                "Failed to start re-analysis:",
+                error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                error.message ||
+                "Failed to start re-analysis."
+            );
+        } finally {
+            setReanalyzing(false);
+        }
+    };
+
+    /*VALIDATION DATA*/
+
+    const validationStats = useMemo(() => {
+        const cracks = data?.cracks || [];
 
         const aiCracks = cracks.filter(
             (crack) => crack.source === "AI"
@@ -63,46 +112,59 @@ const ValidationPage = () => {
                 crack.validationStatus === "Validated"
         );
 
+        const edited = aiCracks.filter(
+            (crack) =>
+                crack.validationStatus === "Edited"
+        );
+
         const removed = aiCracks.filter(
             (crack) =>
                 crack.validationStatus === "Removed"
         );
 
         const added = cracks.filter(
-            (crack) => crack.source === "Manual"
-        );
-
-        const edited = aiCracks.filter(
             (crack) =>
-                crack.validationStatus === "Edited"
+                crack.source === "Manual"
         );
 
         return {
             aiCracks,
             confirmed,
+            edited,
             removed,
             added,
-            edited,
         };
     }, [data]);
 
+    /*CHECK WHETHER ENGINEER REVIEW HAS HAPPENED*/
+
+    const hasAnnotation = useMemo(() => {
+        const cracks = data?.cracks || [];
+
+        return cracks.some(
+            (crack) =>
+                crack.source === "Manual" ||
+                crack.validationStatus !== "Pending" ||
+                crack.reviewStatus !== "Pending" ||
+                crack.isValidated === true
+        );
+    }, [data]);
+
+    /*LOADING / ERROR STATES */
+
     if (loading) {
         return (
-            <>
-                <div className="validation-page">
-                    <p>Loading validation...</p>
-                </div>
-            </>
+            <div className="validation-page">
+                <p>Loading validation...</p>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <>
-                <div className="validation-page">
-                    <p>{error}</p>
-                </div>
-            </>
+            <div className="validation-page">
+                <p>{error}</p>
+            </div>
         );
     }
 
@@ -110,37 +172,77 @@ const ValidationPage = () => {
         return null;
     }
 
+    /* BACKEND DATA*/
+
     const {
         analysis,
         summary,
-        cracks,
+        cracks = [],
     } = data;
 
     const {
         aiCracks,
         confirmed,
+        edited,
         removed,
         added,
-        edited,
     } = validationStats;
 
-    const engineerCorrections =
-        edited.length + removed.length + added.length;
+    /*AI ANALYSIS VALUES*/
+
+    const totalCracks =
+        summary?.totalCracks ??
+        analysis?.totalCracks ??
+        aiCracks.length;
+
+    const averageConfidence =
+        summary?.averageConfidence ??
+        analysis?.averageConfidence ??
+        0;
+
+    const maxWidth =
+        summary?.maxWidth ?? 0;
+
+    const totalAffectedArea =
+        summary?.totalAffectedArea ?? 0;
 
     const overallSeverity =
         summary?.overallSeverity ||
         analysis?.overallSeverity ||
         "N/A";
 
-    const maxWidth =
-        summary?.maxWidth ?? 0;
+    const riskScore =
+        summary?.riskScore ??
+        analysis?.riskScore ??
+        0;
 
-    const averageConfidence =
-        summary?.averageConfidence ?? 0;
+    /*ENGINEER REVIEW VALUES*/
 
-    return (
-        <>
+    const engineerCorrections =
+        edited.length +
+        removed.length +
+        added.length;
 
+    /*Active detections after engineer review:*/
+
+    const finalDetectionCount =
+        confirmed.length +
+        edited.length +
+        added.length;
+
+    /*PREVIEW IMAGE*/
+
+    const previewImage =
+        cracks.find(
+            (crack) =>
+                crack.inspectionImage?.imageUrl
+        )?.inspectionImage?.imageUrl || null;
+
+
+    /*AI-ONLY VIEW*/
+
+    if (!hasAnnotation) {
+        return (
             <div className="validation-page">
 
                 {/* PAGE HEADER */}
@@ -167,12 +269,15 @@ const ValidationPage = () => {
                         >
                             Reject
                         </button>
-
                         <button
                             type="button"
                             className="btn btn-secondary"
+                            onClick={handleReanalyze}
+                            disabled={reanalyzing}
                         >
-                            Re-analyze
+                            {reanalyzing
+                                ? "Re-analyzing..."
+                                : "Re-analyze"}
                         </button>
 
                         <button
@@ -186,251 +291,356 @@ const ValidationPage = () => {
 
                 </div>
 
+                {/* AI SUMMARY */}
 
-                {/* COMPARISON */}
+                <div className="validation-statistics">
 
-                <div className="validation-comparison">
+                    <div>
+                        <span>
+                            Cracks Detected
+                        </span>
 
-                    {/* AI OUTPUT */}
+                        <strong>
+                            {totalCracks}
+                        </strong>
+                    </div>
 
-                    <div className="validation-card">
+                    <div>
+                        <span>
+                            Average Confidence
+                        </span>
 
-                        <div className="validation-card-header">
+                        <strong>
+                            {averageConfidence}%
+                        </strong>
+                    </div>
 
-                            <div>
-                                <h2>
-                                    AI Detection Output
-                                </h2>
+                    <div>
+                        <span>
+                            Maximum Crack Width
+                        </span>
 
-                                <span>
-                                    Automated
-                                </span>
-                            </div>
+                        <strong>
+                            {maxWidth} mm
+                        </strong>
+                    </div>
 
-                        </div>
+                    <div>
+                        <span>
+                            Affected Area
+                        </span>
 
-                        <div className="validation-image-container">
+                        <strong>
+                            {totalAffectedArea} cm²
+                        </strong>
+                    </div>
 
-                            {aiCracks.length > 0 &&
-                                aiCracks[0].inspectionImage ? (
-                                <img
-                                    src={
-                                        aiCracks[0]
-                                            .inspectionImage
-                                            .imageUrl
-                                    }
-                                    alt="AI annotated"
-                                />
-                            ) : (
-                                <p>
-                                    No AI image available.
-                                </p>
-                            )}
+                </div>
 
-                        </div>
+                {/* AI DETECTION PREVIEW */}
 
-                        <div className="validation-statistics">
+                <div className="validation-card">
 
-                            <div>
-                                <span>
-                                    Cracks Detected
-                                </span>
+                    <div className="validation-card-header">
 
-                                <strong>
-                                    {aiCracks.length}
-                                </strong>
-                            </div>
+                        <div>
+                            <h2>
+                                Detection Preview
+                            </h2>
 
-                            <div>
-                                <span>
-                                    Overall Severity
-                                </span>
-
-                                <strong>
-                                    {overallSeverity}
-                                </strong>
-                            </div>
-
-                            <div>
-                                <span>
-                                    Max Width
-                                </span>
-
-                                <strong>
-                                    {maxWidth} mm
-                                </strong>
-                            </div>
-
-                            <div>
-                                <span>
-                                    AI Confidence
-                                </span>
-
-                                <strong>
-                                    {averageConfidence}%
-                                </strong>
-                            </div>
-
+                            <span>
+                                Automated AI Detection
+                            </span>
                         </div>
 
                     </div>
 
+                    <div className="validation-image-container">
 
-                    {/* ENGINEER CORRECTIONS */}
+                        {previewImage ? (
+                            <img
+                                src={previewImage}
+                                alt="AI detection preview"
+                            />
+                        ) : (
+                            <p>
+                                No detection image available.
+                            </p>
+                        )}
 
-                    <div className="validation-card">
+                    </div>
 
-                        <div className="validation-card-header">
+                </div>
 
-                            <div>
-                                <h2>
-                                    Engineer Corrections
-                                </h2>
+                {/* AI DETECTION SUMMARY */}
+
+                <div className="validation-summary">
+
+                    <h2>
+                        Detected Cracks
+                    </h2>
+
+                    {aiCracks.length === 0 ? (
+                        <p>
+                            No cracks were detected.
+                        </p>
+                    ) : (
+                        <div className="summary-cards">
+
+                            <div className="summary-card">
+
+                                <strong>
+                                    {aiCracks.length}
+                                </strong>
 
                                 <span>
-                                    Reviewed
+                                    AI Detections
                                 </span>
+
+                            </div>
+
+                            <div className="summary-card">
+
+                                <strong>
+                                    {overallSeverity}
+                                </strong>
+
+                                <span>
+                                    Overall Severity
+                                </span>
+
+                            </div>
+
+                            <div className="summary-card">
+
+                                <strong>
+                                    {riskScore}%
+                                </strong>
+
+                                <span>
+                                    Risk Score
+                                </span>
+
                             </div>
 
                         </div>
+                    )}
 
-                        <div className="validation-image-container">
+                </div>
 
-                            {cracks.length > 0 &&
-                                cracks[0].inspectionImage ? (
-                                <img
-                                    src={
-                                        cracks[0]
-                                            .inspectionImage
-                                            .imageUrl
-                                    }
-                                    alt="Engineer annotated"
-                                />
-                            ) : (
-                                <p>
-                                    No reviewed image
-                                    available.
-                                </p>
-                            )}
+            </div>
+        );
+    }
 
+    /*AI VS ENGINEER COMPARISON*/
+
+    return (
+        <div className="validation-page">
+
+            {/* PAGE HEADER */}
+
+            <div className="validation-header">
+
+                <div>
+                    <h1>
+                        AI vs Human Validation
+                    </h1>
+
+                    <p>
+                        Compare AI output with
+                        engineer corrections
+                        before finalizing
+                    </p>
+                </div>
+
+                <div className="validation-actions">
+
+                    <button
+                        type="button"
+                        className="btn btn-danger"
+                    >
+                        Reject
+                    </button>
+
+                    <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleReanalyze}
+                        disabled={reanalyzing}
+                    >
+                        {reanalyzing
+                            ? "Re-analyzing..."
+                            : "Re-analyze"}
+                    </button>
+
+                    <button
+                        type="button"
+                        className="btn btn-primary"
+                    >
+                        Approve & Finalize
+                    </button>
+
+                </div>
+
+            </div>
+
+            {/* COMPARISON */}
+
+            <div className="validation-comparison">
+
+                {/* AI OUTPUT */}
+
+                <div className="validation-card">
+
+                    <div className="validation-card-header">
+
+                        <div>
+                            <h2>
+                                AI Detection Output
+                            </h2>
+
+                            <span>
+                                Original Automated Result
+                            </span>
                         </div>
 
-                        <div className="validation-statistics">
+                    </div>
 
-                            <div>
-                                <span>
-                                    Cracks Confirmed
-                                </span>
+                    <div className="validation-image-container">
 
-                                <strong>
-                                    {confirmed.length}
-                                </strong>
-                            </div>
+                        {previewImage ? (
+                            <img
+                                src={previewImage}
+                                alt="AI detection"
+                            />
+                        ) : (
+                            <p>
+                                No AI image available.
+                            </p>
+                        )}
 
-                            <div>
-                                <span>
-                                    Removed
-                                </span>
+                    </div>
 
-                                <strong>
-                                    {removed.length}
-                                </strong>
-                            </div>
+                    <div className="validation-statistics">
 
-                            <div>
-                                <span>
-                                    Corrections
-                                </span>
+                        <div>
+                            <span>
+                                Cracks Detected
+                            </span>
 
-                                <strong>
-                                    {engineerCorrections}
-                                </strong>
-                            </div>
+                            <strong>
+                                {totalCracks}
+                            </strong>
+                        </div>
 
-                            <div>
-                                <span>
-                                    Added by Engineer
-                                </span>
+                        <div>
+                            <span>
+                                Overall Severity
+                            </span>
 
-                                <strong>
-                                    {added.length}
-                                </strong>
-                            </div>
+                            <strong>
+                                {overallSeverity}
+                            </strong>
+                        </div>
 
+                        <div>
+                            <span>
+                                Maximum Width
+                            </span>
+
+                            <strong>
+                                {maxWidth} mm
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                AI Confidence
+                            </span>
+
+                            <strong>
+                                {averageConfidence}%
+                            </strong>
                         </div>
 
                     </div>
 
                 </div>
 
+                {/* ENGINEER RESULT */}
 
-                {/* VALIDATION SUMMARY */}
+                <div className="validation-card">
 
-                <div className="validation-summary">
+                    <div className="validation-card-header">
 
-                    <h2>
-                        Validation Summary
-                    </h2>
-
-                    <div className="summary-cards">
-
-                        <div className="summary-card">
-
-                            <strong>
-                                {confirmed.length}
-                            </strong>
+                        <div>
+                            <h2>
+                                Engineer Corrections
+                            </h2>
 
                             <span>
-                                Confirmed by AI & Engineer
+                                Reviewed Result
                             </span>
-
-                        </div>
-
-
-                        <div className="summary-card">
-
-                            <strong>
-                                {removed.length}
-                            </strong>
-
-                            <span>
-                                AI False Positives Removed
-                            </span>
-
-                        </div>
-
-
-                        <div className="summary-card">
-
-                            <strong>
-                                {added.length}
-                            </strong>
-
-                            <span>
-                                Added by Engineer
-                            </span>
-
                         </div>
 
                     </div>
 
+                    <div className="validation-image-container">
 
-                    {/* VALIDATION NOTES */}
+                        {previewImage ? (
+                            <img
+                                src={previewImage}
+                                alt="Engineer reviewed result"
+                            />
+                        ) : (
+                            <p>
+                                No reviewed image available.
+                            </p>
+                        )}
 
-                    <div className="validation-notes">
+                    </div>
 
-                        <strong>
-                            Validation Notes:
-                        </strong>
+                    <div className="validation-statistics">
 
-                        <span>
-                            {edited.length > 0
-                                ? `${edited.length} AI detection${edited.length !== 1
-                                    ? "s"
-                                    : ""
-                                } edited during review.`
-                                : "No additional validation notes."}
-                        </span>
+                        <div>
+                            <span>
+                                Confirmed
+                            </span>
+
+                            <strong>
+                                {confirmed.length}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Edited
+                            </span>
+
+                            <strong>
+                                {edited.length}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Removed
+                            </span>
+
+                            <strong>
+                                {removed.length}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Added by Engineer
+                            </span>
+
+                            <strong>
+                                {added.length}
+                            </strong>
+                        </div>
 
                     </div>
 
@@ -438,7 +648,103 @@ const ValidationPage = () => {
 
             </div>
 
-        </>
+            {/* ENGINEER REVIEW RESULT */}
+
+            <div className="validation-summary">
+
+                <h2>
+                    Validation Summary
+                </h2>
+
+                <div className="summary-cards">
+
+                    <div className="summary-card">
+
+                        <strong>
+                            {confirmed.length}
+                        </strong>
+
+                        <span>
+                            Confirmed by Engineer
+                        </span>
+
+                    </div>
+
+                    <div className="summary-card">
+
+                        <strong>
+                            {edited.length}
+                        </strong>
+
+                        <span>
+                            AI Detections Edited
+                        </span>
+
+                    </div>
+
+                    <div className="summary-card">
+
+                        <strong>
+                            {removed.length}
+                        </strong>
+
+                        <span>
+                            AI False Positives Removed
+                        </span>
+
+                    </div>
+
+                    <div className="summary-card">
+
+                        <strong>
+                            {added.length}
+                        </strong>
+
+                        <span>
+                            Added by Engineer
+                        </span>
+
+                    </div>
+
+                </div>
+
+                {/* FINAL DETECTION COUNT */}
+
+                <div className="validation-notes">
+
+                    <strong>
+                        Final Detection Count:
+                    </strong>
+
+                    <span>
+                        {finalDetectionCount}
+                    </span>
+
+                </div>
+
+                {/* VALIDATION NOTES */}
+
+                <div className="validation-notes">
+
+                    <strong>
+                        Validation Notes:
+                    </strong>
+
+                    <span>
+                        {engineerCorrections > 0
+                            ? `${engineerCorrections} correction${engineerCorrections !== 1
+                                ? "s"
+                                : ""
+                            } made during annotation.`
+                            : "No corrections were made during annotation."
+                        }
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
     );
 };
 

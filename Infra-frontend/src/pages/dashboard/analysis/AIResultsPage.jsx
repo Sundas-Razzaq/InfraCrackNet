@@ -17,19 +17,20 @@ import { toast } from "react-toastify";
 const AIResultsPage = () => {
     const { analysisId } = useParams();
     const navigate = useNavigate();
-    const [loading, setLoading] =
-        useState(true);
 
-    const [results, setResults] =
-        useState(null);
+    const [loading, setLoading] = useState(true);
+    const [results, setResults] = useState(null);
 
     useEffect(() => {
         const fetchResults = async () => {
             try {
                 const response =
-                    await getAnalysisResults(
-                        analysisId
-                    );
+                    await getAnalysisResults(analysisId);
+
+                console.log(
+                    "AI ANALYSIS RESULTS:",
+                    response.data
+                );
 
                 setResults(response.data);
             } catch (error) {
@@ -66,7 +67,7 @@ const AIResultsPage = () => {
     const {
         analysis,
         summary,
-        cracks,
+        cracks = [],
     } = results;
 
     return (
@@ -109,8 +110,10 @@ const AIResultsPage = () => {
 
             <InspectionStepper currentStep={4} />
 
+            {/* AI SUMMARY */}
             <SummaryCards
-                analysis={summary}
+                summary={summary}
+                cracks={cracks}
             />
 
             <div className="analysis-results-grid">
