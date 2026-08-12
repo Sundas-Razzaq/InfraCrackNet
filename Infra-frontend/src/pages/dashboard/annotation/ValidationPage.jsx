@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import RejectAnalysisModal from "../../../components/annotation/RejectAnalysisModal";
 import { startAnalysis } from "../../../api/analysisApi";
-import { getValidationResults } from "../../../api/validationApi";
+import { approveAnalysis, rejectAnalysis, getValidationResults } from "../../../api/validationApi";
 
 import {
     faChevronLeft,
@@ -21,7 +21,9 @@ const ValidationPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [reanalyzing, setReanalyzing] = useState(false);
-
+    const [approving, setApproving] = useState(false);
+    const [rejecting, setRejecting] = useState(false);
+    const [showRejectModal, setShowRejectModal] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] =
         useState(0);
 
@@ -31,9 +33,6 @@ const ValidationPage = () => {
 
     /*
      * VALIDATION IMAGES
-     *
-     * Group cracks by their inspection image.
-     * This gives us one image entry per uploaded image.
      */
 
     const validationImages = useMemo(() => {
@@ -95,6 +94,86 @@ const ValidationPage = () => {
         }
     }, [analysisId]);
 
+    const handleApprove = async () => {
+        try {
+            const inspectionId =
+                data?.analysis?.inspection?._id;
+
+            if (!inspectionId) {
+                setError(
+                    "Inspection information is not available."
+                );
+                return;
+            }
+
+            setApproving(true);
+            setError("");
+
+            await approveAnalysis(analysisId);
+
+            // Keep local state synchronized
+            setData((prev) => ({
+                ...prev,
+                analysis: {
+                    ...prev.analysis,
+                    validationStatus: "Approved",
+                    validatedAt: new Date(),
+                },
+            }));
+
+            navigate(
+                `/dashboard/inspection/${inspectionId}/report`
+            );
+        } catch (error) {
+            console.error(
+                "Failed to approve analysis:",
+                error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Failed to approve analysis."
+            );
+        } finally {
+            setApproving(false);
+        }
+    };
+
+    const handleReject = async (rejectionReason) => {
+        try {
+            setRejecting(true);
+            setError("");
+
+            await rejectAnalysis(
+                analysisId,
+                rejectionReason
+            );
+
+            setShowRejectModal(false);
+
+            setData((prev) => ({
+                ...prev,
+                analysis: {
+                    ...prev.analysis,
+                    validationStatus: "Rejected",
+                    rejectionReason,
+                    validatedAt: new Date(),
+                },
+            }));
+        } catch (error) {
+            console.error(
+                "Failed to reject analysis:",
+                error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Failed to reject analysis."
+            );
+        } finally {
+            setRejecting(false);
+        }
+    };
     /*
      * RE-ANALYZE
      */
@@ -383,6 +462,8 @@ const ValidationPage = () => {
                         <button
                             type="button"
                             className="btn btn-danger"
+                            onClick={() => setShowRejectModal(true)}
+                            disabled={approving || rejecting}
                         >
                             Reject
                         </button>
@@ -401,8 +482,12 @@ const ValidationPage = () => {
                         <button
                             type="button"
                             className="btn btn-primary"
+                            onClick={handleApprove}
+                            disabled={approving || rejecting}
                         >
-                            Approve & Finalize
+                            {approving
+                                ? "Approving..."
+                                : "Approve & Finalize"}
                         </button>
 
                     </div>
@@ -546,6 +631,12 @@ const ValidationPage = () => {
                     )}
 
                 </div>
+                <RejectAnalysisModal
+                    isOpen={showRejectModal}
+                    isSubmitting={rejecting}
+                    onClose={() => setShowRejectModal(false)}
+                    onConfirm={handleReject}
+                />
 
             </div>
         );
@@ -579,6 +670,8 @@ const ValidationPage = () => {
                     <button
                         type="button"
                         className="btn btn-danger"
+                        onClick={() => setShowRejectModal(true)}
+                        disabled={approving || rejecting}
                     >
                         Reject
                     </button>
@@ -597,8 +690,12 @@ const ValidationPage = () => {
                     <button
                         type="button"
                         className="btn btn-primary"
+                        onClick={handleApprove}
+                        disabled={approving || rejecting}
                     >
-                        Approve & Finalize
+                        {approving
+                            ? "Approving..."
+                            : "Approve & Finalize"}
                     </button>
 
                 </div>
@@ -870,6 +967,12 @@ const ValidationPage = () => {
                 </div>
 
             </div>
+            <RejectAnalysisModal
+                isOpen={showRejectModal}
+                isSubmitting={rejecting}
+                onClose={() => setShowRejectModal(false)}
+                onConfirm={handleReject}
+            />
 
         </div>
     );

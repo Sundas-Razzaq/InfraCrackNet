@@ -106,6 +106,36 @@ const aiAnalysisSchema = new mongoose.Schema(
                 "Error message cannot exceed 500 characters.",
             ],
         },
+        validationStatus: {
+            type: String,
+            enum: [
+                "Pending",
+                "Approved",
+                "Rejected",
+            ],
+            default: "Pending",
+        },
+
+        validatedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+
+        validatedAt: {
+            type: Date,
+            default: null,
+        },
+
+        rejectionReason: {
+            type: String,
+            trim: true,
+            maxlength: [
+                1000,
+                "Rejection reason cannot exceed 1000 characters.",
+            ],
+            default: "",
+        },
 
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,

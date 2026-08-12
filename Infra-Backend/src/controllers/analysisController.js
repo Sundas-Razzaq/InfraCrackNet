@@ -90,6 +90,7 @@ const startAnalysis = async (req, res, next) => {
                 status: "Queued",
                 progress: 0,
                 currentStep: "Waiting in queue",
+                validationStatus: "Pending",
 
                 totalImages,
                 processedImages: 0,
@@ -284,9 +285,7 @@ const getAnalysisResults = async (
             )
             .sort({ createdAt: 1 });
 
-        // ----------------------------
         // Aggregated Statistics
-        // ----------------------------
 
         const maxWidth =
             cracks.length > 0
@@ -385,6 +384,154 @@ const getAnalysisResults = async (
         next(error);
     }
 };
+// APPROVE AI ANALYSIS
+const approveAnalysis = async (req, res, next) => {
+    try {
+        const { analysisId } = req.params;
+
+        if (
+            !mongoose.Types.ObjectId.isValid(analysisId)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid analysis ID.",
+            });
+        }
+
+        const analysis = await AIAnalysis.findOne({
+            _id: analysisId,
+            createdBy: req.user.id,
+        });
+
+        if (!analysis) {
+            return res.status(404).json({
+                success: false,
+                message: "Analysis not found.",
+            });
+        }
+
+        // Analysis must be completed before approval
+        if (analysis.status !== "Completed") {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Only completed analyses can be approved.",
+            });
+        }
+
+        // Prevent approving an already decided analysis
+        if (
+            ["Approved", "Rejected"].includes(
+                analysis.validationStatus
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    `Analysis has already been ${analysis.validationStatus.toLowerCase()}.`,
+            });
+        }
+
+        analysis.validationStatus = "Approved";
+        analysis.validatedBy = req.user.id;
+        analysis.validatedAt = new Date();
+        analysis.rejectionReason = "";
+
+        await analysis.save();
+
+        // Move inspection to validated state
+        await Inspection.findByIdAndUpdate(
+            analysis.inspection,
+            {
+                status: "Validated",
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message:
+                "AI analysis approved successfully.",
+            data: analysis,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// REJECT AI ANALYSIS
+const rejectAnalysis = async (req, res, next) => {
+    try {
+        const { analysisId } = req.params;
+        const { rejectionReason } = req.body;
+
+        if (
+            !mongoose.Types.ObjectId.isValid(analysisId)
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid analysis ID.",
+            });
+        }
+
+        const analysis = await AIAnalysis.findOne({
+            _id: analysisId,
+            createdBy: req.user.id,
+        });
+
+        if (!analysis) {
+            return res.status(404).json({
+                success: false,
+                message: "Analysis not found.",
+            });
+        }
+
+        if (analysis.status !== "Completed") {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Only completed analyses can be rejected.",
+            });
+        }
+
+        if (
+            ["Approved", "Rejected"].includes(
+                analysis.validationStatus
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    `Analysis has already been ${analysis.validationStatus.toLowerCase()}.`,
+            });
+        }
+
+        analysis.validationStatus = "Rejected";
+        analysis.validatedBy = req.user.id;
+        analysis.validatedAt = new Date();
+        analysis.rejectionReason =
+            rejectionReason.trim();
+
+        await analysis.save();
+
+        // Rejected analysis can be analyzed again
+        await Inspection.findByIdAndUpdate(
+            analysis.inspection,
+            {
+                status: "Images Uploaded",
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message:
+                "AI analysis rejected successfully.",
+            data: analysis,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 // CANCEL ANALYSIS 
 
@@ -472,5 +619,7 @@ module.exports = {
     getInspectionAnalysis,
     getAnalysisProgress,
     getAnalysisResults,
+    approveAnalysis,
+    rejectAnalysis,
     cancelAnalysis,
 };

@@ -5,11 +5,14 @@ const {
     getInspectionAnalysis,
     getAnalysisProgress,
     getAnalysisResults,
+    approveAnalysis,
+    rejectAnalysis,
     cancelAnalysis,
 } = require("../controllers/analysisController");
 
 const {
     startAnalysisValidation,
+    rejectAnalysisValidation,
 } = require("../validations/analysisValidators");
 
 const {
@@ -45,6 +48,23 @@ router.get(
     "/:analysisId/results",
     protect,
     getAnalysisResults
+);
+
+// Approve AI Analysis
+router.patch(
+    "/:analysisId/approve",
+    protect,
+    authorizeRoles("Inspector", "Engineer"),
+    approveAnalysis
+);
+
+// Reject AI Analysis
+router.patch(
+    "/:analysisId/reject",
+    protect,
+    authorizeRoles("Inspector", "Engineer"),
+    rejectAnalysisValidation,
+    rejectAnalysis
 );
 
 // Cancel Analysis 
