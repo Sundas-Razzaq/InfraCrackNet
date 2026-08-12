@@ -3,6 +3,7 @@ const router = express.Router();
 const {
     startAnalysis,
     getInspectionAnalysis,
+    getAllAnalysis,
     getAnalysisProgress,
     getAnalysisResults,
     approveAnalysis,
@@ -34,6 +35,13 @@ router.get(
     "/inspection/:inspectionId",
     protect,
     getInspectionAnalysis
+);
+
+// Get All AI Analyses
+router.get(
+    "/",
+    protect,
+    getAllAnalysis
 );
 
 // Get Analysis Progress 

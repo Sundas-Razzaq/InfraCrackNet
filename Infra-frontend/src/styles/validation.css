@@ -366,6 +366,276 @@
 }
 
 /* =========================================================
+   REJECT ANALYSIS MODAL
+   ========================================================= */
+
+.reject-analysis-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+}
+
+.reject-analysis-modal {
+    width: 100%;
+    max-width: 520px;
+
+    background: #ffffff;
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 45px rgba(15, 23, 42, 0.18),
+        0 8px 20px rgba(15, 23, 42, 0.08);
+
+    overflow: hidden;
+
+    animation: rejectModalEnter 0.2s ease-out;
+}
+
+
+/* HEADER */
+
+.reject-analysis-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 22px 24px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.reject-analysis-header h2 {
+    margin: 0;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+.reject-analysis-header p {
+    margin: 6px 0 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #64748b;
+}
+
+
+/* CLOSE BUTTON */
+
+.reject-analysis-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: #64748b;
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.reject-analysis-close:hover:not(:disabled) {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.reject-analysis-close:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* BODY */
+
+.reject-analysis-body {
+    padding: 24px;
+}
+
+.reject-analysis-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.reject-analysis-field label {
+    margin-bottom: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #334155;
+}
+
+.reject-analysis-field textarea {
+    width: 100%;
+    min-height: 130px;
+
+    padding: 12px 14px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+
+    resize: vertical;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reject-analysis-field textarea::placeholder {
+    color: #94a3b8;
+}
+
+.reject-analysis-field textarea:focus {
+    border-color: #1e3a8a;
+
+    box-shadow:
+        0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.reject-analysis-field textarea:disabled {
+    background: #f8fafc;
+    cursor: not-allowed;
+}
+
+
+/* CHARACTER COUNT / ERROR */
+
+.reject-analysis-footer-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-top: 7px;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    color: #64748b;
+}
+
+.reject-analysis-footer-info span:last-child {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.reject-analysis-footer-info .form-error {
+    margin: 0;
+}
+
+
+/* ACTIONS */
+
+.reject-analysis-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 16px 24px;
+
+    background: #f8fafc;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+.reject-analysis-actions .btn {
+    min-width: 120px;
+}
+
+
+/* ERROR */
+
+.reject-analysis-field .form-error {
+    color: #dc2626;
+}
+
+
+/* ANIMATION */
+
+@keyframes rejectModalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+    .reject-analysis-overlay {
+        padding: 16px;
+    }
+
+    .reject-analysis-modal {
+        max-width: 100%;
+    }
+
+    .reject-analysis-header {
+        padding: 18px;
+    }
+
+    .reject-analysis-body {
+        padding: 18px;
+    }
+
+    .reject-analysis-actions {
+        padding: 14px 18px;
+    }
+
+    .reject-analysis-actions .btn {
+        flex: 1;
+        min-width: 0;
+    }
+}
+/* =========================================================
    Responsive — Tablet
    ========================================================= */
 

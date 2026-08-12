@@ -44,31 +44,27 @@ const RejectAnalysisModal = ({
     };
 
     return (
-        <div
-            className="modal-overlay"
-            onMouseDown={(e) => {
-                if (
-                    e.target === e.currentTarget &&
-                    !isSubmitting
-                ) {
-                    onClose();
-                }
-            }}
-        >
+        <div className="reject-analysis-overlay">
             <div
-                className="modal-content"
+                className="reject-analysis-modal"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="reject-analysis-title"
             >
-                <div className="modal-header">
-                    <h2 id="reject-analysis-title">
-                        Reject AI Analysis
-                    </h2>
+                <div className="reject-analysis-header">
+                    <div>
+                        <h2 id="reject-analysis-title">
+                            Reject AI Analysis
+                        </h2>
+
+                        <p>
+                            Rejecting this analysis requires a reason.
+                        </p>
+                    </div>
 
                     <button
                         type="button"
-                        className="modal-close"
+                        className="reject-analysis-close"
                         onClick={onClose}
                         disabled={isSubmitting}
                         aria-label="Close"
@@ -77,15 +73,8 @@ const RejectAnalysisModal = ({
                     </button>
                 </div>
 
-                <div className="modal-body">
-                    <p>
-                        Please provide a reason for rejecting
-                        this AI analysis. The reason will be
-                        saved with the analysis for future
-                        reference.
-                    </p>
-
-                    <div className="form-group">
+                <div className="reject-analysis-body">
+                    <div className="reject-analysis-field">
                         <label htmlFor="rejectionReason">
                             Rejection Reason
                         </label>
@@ -101,19 +90,19 @@ const RejectAnalysisModal = ({
                             disabled={isSubmitting}
                         />
 
-                        <div className="modal-character-count">
-                            {reason.length}/1000
-                        </div>
+                        <div className="reject-analysis-footer-info">
+                            <span>
+                                {error || "Please provide a clear reason for rejection."}
+                            </span>
 
-                        {error && (
-                            <p className="form-error">
-                                {error}
-                            </p>
-                        )}
+                            <span>
+                                {reason.length}/1000
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="modal-footer">
+                <div className="reject-analysis-actions">
                     <button
                         type="button"
                         className="btn btn-secondary"

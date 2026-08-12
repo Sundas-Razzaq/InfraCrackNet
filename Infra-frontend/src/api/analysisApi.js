@@ -19,6 +19,13 @@ export const getInspectionAnalysis =
         return response.data;
     };
 
+//GET ALL ANALYSES
+export const getAllAnalysis = async () => {
+    const response = await authApi.get("/analysis");
+
+    return response.data;
+};
+
 // GET ANALYSIS PROGRESS
 export const getAnalysisProgress = async (
     analysisId

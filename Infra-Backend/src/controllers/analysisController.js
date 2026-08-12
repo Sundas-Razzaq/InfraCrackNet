@@ -171,6 +171,40 @@ const getInspectionAnalysis = async (
     }
 };
 
+// GET ALL AI ANALYSES
+
+const getAllAnalysis = async (req, res, next) => {
+    try {
+        const analyses = await AIAnalysis.find({
+            createdBy: req.user.id,
+        })
+            .select(
+                "analysisCode analysisVersion status validationStatus progress currentStep totalImages processedImages averageConfidence overallSeverity riskScore startedAt completedAt createdAt validatedBy validatedAt rejectionReason inspection"
+            )
+            .populate({
+                path: "inspection",
+                select:
+                    "inspectionCode inspectionType structureArea status project",
+                populate: {
+                    path: "project",
+                    select:
+                        "projectCode name structureType location priority",
+                },
+            })
+            .sort({
+                createdAt: -1,
+            });
+
+        return res.status(200).json({
+            success: true,
+            count: analyses.length,
+            data: analyses,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // GET ANALYSIS PROGRESS 
 
 const getAnalysisProgress = async (
@@ -617,6 +651,7 @@ const cancelAnalysis = async (
 module.exports = {
     startAnalysis,
     getInspectionAnalysis,
+    getAllAnalysis,
     getAnalysisProgress,
     getAnalysisResults,
     approveAnalysis,

@@ -29,6 +29,8 @@ import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPag
 import InspectionDetailsPage from "./pages/dashboard/inspection/inspectionDetailsPage";
 import EditInspectionPage from "./pages/dashboard/inspection/editInspectionPage";
 import UploadImagesPage from "./pages/dashboard/inspection/UploadImagesPage";
+import AnalyticsPage from "./pages/dashboard/analysis/analysisPage";
+import AnalysisDetailsPage from "./pages/dashboard/analysis/analysisDetailsPage";
 import AIProcessingPage from "./pages/dashboard/analysis/AIProcessingPage";
 import AIResultsPage from "./pages/dashboard/analysis/AIResultsPage";
 import AnnotationWorkspacePage from "./pages/dashboard/annotation/AnnotationWorkspacePage";
@@ -155,6 +157,16 @@ function App() {
           />
 
           {/* analysis routes */}
+          <Route
+            path="/dashboard/ai-analysis"
+            element={<AnalyticsPage />}
+          />
+
+          <Route
+            path="/dashboard/ai-analysis/:analysisId"
+            element={<AnalysisDetailsPage />}
+          />
+
           <Route
             path="inspection/:inspectionId/ai-analysis/:analysisId"
             element={<AIProcessingPage />}
