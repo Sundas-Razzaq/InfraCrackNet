@@ -21,19 +21,6 @@ const AnalysisCard = ({ analysis }) => {
         navigate(`/dashboard/ai-analysis/${_id}`);
     };
 
-    const getValidationClass = () => {
-        switch (validationStatus) {
-            case "Approved":
-                return "analysis-status approved";
-
-            case "Rejected":
-                return "analysis-status rejected";
-
-            default:
-                return "analysis-status pending";
-        }
-    };
-
     const getStatusClass = (value) => {
         switch (value) {
             case "Approved":
@@ -86,10 +73,6 @@ const AnalysisCard = ({ analysis }) => {
                     {validationStatus || "Pending"}
                 </span>
 
-
-                <span className={getValidationClass()}>
-                    {validationStatus || "Pending"}
-                </span>
             </div>
 
             <div className="analysis-card-project">
