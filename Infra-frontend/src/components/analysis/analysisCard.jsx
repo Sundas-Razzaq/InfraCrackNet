@@ -18,7 +18,7 @@ const AnalysisCard = ({ analysis }) => {
     } = analysis;
 
     const handleClick = () => {
-        navigate(`/dashboard/analytics/${_id}`);
+        navigate(`/dashboard/ai-analysis/${_id}`);
     };
 
     const getValidationClass = () => {

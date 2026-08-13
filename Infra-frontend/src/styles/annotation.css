@@ -341,7 +341,7 @@
     flex: 1;
     min-height: 520px;
     overflow: hidden;
-    background-color: var(--color-bg-dark);
+    background-color: var(--color-bg-card);
     cursor: default;
 }
 
@@ -358,6 +358,7 @@
 .canvas-content {
     position: relative;
     width: 100%;
+    height: auto;
     transform-origin: center center;
     transition: transform var(--transition-medium);
     user-select: none;
@@ -1285,9 +1286,6 @@
 }
 
 @media (max-width: 768px) {
-    .canvas-wrapper {
-        min-height: 420px;
-    }
 
     .canvas-header {
         padding: var(--space-12) var(--space-16);
