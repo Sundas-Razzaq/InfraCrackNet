@@ -35,6 +35,8 @@ import AIProcessingPage from "./pages/dashboard/analysis/AIProcessingPage";
 import AIResultsPage from "./pages/dashboard/analysis/AIResultsPage";
 import AnnotationWorkspacePage from "./pages/dashboard/annotation/AnnotationWorkspacePage";
 import ValidationPage from "./pages/dashboard/annotation/ValidationPage";
+import ReportsPage from "./pages/dashboard/reports/reportsPage";
+// import ReportDetailsPage from "./pages/dashboard/reports/reportDetailsPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -188,6 +190,19 @@ function App() {
             path="inspection/:inspectionId/validation/:analysisId"
             element={<ValidationPage />}
           />
+
+          {/* report routes */}
+
+          <Route
+            path="reports"
+            element={<ReportsPage />}
+          />
+          {/* 
+          <Route
+            path="reports/:reportId"
+            element={<ReportDetailsPage />}
+          /> */}
+
           <Route
             path="profile"
             element={<Profile />}

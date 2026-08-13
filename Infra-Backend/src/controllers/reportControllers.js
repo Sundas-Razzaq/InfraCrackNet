@@ -274,11 +274,6 @@ const getAllReports = async (req, res, next) => {
             data: filteredReports,
         });
 
-        return res.status(200).json({
-            success: true,
-            count: reports.length,
-            data: reports,
-        });
     } catch (error) {
         next(error);
     }
@@ -289,7 +284,8 @@ const downloadReport = async (req, res, next) => {
     try {
         const { reportId } = req.params;
 
-        const report = await Report.findById(reportId);
+        const report = await Report.findById(reportId)
+            .populate("inspection", "createdBy");
 
         if (!report) {
             return res.status(404).json({

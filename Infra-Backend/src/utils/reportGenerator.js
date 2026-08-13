@@ -420,7 +420,7 @@ const generateReportPDF = async (reportData) => {
 
     (reportData.cracks || []).forEach((crack, index) => {
 
-        const rowY = doc.y;
+        let rowY = doc.y;
         if (rowY > 700) {
 
             nextPage(doc, 2, reportData.reportCode);
