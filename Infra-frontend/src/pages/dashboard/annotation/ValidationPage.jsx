@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import RejectAnalysisModal from "../../../components/annotation/RejectAnalysisModal";
 import { startAnalysis } from "../../../api/analysisApi";
 import { approveAnalysis, rejectAnalysis, getValidationResults } from "../../../api/validationApi";
-
+import { generateReport } from "../../../api/reportApi";
 import {
     faChevronLeft,
     faChevronRight,
@@ -109,30 +109,45 @@ const ValidationPage = () => {
             setApproving(true);
             setError("");
 
+            // STEP 1: Approve analysis
             await approveAnalysis(analysisId);
 
-            // Keep local state synchronized
-            setData((prev) => ({
-                ...prev,
-                analysis: {
-                    ...prev.analysis,
-                    validationStatus: "Approved",
-                    validatedAt: new Date(),
-                },
-            }));
+            // STEP 2: Generate final report
+            const reportResponse =
+                await generateReport(analysisId);
 
-            navigate(
-                `/dashboard/inspection/${inspectionId}/report`
+            console.log(
+                "GENERATED REPORT:",
+                reportResponse
             );
+
+            const report =
+                reportResponse?.data;
+
+            const reportId =
+                report?._id;
+
+            if (!reportId) {
+                throw new Error(
+                    "Report was generated but report ID was not returned."
+                );
+            }
+
+            // STEP 3: Navigate to report details
+            navigate(
+                `/dashboard/inspection/${inspectionId}/report/${reportId}`
+            );
+
         } catch (error) {
             console.error(
-                "Failed to approve analysis:",
+                "Failed to approve and generate report:",
                 error
             );
 
             setError(
                 error.response?.data?.message ||
-                "Failed to approve analysis."
+                error.message ||
+                "Failed to approve and generate report."
             );
         } finally {
             setApproving(false);

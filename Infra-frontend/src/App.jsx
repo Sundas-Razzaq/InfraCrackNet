@@ -36,8 +36,8 @@ import AIResultsPage from "./pages/dashboard/analysis/AIResultsPage";
 import AnnotationWorkspacePage from "./pages/dashboard/annotation/AnnotationWorkspacePage";
 import ValidationPage from "./pages/dashboard/annotation/ValidationPage";
 import ReportsPage from "./pages/dashboard/reports/reportsPage";
-// import ReportDetailsPage from "./pages/dashboard/reports/reportDetailsPage";
-
+import ReportDetailsPage from "./pages/dashboard/reports/reportDetailsPage";
+import ReportExportPage from "./pages/dashboard/reports/reportExportPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function LoginRoute() {
@@ -197,11 +197,16 @@ function App() {
             path="reports"
             element={<ReportsPage />}
           />
-          {/* 
+
           <Route
-            path="reports/:reportId"
+            path="/dashboard/inspection/:inspectionId/report/:reportId"
             element={<ReportDetailsPage />}
-          /> */}
+          />
+
+          <Route
+            path="/dashboard/reports/:reportId/export"
+            element={<ReportExportPage />}
+          />
 
           <Route
             path="profile"
