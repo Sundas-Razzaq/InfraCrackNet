@@ -21,17 +21,16 @@ const AnalysisCard = ({ analysis }) => {
         navigate(`/dashboard/ai-analysis/${_id}`);
     };
 
-    const getStatusClass = (value) => {
-        switch (value) {
+    const getValidationClass = () => {
+        switch (validationStatus) {
             case "Approved":
-                return "status-badge status-approved";
+                return "analysis-status approved";
 
             case "Rejected":
-                return "status-badge status-rejected";
+                return "analysis-status rejected";
 
-            case "Pending":
             default:
-                return "status-badge status-pending";
+                return "analysis-status pending";
         }
     };
 
@@ -69,10 +68,9 @@ const AnalysisCard = ({ analysis }) => {
                     </h3>
                 </div>
 
-                <span className={getStatusClass(validationStatus)}>
+                <span className={getValidationClass()}>
                     {validationStatus || "Pending"}
                 </span>
-
             </div>
 
             <div className="analysis-card-project">

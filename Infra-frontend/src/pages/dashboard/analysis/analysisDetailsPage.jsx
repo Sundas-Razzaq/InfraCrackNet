@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import InspectionHeader from "../../../components/inspection/InspectionHeader";
-import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
 import SummaryCards from "../../../components/analysis/SummaryCards";
 import DetectionImage from "../../../components/analysis/DetectionImage";
@@ -80,14 +79,12 @@ const AnalysisDetailsPage = () => {
 
                 <div
                     className={`analysis-validation-status ${analysis.validationStatus
-                            ?.toLowerCase()
+                        ?.toLowerCase()
                         }`}
                 >
                     {analysis.validationStatus}
                 </div>
             </div>
-
-            <InspectionStepper currentStep={4} />
 
             <SummaryCards
                 summary={summary}
