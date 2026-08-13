@@ -27,7 +27,7 @@ const {
 router.get(
     "/:analysisId",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer", "Inspector"),
     analysisIdValidation,
     getAnnotationWorkspace
 );
@@ -36,7 +36,7 @@ router.get(
 router.patch(
     "/cracks/:crackId",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer", "Inspector"),
     crackIdValidation,
     updateCrackValidation,
     updateCrack
@@ -46,7 +46,7 @@ router.patch(
 router.patch(
     "/cracks/:crackId/remove",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer", "Inspector"),
     crackIdValidation,
     removeCrack
 );
@@ -55,7 +55,7 @@ router.patch(
 router.post(
     "/cracks",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer", "Inspector"),
     addManualCrackValidation,
     addManualCrack
 );
@@ -64,7 +64,7 @@ router.post(
 router.patch(
     "/cracks/:crackId/validate",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer", "Inspector"),
     crackIdValidation,
     validateCrack
 );
@@ -73,7 +73,7 @@ router.patch(
 router.patch(
     "/:analysisId/complete",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer", "Inspector"),
     analysisIdValidation,
     completeAnnotationReview
 );
