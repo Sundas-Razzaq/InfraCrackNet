@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
 import AnnotationToolbar from "../../../components/annotation/AnnotationToolbar";
@@ -243,7 +243,7 @@ const AnnotationWorkspacePage = () => {
     return (
         <div className="annotation-page">
 
-            <InspectionHeader
+            <PageHeader
                 title="Annotation Workspace"
                 subtitle={`${analysis.inspection.inspectionCode} • ${analysis.inspection.project.name}`}
             />

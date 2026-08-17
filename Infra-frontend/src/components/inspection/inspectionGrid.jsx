@@ -1,10 +1,18 @@
+import { useNavigate } from "react-router-dom";
+import {
+    faClipboardList,
+    faPlus,
+} from "@fortawesome/free-solid-svg-icons";
+
 import InspectionCard from "./InspectionCard";
-import EmptyInspectionState from "./emptyInspectionState";
+import EmptyState from "../dashboard/shared/EmptyState";
 
 const InspectionGrid = ({
     inspections = [],
     loading = false,
 }) => {
+    const navigate = useNavigate();
+
     if (loading) {
         return (
             <div className="inspection-grid-loading">
@@ -14,7 +22,18 @@ const InspectionGrid = ({
     }
 
     if (!loading && inspections.length === 0) {
-        return <EmptyInspectionState />;
+        return (
+            <EmptyState
+                icon={faClipboardList}
+                title="No Inspections Found"
+                message="You haven't created any inspections yet. Start your first infrastructure inspection to begin capturing images and analyzing structural defects."
+                actionLabel="Start Inspection"
+                actionIcon={faPlus}
+                onAction={() =>
+                    navigate("/dashboard/inspection/new")
+                }
+            />
+        );
     }
 
     return (

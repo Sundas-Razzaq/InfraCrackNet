@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 import { startAnalysis } from "../../../api/analysisApi";
 import ImageUploadZone from "../../../components/inspectionImage/ImageUploadZone";
@@ -198,7 +198,7 @@ const UploadImagesPage = () => {
     return (
         <div className="upload-images-page">
 
-            <InspectionHeader
+            <PageHeader
                 title="Upload Inspection Images"
                 subtitle={`${inspection.inspectionCode} • ${inspection.project?.name}`}
             />

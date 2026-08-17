@@ -10,8 +10,7 @@ dist
 dist-ssr
 build
 
-reports/
-
+/Infra-backend/src/reports/
 # Logs
 logs
 *.log

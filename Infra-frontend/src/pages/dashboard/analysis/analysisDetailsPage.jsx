@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 
 import SummaryCards from "../../../components/analysis/SummaryCards";
 import DetectionImage from "../../../components/analysis/DetectionImage";
@@ -72,7 +72,7 @@ const AnalysisDetailsPage = () => {
         <div className="analysis-results-page">
 
             <div className="results-header">
-                <InspectionHeader
+                <PageHeader
                     title="AI Analysis Details"
                     subtitle={`${analysis.inspection.inspectionCode} • ${analysis.inspection.project.name}`}
                 />

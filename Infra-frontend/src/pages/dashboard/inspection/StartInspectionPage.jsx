@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../../layouts/DashboardLayout";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 import InspectionForm from "../../../components/inspection/InspectionForm";
 
@@ -119,7 +119,7 @@ const StartInspectionPage = () => {
     return (
         <>
             <div className="start-inspection-page">
-                <InspectionHeader
+                <PageHeader
                     title="Start New Inspection"
                     subtitle="Select a project and provide inspection details before uploading images."
                 >
@@ -129,7 +129,7 @@ const StartInspectionPage = () => {
                     >
                         Back to Inspections
                     </button>
-                </InspectionHeader>
+                </PageHeader>
 
                 <InspectionStepper currentStep={1} />
 

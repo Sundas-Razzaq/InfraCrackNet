@@ -1,5 +1,5 @@
 import DashboardLayout from "../../layouts/DashboardLayout";
-import DashboardHeader from "../../components/dashboard/shared/dashboardHeader";
+import PageHeader from "../../components/dashboard/shared/PageHeader";
 import StatsGrid from "../../components/dashboard/shared/StatsGrid";
 import StatsCard from "../../components/dashboard/cards/StatsCard";
 import DashboardGrid from "../../components/dashboard/shared/dashboardGrid";
@@ -10,8 +10,9 @@ import RiskWidget from "../../components/dashboard/widgets/engineer/StructuralRi
 import Approvals from "../../components/dashboard/widgets/engineer/RecentApprovalsWidget";
 
 import { useAuth } from "../../context/useAuth";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+    faPlus,
     faRobot,
     faClipboardCheck,
     faFileLines,
@@ -29,12 +30,20 @@ function EngineerDashboard() {
 
     return (
         <>
-            <DashboardHeader
-                user={user}
-                subtitle="Monday, 26 May 2025 — Here's what needs your attention"
-                buttonText="New Inspection"
-                onButtonClick={() => { }}
-            />
+            <PageHeader
+                variant="dashboard"
+                title={`Good Morning, ${user?.name?.split(" ")[0]}`}
+                subtitle=" Here's what needs your attention"
+            >
+                <button
+                    type="button"
+                    className="dashboard-action-btn"
+                    onClick={() => { }}
+                >
+                    <FontAwesomeIcon icon={faPlus} />
+                    <span>New Inspection</span>
+                </button>
+            </PageHeader>
             <motion.div
                 variants={staggerContainer}
                 initial="hidden"

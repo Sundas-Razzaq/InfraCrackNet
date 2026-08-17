@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../../layouts/DashboardLayout";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionGrid from "../../../components/inspection/inspectionGrid";
 
 import { getDraftInspections } from "../../../api/inspectionApi";
@@ -38,7 +38,7 @@ const DraftInspectionsPage = () => {
     return (
         <>
             <div className="draft-inspections-page">
-                <InspectionHeader
+                <PageHeader
                     title={`Draft Inspections (${draftCount})`}
                     subtitle="Continue your unfinished infrastructure inspections."
                 >
@@ -59,7 +59,7 @@ const DraftInspectionsPage = () => {
                     >
                         New Inspection
                     </button>
-                </InspectionHeader>
+                </PageHeader>
 
                 {error && (
                     <p className="form-error">

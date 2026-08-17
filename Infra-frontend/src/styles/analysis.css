@@ -592,27 +592,6 @@
 .analytics-page {
     padding: 30px 28px;
     min-height: calc(100vh - 72px);
-    background: #f8fafc;
-}
-
-.analytics-page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 28px;
-}
-
-.analytics-page-header h1 {
-    margin: 0 0 6px;
-    font-size: 30px;
-    font-weight: 700;
-    color: #0f2d52;
-}
-
-.analytics-page-header p {
-    margin: 0;
-    color: #64748b;
-    font-size: 15px;
 }
 
 /* Grid */

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../../layouts/DashboardLayout";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionGrid from "../../../components/inspection/inspectionGrid";
 
 import { getInspections } from "../../../api/inspectionApi";
@@ -43,7 +43,7 @@ const InspectionsPage = () => {
     return (
         <>
             <div className="inspections-page">
-                <InspectionHeader
+                <PageHeader
                     title={`Inspections (${inspectionCount})`}
                     subtitle="Manage all infrastructure inspections."
                 >
@@ -68,7 +68,7 @@ const InspectionsPage = () => {
                     >
                         New Inspection
                     </button>
-                </InspectionHeader>
+                </PageHeader>
 
                 {error && (
                     <p className="form-error">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 import InspectionForm from "../../../components/inspection/InspectionForm";
 
@@ -167,7 +167,7 @@ const EditInspectionPage = () => {
     return (
         <div className="edit-inspection-page">
 
-            <InspectionHeader
+            <PageHeader
                 title="Edit Inspection"
                 subtitle="Update inspection information."
             />

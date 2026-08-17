@@ -5,7 +5,7 @@ import {
     useParams,
 } from "react-router-dom";
 
-import InspectionHeader from "../../../components/inspection/InspectionHeader";
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 
 import AnalysisProgressCard from "../../../components/analysis/AnalysisProgressCard";
@@ -184,7 +184,7 @@ const AIProcessingPage = () => {
     return (
         <div className="analysis-page">
 
-            <InspectionHeader
+            <PageHeader
                 title="AI Crack Detection"
                 subtitle={`${inspection.inspectionCode} • ${inspection.project?.name}`}
             />

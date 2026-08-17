@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-
+import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import AnalysisCard from "../../../components/analysis/analysisCard";
 import EmptyState from "../../../components/dashboard/shared/EmptyState";
 
 import { getAllAnalysis } from "../../../api/analysisApi";
 import { getApiErrorMessage } from "../../../api/authApi";
+
+import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 
 const AnalyticsPage = () => {
     const [analysis, setAnalysis] = useState([]);
@@ -23,12 +25,13 @@ const AnalyticsPage = () => {
 
                 setAnalysis(response?.data || []);
             } catch (error) {
-                toast.error(
-                    getApiErrorMessage(
-                        error,
-                        "Failed to load AI analyses."
-                    )
+                const message = getApiErrorMessage(
+                    error,
+                    "Failed to load AI analyses."
                 );
+
+                setError(message);
+                toast.error(message);
             } finally {
                 setIsLoading(false);
             }
@@ -47,16 +50,11 @@ const AnalyticsPage = () => {
 
     return (
         <div className="analytics-page">
-            <div className="analytics-page-header">
-                <div>
-                    <h1>AI Analytics</h1>
 
-                    <p>
-                        View and review AI analysis results
-                        from your infrastructure inspections.
-                    </p>
-                </div>
-            </div>
+            <PageHeader
+                title="AI Analytics"
+                subtitle="View and review AI analysis results from your infrastructure inspections."
+            />
 
             {error && (
                 <div className="analytics-error">
@@ -66,6 +64,7 @@ const AnalyticsPage = () => {
 
             {!error && analysis.length === 0 ? (
                 <EmptyState
+                    icon={faChartLine}
                     title="No AI Analyses Found"
                     message="No AI analysis has been run yet. Start an inspection and run AI analysis to see results here."
                 />
@@ -79,6 +78,7 @@ const AnalyticsPage = () => {
                     ))}
                 </div>
             )}
+
         </div>
     );
 };
