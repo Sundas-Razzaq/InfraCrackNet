@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import EmptyState from "../../../components/dashboard/shared/EmptyState";
-import ReportCard from "../../../components/reports/ReportCard";
+import ReportCard from "../../../components/reports/reportCard";
 import { getAllReports } from "../../../api/reportApi";
 import { getApiErrorMessage } from "../../../api/authApi";
 import { faFileLines } from "@fortawesome/free-solid-svg-icons";
