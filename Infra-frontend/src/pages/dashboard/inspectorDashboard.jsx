@@ -80,7 +80,7 @@ function InspectorDashboard() {
         fetchReportCount();
     }, []);
     const activeInspectionCount = inspections.filter(
-        (inspection) => inspection.status !== "Completed"
+        (inspection) => inspection.status !== "Completed" && inspection.status !== "Draft"
     ).length;
 
     const pendingUploadCount = inspections.filter(
