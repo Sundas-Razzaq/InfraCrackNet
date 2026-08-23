@@ -320,9 +320,33 @@ const downloadReport = async (req, res, next) => {
     }
 };
 
+const getReportCount = async (req, res, next) => {
+    try {
+        const inspections = await Inspection.find({
+            createdBy: req.user.id,
+        }).select("_id");
+
+        const inspectionIds = inspections.map(
+            (inspection) => inspection._id
+        );
+
+        const count = await Report.countDocuments({
+            inspection: { $in: inspectionIds },
+        });
+
+        return res.status(200).json({
+            success: true,
+            count,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     generateReport,
     getReport,
     downloadReport,
     getAllReports,
+    getReportCount,
 };

@@ -4,6 +4,7 @@ const {
     uploadInspectionImages,
     getInspectionImages,
     deleteInspectionImage,
+    getUploadedImageCount,
 } = require("../controllers/inspectionImageControllers");
 
 const {
@@ -32,6 +33,12 @@ router.get(
     "/:inspectionId",
     protect,
     getInspectionImages
+);
+/* Get uploaded image count */
+router.get(
+    "/stats/count",
+    protect,
+    getUploadedImageCount
 );
 
 /* Delete inspection image */

@@ -11,6 +11,7 @@ const {
     getReport,
     downloadReport,
     getAllReports,
+    getReportCount
 } = require("../controllers/reportControllers");
 
 const {
@@ -23,7 +24,7 @@ const {
 router.post(
     "/:analysisId/generate",
     protect,
-    authorizeRoles("Engineer"),
+    authorizeRoles("Engineer, Inspector"),
     analysisIdValidation,
     generateReport
 );
@@ -35,6 +36,13 @@ router.get(
     protect,
     reportIdValidation,
     getReport
+);
+
+// Get report count
+router.get(
+    "/stats/count",
+    protect,
+    getReportCount
 );
 
 // Download Report

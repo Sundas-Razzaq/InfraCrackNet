@@ -36,3 +36,13 @@ export const downloadReport = async (reportId) => {
 
     return response;
 };
+
+// GET REPORT COUNT
+
+export const getReportCount = async () => {
+    const response = await authApi.get(
+        "/reports/stats/count"
+    );
+
+    return response.data;
+};

@@ -1,4 +1,3 @@
-import DashboardLayout from "../../layouts/DashboardLayout";
 import PageHeader from "../../components/dashboard/shared/PageHeader";
 import StatsGrid from "../../components/dashboard/shared/StatsGrid";
 import StatsCard from "../../components/dashboard/cards/StatsCard";
@@ -10,6 +9,7 @@ import RiskWidget from "../../components/dashboard/widgets/engineer/StructuralRi
 import Approvals from "../../components/dashboard/widgets/engineer/RecentApprovalsWidget";
 
 import { useAuth } from "../../context/useAuth";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlus,
@@ -27,7 +27,7 @@ import {
 
 function EngineerDashboard() {
     const { user } = useAuth();
-
+    const navigate = useNavigate();
     return (
         <>
             <PageHeader
@@ -38,7 +38,7 @@ function EngineerDashboard() {
                 <button
                     type="button"
                     className="dashboard-action-btn"
-                    onClick={() => { }}
+                    onClick={() => navigate("/dashboard/inspection/new")}
                 >
                     <FontAwesomeIcon icon={faPlus} />
                     <span>New Inspection</span>

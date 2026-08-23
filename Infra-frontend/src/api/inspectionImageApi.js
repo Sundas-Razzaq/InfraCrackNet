@@ -54,3 +54,12 @@ export const deleteInspectionImage = async (
 
     return data;
 };
+
+// Get total uploaded image count
+export const getUploadedImageCount = async () => {
+    const { data } = await authApi.get(
+        "/inspection-images/stats/count"
+    );
+
+    return data;
+};

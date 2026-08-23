@@ -196,8 +196,28 @@ const deleteInspectionImage = async (
     }
 };
 
+const getUploadedImageCount = async (req, res) => {
+    try {
+        const count = await InspectionImage.countDocuments({
+            uploadedBy: req.user.id,
+        });
+
+        return res.status(200).json({
+            success: true,
+            count,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     uploadInspectionImages,
     getInspectionImages,
     deleteInspectionImage,
+    getUploadedImageCount,
 };
