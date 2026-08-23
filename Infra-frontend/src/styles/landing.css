@@ -50,13 +50,21 @@
 }
 
 .landing-brand-text {
-	color: var(--color-primary);
-	font-size: var(--font-size-h5);
-	font-weight: var(--font-weight-h3);
-	line-height: var(--line-height-h5);
-	letter-spacing: 0;
-}
+    background: linear-gradient(
+        90deg,
+        rgb(87, 206, 206),
+        var(--color-primary)
+    );
 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+    font-size: var(--font-size-h5);
+    font-weight: var(--font-weight-h3);
+    line-height: var(--line-height-h5);
+    letter-spacing: 0;
+}
 .landing-navbar-links {
 	gap: 2rem;
 	list-style: none;

@@ -61,8 +61,7 @@ function LandingNavbar({
               src={logoMark}
               alt="InfraCrackNet logo"
             />
-            <span className="landing-brand-text" style={{ color: 'var(--dashboard-cyan)' }}>INFRA</span>
-            <span className="landing-brand-text">CRACKNET</span>
+            <span className="landing-brand-text" >INFRACRACKNET</span>
           </a>
 
           <button
