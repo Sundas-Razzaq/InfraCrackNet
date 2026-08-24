@@ -191,6 +191,10 @@ const getAllAnalysis = async (req, res, next) => {
                         "projectCode name structureType location priority",
                 },
             })
+            .populate({
+                path: "validatedBy",
+                select: "name",
+            })
             .sort({
                 createdAt: -1,
             });

@@ -732,7 +732,7 @@
 
 .severity-bar-wrapper {
     width: 100%;
-    min-height: 180px;
+    height: 180px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -745,7 +745,7 @@
     width: min(100%, 3rem);
     border-radius: var(--radius-full);
     background: var(--color-primary);
-    min-height: 24px;
+    min-height: 12px;
 }
 
 .severity-bar.success {

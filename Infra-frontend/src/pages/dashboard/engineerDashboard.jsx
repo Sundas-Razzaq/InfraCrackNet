@@ -7,7 +7,9 @@ import AIQueueWidget from "../../components/dashboard/widgets/engineer/AIQueueWi
 import SeverityChartWidget from "../../components/dashboard/widgets/engineer/SeverityChartWidget";
 import RiskWidget from "../../components/dashboard/widgets/engineer/StructuralRiskWidget";
 import Approvals from "../../components/dashboard/widgets/engineer/RecentApprovalsWidget";
-
+import { useEffect, useState } from "react";
+import { getAllAnalysis } from "../../api/analysisApi";
+import { getAllReports } from "../../api/reportApi";
 import { useAuth } from "../../context/useAuth";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -28,6 +30,68 @@ import {
 function EngineerDashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [aiQueueCount, setAiQueueCount] = useState(0);
+    const [pendingReviewCount, setPendingReviewCount] = useState(0);
+    const [reportsGeneratedCount, setReportsGeneratedCount] = useState(0);
+    const [criticalFindingsCount, setCriticalFindingsCount] = useState(0);
+
+    useEffect(() => {
+        const fetchAIQueue = async () => {
+            try {
+                const response = await getAllAnalysis();
+                const analyses = response.data || [];
+
+                const queueCount = analyses.filter(
+                    (analysis) =>
+                        analysis.status === "Queued" ||
+                        analysis.status === "Processing"
+                ).length;
+
+                setAiQueueCount(queueCount);
+                const pendingReviewCount = analyses.filter(
+                    (analysis) =>
+                        analysis.status === "Completed" &&
+                        analysis.validationStatus === "Pending"
+                ).length;
+
+                setPendingReviewCount(pendingReviewCount);
+                const criticalFindingsCount = analyses.filter(
+                    (analysis) =>
+                        analysis.status === "Completed" &&
+                        analysis.overallSeverity === "Critical"
+                ).length;
+
+                setCriticalFindingsCount(criticalFindingsCount);
+            } catch (error) {
+                console.error(
+                    "Failed to fetch AI queue:",
+                    error
+                );
+            }
+        };
+
+        fetchAIQueue();
+    }, []);
+
+    useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const response = await getAllReports();
+
+                setReportsGeneratedCount(
+                    response.count || 0
+                );
+            } catch (error) {
+                console.error(
+                    "Failed to fetch reports:",
+                    error
+                );
+            }
+        };
+
+        fetchReports();
+    }, []);
+
     return (
         <>
             <PageHeader
@@ -52,32 +116,29 @@ function EngineerDashboard() {
                 <StatsGrid>
                     <StatsCard
                         title="AI Queue"
-                        value="8"
-                        description="3 new today"
+                        value={aiQueueCount}
                         icon={faRobot}
                         iconVariant="primary"
                     />
 
                     <StatsCard
                         title="Pending Review"
-                        value="12"
-                        description="4 urgent"
+                        value={pendingReviewCount}
                         icon={faClipboardCheck}
                         iconVariant="warning"
                     />
 
                     <StatsCard
                         title="Reports Generated"
-                        value="47"
-                        description="12% this week"
+                        value={reportsGeneratedCount}
                         icon={faFileLines}
                         iconVariant="success"
+                        onClick={() => navigate("/dashboard/reports")}
                     />
 
                     <StatsCard
                         title="Critical Findings"
-                        value="3"
-                        description="Immediate review"
+                        value={criticalFindingsCount}
                         icon={faTriangleExclamation}
                         iconVariant="danger"
                     />
