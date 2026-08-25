@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
 
@@ -14,6 +14,7 @@ import { getApiErrorMessage } from "../../../api/authApi";
 import { toast } from "react-toastify";
 
 const AnalysisDetailsPage = () => {
+    const navigate = useNavigate();
     const { analysisId } = useParams();
 
     const [loading, setLoading] = useState(true);
@@ -68,6 +69,8 @@ const AnalysisDetailsPage = () => {
         cracks = [],
     } = results;
 
+    const isPending = analysis.validationStatus === "Pending";
+
     return (
         <div className="analysis-results-page">
 
@@ -78,12 +81,38 @@ const AnalysisDetailsPage = () => {
                 />
 
                 <div
-                    className={`analysis-validation-status ${analysis.validationStatus
-                        ?.toLowerCase()
-                        }`}
+                    className={`analysis-validation-status ${analysis.validationStatus?.toLowerCase()}`}
                 >
                     {analysis.validationStatus}
                 </div>
+
+                {isPending && (
+                    <div className="results-actions">
+
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() =>
+                                navigate(
+                                    `/dashboard/inspection/${analysis.inspection._id}/annotation/${analysis._id}`
+                                )
+                            }
+                        >
+                            Annotate
+                        </button>
+
+                        <button
+                            className="btn btn-primary"
+                            onClick={() =>
+                                navigate(
+                                    `/dashboard/inspection/${analysis.inspection._id}/validation/${analysis._id}`
+                                )
+                            }
+                        >
+                            Validate
+                        </button>
+
+                    </div>
+                )}
             </div>
 
             <SummaryCards

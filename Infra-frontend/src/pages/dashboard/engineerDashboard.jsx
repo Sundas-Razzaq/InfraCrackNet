@@ -126,6 +126,7 @@ function EngineerDashboard() {
                         value={pendingReviewCount}
                         icon={faClipboardCheck}
                         iconVariant="warning"
+                        onClick={() => navigate("/dashboard/ai-analysis")}
                     />
 
                     <StatsCard
@@ -133,6 +134,7 @@ function EngineerDashboard() {
                         value={reportsGeneratedCount}
                         icon={faFileLines}
                         iconVariant="success"
+
                         onClick={() => navigate("/dashboard/reports")}
                     />
 

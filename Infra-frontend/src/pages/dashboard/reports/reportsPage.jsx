@@ -34,8 +34,10 @@ const ReportsPage = () => {
         fetchReports();
     }, []);
 
-    const handleReportClick = (reportId) => {
-        navigate(`/dashboard/reports/${reportId}`);
+    const handleReportClick = (inspectionId, reportId) => {
+        navigate(
+            `/dashboard/inspection/${inspectionId}/report/${reportId}`
+        );
     };
 
     if (loading) {

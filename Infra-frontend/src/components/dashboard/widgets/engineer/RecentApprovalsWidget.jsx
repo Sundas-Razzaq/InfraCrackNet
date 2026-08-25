@@ -7,8 +7,10 @@ import {
 } from "../../../../utils/animation";
 import { getAllAnalysis } from "../../../../api/analysisApi";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function RecentApprovalsWidget() {
+    const navigate = useNavigate();
     const [approvals, setApprovals] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -31,6 +33,7 @@ function RecentApprovalsWidget() {
                     )
                     .slice(0, 4)
                     .map((analysis) => ({
+                        analysisId: analysis._id,
                         id: analysis.analysisCode,
                         projectName:
                             analysis.inspection?.project?.name ||
@@ -96,6 +99,19 @@ function RecentApprovalsWidget() {
                             key={approval.id}
                             className="approval-item"
                             variants={fadeInUp}
+                            onClick={() =>
+                                navigate(`/dashboard/ai-analysis/${approval.analysisId}`)
+                            }
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    navigate(
+                                        `/dashboard/ai-analysis/${approval.analysisId}`
+                                    );
+                                }
+                            }}
                         >
                             <div className="approval-info">
                                 <div className="approval-project">

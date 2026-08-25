@@ -33,7 +33,7 @@ const ReportCard = ({ report, onClick }) => {
     };
 
     const handleClick = () => {
-        onClick(_id);
+        onClick(inspection?._id, _id);
     };
 
     return (
