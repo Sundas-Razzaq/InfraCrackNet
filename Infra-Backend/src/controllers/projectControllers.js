@@ -81,7 +81,7 @@ const updateProject = async (req, res, next) => {
             },
             req.body,
             {
-                new: true,
+                returnDocument: "after",
                 runValidators: true,
             }
         );
