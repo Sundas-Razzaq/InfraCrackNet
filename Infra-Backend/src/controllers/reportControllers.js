@@ -6,7 +6,7 @@ const CrackDetection = require("../models/crackDetection");
 const Inspection = require("../models/inspection");
 const fs = require("fs");
 const path = require("path");
-
+const { createNotification, } = require("../services/notificationService");
 const generateReportCode = require("../utils/reportCodeGenerator");
 const generateRecommendations = require("../utils/recommendationGenerator");
 const generateReportPDF = require("../pdf/generateReport");
@@ -161,7 +161,14 @@ const generateReport = async (req, res, next) => {
 
             recommendations,
         });
-
+        await createNotification({
+            recipient: req.user.id,
+            type: "report",
+            title: "Report Generated Successfully",
+            message: `Report ${report.reportCode} has been generated successfully for inspection ${analysis.inspection.inspectionCode}.`,
+            relatedEntity: "Report",
+            relatedEntityId: report._id,
+        });
         // Update inspection status
         analysis.inspection.status =
             "Report Generated";

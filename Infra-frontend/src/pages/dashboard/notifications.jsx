@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     getNotifications,
     getUnreadNotificationCount,
     markNotificationAsRead,
     markAllNotificationsAsRead,
 } from "../../api/notificationApi";
-
+import { getReport } from "../../api/reportApi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import {
@@ -34,6 +35,7 @@ const notificationIcons = {
 };
 
 const Notifications = () => {
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -93,41 +95,51 @@ const Notifications = () => {
         }
     };
 
-    const handleNotificationClick = async (notificationId) => {
+    const handleNotificationClick = async (notification) => {
         try {
-            const notification = notifications.find(
-                (item) => item._id === notificationId
-            );
+            // Mark notification as read
+            if (!notification.isRead) {
+                await markNotificationAsRead(notification._id);
 
-            if (!notification || notification.isRead) {
-                return;
+                setNotifications((prev) =>
+                    prev.map((item) =>
+                        item._id === notification._id
+                            ? {
+                                ...item,
+                                isRead: true,
+                            }
+                            : item
+                    )
+                );
+
+                setUnreadCount((prev) =>
+                    Math.max(prev - 1, 0)
+                );
             }
 
-            await markNotificationAsRead(notificationId);
+            // Handle report notification
+            if (
+                notification.type === "report" &&
+                notification.relatedEntity === "Report" &&
+                notification.relatedEntityId
+            ) {
+                const response = await getReport(
+                    notification.relatedEntityId
+                );
 
-            setNotifications((prevNotifications) =>
-                prevNotifications.map((item) =>
-                    item._id === notificationId
-                        ? {
-                            ...item,
-                            isRead: true,
-                            readAt: new Date().toISOString(),
-                        }
-                        : item
-                )
-            );
+                const report = response.data.report;
 
-            setUnreadCount((prevCount) =>
-                Math.max(prevCount - 1, 0)
-            );
+                navigate(
+                    `/dashboard/inspection/${report.inspection._id}/report/${report._id}`
+                );
+            }
         } catch (error) {
             console.error(
-                "Failed to mark notification as read:",
+                "Failed to open notification:",
                 error
             );
         }
     };
-
     return (
 
         <>
@@ -223,7 +235,10 @@ const Notifications = () => {
                                     y: -3,
                                     transition: { duration: 0.2 },
                                 }}
-                                onClick={() => handleNotificationClick(notification._id)}
+                                onClick={() =>
+                                    handleNotificationClick(notification)
+                                }
+                                style={{ cursor: "pointer" }}
                             >
                                 <div className="notification-icon">
                                     <FontAwesomeIcon icon={notificationIcons[notification.type]} />
