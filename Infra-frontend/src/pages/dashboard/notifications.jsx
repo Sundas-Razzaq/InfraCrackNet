@@ -1,4 +1,11 @@
-import DashboardLayout from "../../layouts/DashboardLayout";
+import { useEffect, useState } from "react";
+import {
+    getNotifications,
+    getUnreadNotificationCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+} from "../../api/notificationApi";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import {
@@ -16,71 +23,113 @@ import {
     faFileLines,
 } from "@fortawesome/free-solid-svg-icons";
 
-const notifications = [
-    {
-        id: 1,
-        type: "critical",
-        icon: faTriangleExclamation,
-        title: "Critical Crack Detected — Immediate Action Required",
-        message:
-            "INS-2024 — North Bridge has 3 critical severity cracks. Immediate engineering review required before next use.",
-        time: "2 min ago",
-        unread: true,
-    },
-    {
-        id: 2,
-        type: "analysis",
-        icon: faRobot,
-        title: "AI Analysis Complete — INS-2023",
-        message:
-            "Highway M9 inspection has been successfully analyzed. 12 cracks detected with 94.7% confidence.",
-        time: "15 min ago",
-        unread: true,
-    },
-    {
-        id: 3,
-        type: "success",
-        icon: faCircleCheck,
-        title: "Report RPT-0086 Approved by Ahmed Hassan",
-        message:
-            "Highway M9 inspection report has been approved and is ready for client distribution.",
-        time: "1 hour ago",
-        unread: true,
-    },
-    {
-        id: 4,
-        type: "warning",
-        icon: faClock,
-        title: "Inspection Overdue — PRJ-004 Tarbela Dam",
-        message:
-            "Scheduled inspection for Tarbela Dam is 3 days overdue. Please schedule immediately.",
-        time: "2 hours ago",
-        unread: false,
-    },
-    {
-        id: 5,
-        type: "team",
-        icon: faUserPlus,
-        title: "New Team Member Added",
-        message:
-            "Khalid Yusuf has joined as Inspector on the North Bridge Rehabilitation project.",
-        time: "Yesterday",
-        unread: false,
-    },
-    {
-        id: 6,
-        type: "report",
-        icon: faFileLines,
-        title: "Report RPT-0085 Generated Successfully",
-        message:
-            "East Tunnel inspection report is ready for engineer review and approval.",
-        time: "Yesterday",
-        unread: false,
-    },
-];
+const notificationIcons = {
+    critical: faTriangleExclamation,
+    analysis: faRobot,
+    success: faCircleCheck,
+    warning: faClock,
+    team: faUserPlus,
+    report: faFileLines,
+    inspection: faTriangleExclamation,
+};
 
 const Notifications = () => {
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                setLoading(true);
+                setError("");
+
+                const [notificationsResponse, unreadResponse] =
+                    await Promise.all([
+                        getNotifications(),
+                        getUnreadNotificationCount(),
+                    ]);
+
+                setNotifications(
+                    notificationsResponse.data || []
+                );
+
+                setUnreadCount(
+                    unreadResponse.count || 0
+                );
+            } catch (error) {
+                console.error(
+                    "Failed to fetch notifications:",
+                    error
+                );
+
+                setError("Failed to load notifications.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNotifications();
+    }, []);
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllNotificationsAsRead();
+
+            setNotifications((prevNotifications) =>
+                prevNotifications.map((notification) => ({
+                    ...notification,
+                    isRead: true,
+                }))
+            );
+
+            setUnreadCount(0);
+        } catch (error) {
+            console.error(
+                "Failed to mark all notifications as read:",
+                error
+            );
+        }
+    };
+
+    const handleNotificationClick = async (notificationId) => {
+        try {
+            const notification = notifications.find(
+                (item) => item._id === notificationId
+            );
+
+            if (!notification || notification.isRead) {
+                return;
+            }
+
+            await markNotificationAsRead(notificationId);
+
+            setNotifications((prevNotifications) =>
+                prevNotifications.map((item) =>
+                    item._id === notificationId
+                        ? {
+                            ...item,
+                            isRead: true,
+                            readAt: new Date().toISOString(),
+                        }
+                        : item
+                )
+            );
+
+            setUnreadCount((prevCount) =>
+                Math.max(prevCount - 1, 0)
+            );
+        } catch (error) {
+            console.error(
+                "Failed to mark notification as read:",
+                error
+            );
+        }
+    };
+
     return (
+
         <>
             <motion.div
                 className="notifications-page"
@@ -102,12 +151,13 @@ const Notifications = () => {
                         </h1>
 
                         <p className="notifications-subtitle">
-                            3 unread notifications
+                            {unreadCount} unread notification
+                            {unreadCount !== 1 ? "s" : ""}
                         </p>
                     </div>
 
                     <div className="notifications-actions">
-                        <button className="btn-secondary">
+                        <button className="btn-secondary" onClick={handleMarkAllAsRead}>
                             Mark all read
                         </button>
 
@@ -128,11 +178,11 @@ const Notifications = () => {
                     transition={{ delay: 0.1 }}
                 >
                     <button className="notification-tab active">
-                        All (6)
+                        All ({notifications.length})
                     </button>
 
                     <button className="notification-tab">
-                        Unread (3)
+                        Unread ({unreadCount})
                     </button>
 
                     <button className="notification-tab">
@@ -146,60 +196,72 @@ const Notifications = () => {
                 </motion.div>
 
                 {/* List */}
+                {loading && (
+                    <div className="notification-loading">
+                        Loading notifications...
+                    </div>
+                )}
 
-                <motion.div
-                    className="notification-list"
-                    variants={staggerContainer}
-                    initial="hidden"
-                    animate="visible"
-                >
-                    {notifications.map((notification) => (
-                        <motion.div
-                            key={notification.id}
-                            className={`notification-item card ${notification.type}`}
-                            variants={fadeInUp}
-                            whileHover={{
-                                y: -3,
-                                transition: { duration: 0.2 },
-                            }}
-                        >
-                            <div className="notification-icon">
-                                <FontAwesomeIcon icon={notification.icon} />
-                            </div>
+                {error && (
+                    <div className="notification-error">
+                        {error}
+                    </div>
+                )}
+                {!loading && !error && (
+                    <motion.div
+                        className="notification-list"
+                        variants={staggerContainer}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        {notifications.map((notification) => (
+                            <motion.div
+                                key={notification._id}
+                                className={`notification-item card ${notification.type}`}
+                                variants={fadeInUp}
+                                whileHover={{
+                                    y: -3,
+                                    transition: { duration: 0.2 },
+                                }}
+                                onClick={() => handleNotificationClick(notification._id)}
+                            >
+                                <div className="notification-icon">
+                                    <FontAwesomeIcon icon={notificationIcons[notification.type]} />
+                                </div>
 
-                            <div className="notification-content">
+                                <div className="notification-content">
 
-                                <div className="notification-top">
+                                    <div className="notification-top">
 
-                                    <h3 className="notification-title">
-                                        {notification.title}
-                                    </h3>
+                                        <h3 className="notification-title">
+                                            {notification.title}
+                                        </h3>
 
-                                    <span className="notification-time">
-                                        {notification.time}
-                                    </span>
+                                        <span className="notification-time">
+                                            {new Date(notification.createdAt).toLocaleString()}
+                                        </span>
+
+                                    </div>
+
+                                    <div className="notification-bottom">
+
+                                        <p className="notification-message">
+                                            {notification.message}
+                                        </p>
+
+                                        {!notification.isRead && (
+                                            <span className="notification-dot"></span>
+                                        )}
+
+                                    </div>
 
                                 </div>
 
-                                <div className="notification-bottom">
+                            </motion.div>
+                        ))}
 
-                                    <p className="notification-message">
-                                        {notification.message}
-                                    </p>
-
-                                    {notification.unread && (
-                                        <span className="notification-dot"></span>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </motion.div>
-                    ))}
-
-                </motion.div>
-
+                    </motion.div>
+                )}
             </motion.div>
         </>
     );
