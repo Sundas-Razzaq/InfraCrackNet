@@ -181,6 +181,8 @@ const AIProcessingPage = () => {
         );
     }
 
+    console.log("Analysis status:", analysis.status);
+    console.log("Analysis data:", analysis);
     return (
         <div className="analysis-page">
 

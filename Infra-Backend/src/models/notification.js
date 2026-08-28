@@ -18,6 +18,7 @@ const notificationSchema = new mongoose.Schema(
                 "team",
                 "report",
                 "inspection",
+                "ai_analysis",
             ],
             required: true,
         },
@@ -36,7 +37,7 @@ const notificationSchema = new mongoose.Schema(
 
         relatedEntity: {
             type: String,
-            enum: ["Inspection", "Report", "Project"],
+            enum: ["Inspection", "Report", "Project", "Analysis"],
         },
 
         relatedEntityId: {

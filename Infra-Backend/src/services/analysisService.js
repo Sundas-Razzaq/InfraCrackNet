@@ -2,6 +2,7 @@ const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const Inspection = require("../models/inspection");
 const InspectionImage = require("../models/inspectionImage");
+const { createNotification } = require("../services/notificationService");
 
 const crackClasses = [
     "Longitudinal",
@@ -260,9 +261,7 @@ const startMockAnalysis = async (analysisId) => {
 
         await delay(1000);
 
-        /* -----------------------------
-           COMPLETED
-        ------------------------------*/
+        /*COMPLETED*/
 
         analysis.status = "Completed";
         analysis.currentStep =
@@ -271,6 +270,15 @@ const startMockAnalysis = async (analysisId) => {
         analysis.completedAt = new Date();
 
         await analysis.save();
+        // create a notification for the user when the analysis is completed
+        await createNotification({
+            recipient: analysis.createdBy,
+            type: "analysis",
+            title: "AI Analysis Completed",
+            message: `AI analysis ${analysis.analysisCode} has been completed successfully.`,
+            relatedEntity: "Analysis",
+            relatedEntityId: analysis._id,
+        });
 
         await Inspection.findByIdAndUpdate(
             analysis.inspection,

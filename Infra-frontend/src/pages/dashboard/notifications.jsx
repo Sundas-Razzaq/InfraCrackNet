@@ -133,6 +133,16 @@ const Notifications = () => {
                     `/dashboard/inspection/${report.inspection._id}/report/${report._id}`
                 );
             }
+            // Handle analysis notification
+            if (
+                notification.type === "analysis" &&
+                notification.relatedEntity === "Analysis" &&
+                notification.relatedEntityId
+            ) {
+                navigate(
+                    `/dashboard/ai-analysis/${notification.relatedEntityId}`
+                );
+            }
         } catch (error) {
             console.error(
                 "Failed to open notification:",
