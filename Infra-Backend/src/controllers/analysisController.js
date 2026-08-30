@@ -209,7 +209,7 @@ const getAllAnalysis = async (req, res, next) => {
     }
 };
 
-// GET ANALYSIS PROGRESS 
+// GET ANALYSIS PROGRESS STATUs
 
 const getAnalysisProgress = async (
     req,
@@ -422,6 +422,7 @@ const getAnalysisResults = async (
         next(error);
     }
 };
+
 // APPROVE AI ANALYSIS
 const approveAnalysis = async (req, res, next) => {
     try {
