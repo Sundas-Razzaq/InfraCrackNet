@@ -46,22 +46,22 @@ const SummaryCards = ({ summary, cracks = [] }) => {
     ];
 
     return (
-        <div className="summary-cards">
+        <div className="stat-panel">
             {cards.map((card) => (
                 <div
                     key={card.title}
-                    className={`summary-card ${card.className}`}
+                    className={`stat-card ${card.className}`}
                 >
-                    <div className="summary-card-icon">
+                    <div className="stat-icon">
                         <FontAwesomeIcon icon={card.icon} />
                     </div>
 
-                    <div className="summary-card-content">
-                        <p className="summary-card-label">
+                    <div className="stat-content">
+                        <p className="stat-label">
                             {card.title}
                         </p>
 
-                        <h2 className="summary-card-value">
+                        <h2 className="stat-value">
                             {card.value}
                         </h2>
                     </div>

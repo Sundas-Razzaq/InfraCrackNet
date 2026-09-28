@@ -79,40 +79,41 @@ const AnalysisDetailsPage = () => {
                     title="AI Analysis Details"
                     subtitle={`${analysis.inspection.inspectionCode} • ${analysis.inspection.project.name}`}
                 />
-
-                <div
-                    className={`analysis-validation-status ${analysis.validationStatus?.toLowerCase()}`}
-                >
-                    {analysis.validationStatus}
-                </div>
-
-                {isPending && (
-                    <div className="results-actions">
-
-                        <button
-                            className="btn btn-secondary"
-                            onClick={() =>
-                                navigate(
-                                    `/dashboard/inspection/${analysis.inspection._id}/annotation/${analysis._id}`
-                                )
-                            }
-                        >
-                            Annotate
-                        </button>
-
-                        <button
-                            className="btn btn-primary"
-                            onClick={() =>
-                                navigate(
-                                    `/dashboard/inspection/${analysis.inspection._id}/validation/${analysis._id}`
-                                )
-                            }
-                        >
-                            Validate
-                        </button>
-
+                <div className="results-header-right">
+                    <div
+                        className={`analysis-validation-status ${analysis.validationStatus?.toLowerCase()}`}
+                    >
+                        {analysis.validationStatus}
                     </div>
-                )}
+
+                    {isPending && (
+                        <div className="results-actions">
+
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() =>
+                                    navigate(
+                                        `/dashboard/inspection/${analysis.inspection._id}/annotation/${analysis._id}`
+                                    )
+                                }
+                            >
+                                Annotate
+                            </button>
+
+                            <button
+                                className="btn btn-primary"
+                                onClick={() =>
+                                    navigate(
+                                        `/dashboard/inspection/${analysis.inspection._id}/validation/${analysis._id}`
+                                    )
+                                }
+                            >
+                                Validate
+                            </button>
+
+                        </div>
+                    )}
+                </div>
             </div>
 
             <SummaryCards
@@ -127,6 +128,7 @@ const AnalysisDetailsPage = () => {
 
                 <SeverityBar
                     summary={summary}
+                    cracks={cracks}
                 />
             </div>
 

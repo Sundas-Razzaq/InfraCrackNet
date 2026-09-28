@@ -38,9 +38,9 @@ const CrackTable = ({ cracks = [] }) => {
                             <th>Type</th>
                             <th>Severity</th>
                             <th>Confidence</th>
-                            <th>Width</th>
-                            <th>Length</th>
-                            <th>Area</th>
+                            <th className="num">Width</th>
+                            <th className="num">Length</th>
+                            <th className="num">Area</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -63,25 +63,33 @@ const CrackTable = ({ cracks = [] }) => {
                                 </td>
 
                                 <td>
-                                    {crack.confidence}%
+                                    <div className="confidence-cell">
+                                        <div className="confidence-track">
+                                            <div
+                                                className="confidence-fill"
+                                                style={{ width: `${crack.confidence}%` }}
+                                            />
+                                        </div>
+                                        <span>{crack.confidence}%</span>
+                                    </div>
                                 </td>
 
-                                <td>
+                                <td className="num">
                                     {crack.width} mm
                                 </td>
 
-                                <td>
+                                <td className="num">
                                     {crack.length} mm
                                 </td>
 
-                                <td>
+                                <td className="num">
                                     {crack.area} cm²
                                 </td>
 
                                 <td>
-                                    {
-                                        crack.validationStatus
-                                    }
+                                    <span className={`status-pill ${crack.validationStatus?.toLowerCase()}`}>
+                                        {crack.validationStatus}
+                                    </span>
                                 </td>
 
                             </tr>
