@@ -22,7 +22,7 @@ const upload = require("../middleware/uploadMiddleware");
 router.post(
     "/upload",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Inspector"),
     upload.array("images", 20),
     uploadInspectionImagesValidation,
     uploadInspectionImages
@@ -45,7 +45,7 @@ router.get(
 router.delete(
     "/:imageId",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Inspector"),
     deleteInspectionImage
 );
 

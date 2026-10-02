@@ -112,28 +112,6 @@ const createInspectionSchema = Joi.object({
             "string.max":
                 "Field notes cannot exceed 2000 characters.",
         }),
-
-    assignedEngineers: Joi.array()
-        .items(
-            Joi.string().hex().length(24).messages({
-                "string.hex":
-                    "Invalid Engineer ID.",
-                "string.length":
-                    "Invalid Engineer ID.",
-            })
-        )
-        .optional(),
-
-    assignedInspectors: Joi.array()
-        .items(
-            Joi.string().hex().length(24).messages({
-                "string.hex":
-                    "Invalid Inspector ID.",
-                "string.length":
-                    "Invalid Inspector ID.",
-            })
-        )
-        .optional(),
 });
 
 /* UPDATE INSPECTION */

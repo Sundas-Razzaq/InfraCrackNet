@@ -53,6 +53,18 @@ const createProjectSchema = Joi.object({
             "any.required": "Project priority is required.",
         }),
 
+    assignedInspectors: Joi.array()
+        .items(
+            Joi.string()
+                .hex()
+                .length(24)
+                .messages({
+                    "string.hex": "Invalid Inspector ID.",
+                    "string.length": "Invalid Inspector ID.",
+                })
+        )
+        .optional(),
+
     status: Joi.string()
         .valid("Active", "On Hold", "Completed")
         .optional()
@@ -99,6 +111,17 @@ const updateProjectSchema = Joi.object({
         .messages({
             "any.only": "Priority must be Low, Medium, High, or Critical.",
         }),
+
+    assignedInspectors: Joi.array()
+        .items(
+            Joi.string()
+                .hex()
+                .length(24)
+                .messages({
+                    "string.hex": "Invalid Inspector ID.",
+                    "string.length": "Invalid Inspector ID.",
+                })
+        ),
 
     status: Joi.string()
         .valid("Active", "On Hold", "Completed")

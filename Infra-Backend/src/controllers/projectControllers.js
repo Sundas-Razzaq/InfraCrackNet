@@ -5,14 +5,33 @@ const InspectionImage = require("../models/inspectionImage");
 const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const Report = require("../models/report");
+const User = require("../models/user");
 
 // Create Project
 const createProject = async (req, res, next) => {
     try {
+        const { assignedInspectors = [] } = req.body;
+
+        const uniqueInspectors = [...new Set(assignedInspectors)];
+
+        if (uniqueInspectors.length > 0) {
+            const inspectors = await User.find({
+                _id: { $in: uniqueInspectors },
+                role: "Inspector",
+            }).select("_id");
+
+            if (inspectors.length !== uniqueInspectors.length) {
+                return res.status(400).json({
+                    success: false,
+                    message: "One or more assigned inspectors are invalid.",
+                });
+            }
+        }
         const projectCode = await generateProjectCode();
 
         const project = await Project.create({
             ...req.body,
+            assignedInspectors: uniqueInspectors,
             projectCode,
             createdBy: req.user.id,
         });
@@ -93,6 +112,25 @@ const getProjectById = async (req, res, next) => {
 // Update Project
 const updateProject = async (req, res, next) => {
     try {
+        if (req.body.assignedInspectors) {
+            const uniqueInspectors = [
+                ...new Set(req.body.assignedInspectors),
+            ];
+
+            const inspectors = await User.find({
+                _id: { $in: uniqueInspectors },
+                role: "Inspector",
+            }).select("_id");
+
+            if (inspectors.length !== uniqueInspectors.length) {
+                return res.status(400).json({
+                    success: false,
+                    message: "One or more assigned inspectors are invalid.",
+                });
+            }
+
+            req.body.assignedInspectors = uniqueInspectors;
+        }
         const project = await Project.findOneAndUpdate(
             {
                 _id: req.params.id,
