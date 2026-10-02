@@ -63,6 +63,7 @@ const createProjectSchema = Joi.object({
                     "string.length": "Invalid Inspector ID.",
                 })
         )
+        .unique()
         .optional(),
 
     status: Joi.string()
@@ -121,7 +122,9 @@ const updateProjectSchema = Joi.object({
                     "string.hex": "Invalid Inspector ID.",
                     "string.length": "Invalid Inspector ID.",
                 })
-        ),
+        )
+        .unique()
+        .optional(),
 
     status: Joi.string()
         .valid("Active", "On Hold", "Completed")

@@ -30,7 +30,12 @@ const createProject = async (req, res, next) => {
         const projectCode = await generateProjectCode();
 
         const project = await Project.create({
-            ...req.body,
+            name: req.body.name,
+            description: req.body.description,
+            structureType: req.body.structureType,
+            location: req.body.location,
+            priority: req.body.priority,
+            status: req.body.status,
             assignedInspectors: uniqueInspectors,
             projectCode,
             createdBy: req.user.id,
@@ -112,7 +117,24 @@ const getProjectById = async (req, res, next) => {
 // Update Project
 const updateProject = async (req, res, next) => {
     try {
-        if (req.body.assignedInspectors) {
+        const updateData = {};
+
+        const allowedFields = [
+            "name",
+            "description",
+            "structureType",
+            "location",
+            "priority",
+            "status",
+        ];
+
+        allowedFields.forEach((field) => {
+            if (req.body[field] !== undefined) {
+                updateData[field] = req.body[field];
+            }
+        });
+
+        if (req.body.assignedInspectors !== undefined) {
             const uniqueInspectors = [
                 ...new Set(req.body.assignedInspectors),
             ];
@@ -129,14 +151,15 @@ const updateProject = async (req, res, next) => {
                 });
             }
 
-            req.body.assignedInspectors = uniqueInspectors;
+            updateData.assignedInspectors = uniqueInspectors;
         }
+
         const project = await Project.findOneAndUpdate(
             {
                 _id: req.params.id,
-                createdBy: req.user.id
+                createdBy: req.user.id,
             },
-            req.body,
+            updateData,
             {
                 returnDocument: "after",
                 runValidators: true,
