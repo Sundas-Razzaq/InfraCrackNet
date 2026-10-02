@@ -25,7 +25,7 @@ const {
 router.post(
     "/run/:inspectionId",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     startAnalysisValidation,
     startAnalysis
 );
@@ -62,7 +62,7 @@ router.get(
 router.patch(
     "/:analysisId/approve",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     approveAnalysis
 );
 
@@ -70,7 +70,7 @@ router.patch(
 router.patch(
     "/:analysisId/reject",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     rejectAnalysisValidation,
     rejectAnalysis
 );
@@ -79,7 +79,7 @@ router.patch(
 router.patch(
     "/:analysisId/cancel",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     cancelAnalysis
 );
 

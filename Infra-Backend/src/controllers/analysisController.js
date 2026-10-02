@@ -17,13 +17,27 @@ const startAnalysis = async (req, res, next) => {
     try {
         const { inspectionId } = req.params;
 
-        const existingInspection =
-            await Inspection.findOne({ _id: inspectionId, createdBy: req.user.id });
+        const existingInspection = await Inspection.findById(inspectionId)
+            .populate(
+                "project",
+                "createdBy assignedInspectors"
+            );
 
         if (!existingInspection) {
             return res.status(404).json({
                 success: false,
                 message: "Inspection not found.",
+            });
+        }
+
+        if (
+            req.user.role !== "Engineer" ||
+            existingInspection.project.createdBy.toString() !==
+            req.user.id.toString()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to run analysis for this inspection.",
             });
         }
 
