@@ -23,7 +23,7 @@ const {
 router.post(
     "/",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     createProjectValidation,
     createProject
 );
@@ -46,7 +46,7 @@ router.get(
 router.put(
     "/:id",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     updateProjectValidation,
     updateProject
 );
@@ -55,7 +55,7 @@ router.put(
 router.delete(
     "/:id",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Engineer"),
     deleteProject
 );
 

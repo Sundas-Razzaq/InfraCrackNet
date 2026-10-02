@@ -30,9 +30,20 @@ const createProject = async (req, res, next) => {
 //Get All Projects
 const getProjects = async (req, res, next) => {
     try {
-        const projects = await Project.find({ createdBy: req.user.id })
+        let query;
+
+        if (req.user.role === "Engineer") {
+            query = { createdBy: req.user.id };
+        } else if (req.user.role === "Inspector") {
+            query = { assignedInspectors: req.user.id };
+        } else {
+            query = {};
+        }
+
+        const projects = await Project.find(query)
             .populate("createdBy", "name email role")
             .populate("assignedEngineers", "name email")
+            .populate("assignedInspectors", "name email role")
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -48,11 +59,19 @@ const getProjects = async (req, res, next) => {
 // Get Single Project
 const getProjectById = async (req, res, next) => {
     try {
-        const project = await Project.findOne({
+        let query = {
             _id: req.params.id,
-            createdBy: req.user.id
-        })
+        };
+
+        if (req.user.role === "Engineer") {
+            query.createdBy = req.user.id;
+        } else if (req.user.role === "Inspector") {
+            query.assignedInspectors = req.user.id;
+        }
+
+        const project = await Project.findOne(query)
             .populate("createdBy", "name email role")
+            .populate("assignedInspectors", "name email role")
             .populate("assignedEngineers", "name email");
 
         if (!project) {
