@@ -61,15 +61,13 @@ const validateAssignments = async (
 
 const createInspection = async (req, res, next) => {
     try {
-        const {
-            project,
-            assignedEngineers = [],
-            assignedInspectors = [],
-        } = req.body;
+        const { project } = req.body;
 
         // Check if project exists
-        const existingProject = await Project.findById({ _id: project, createdBy: req.user.id });
-
+        const existingProject = await Project.findOne({
+            _id: project,
+            assignedInspectors: req.user.id,
+        });
         if (!existingProject) {
             return res.status(404).json({
                 success: false,
@@ -111,7 +109,17 @@ const createInspection = async (req, res, next) => {
 
 const getInspections = async (req, res, next) => {
     try {
-        const inspections = await Inspection.find({ createdBy: req.user.id })
+        let query;
+
+        if (req.user.role === "Inspector") {
+            query = { createdBy: req.user.id };
+        } else if (req.user.role === "Engineer") {
+            query = { assignedEngineers: req.user.id };
+        } else {
+            query = {};
+        }
+
+        const inspections = await Inspection.find(query)
             .populate("project", "projectCode name")
             .populate("createdBy", "name email role")
             .populate(
@@ -170,8 +178,17 @@ const getDraftInspections = async (
 
 const getInspectionById = async (req, res, next) => {
     try {
+        let query = {
+            _id: req.params.id,
+        };
+
+        if (req.user.role === "Inspector") {
+            query.createdBy = req.user.id;
+        } else if (req.user.role === "Engineer") {
+            query.assignedEngineers = req.user.id;
+        }
         const inspection =
-            await Inspection.findOne({ _id: req.params.id, createdBy: req.user.id })
+            await Inspection.findOne(query)
                 .populate(
                     "project",
                     "projectCode name"

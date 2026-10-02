@@ -24,7 +24,7 @@ const {
 router.post(
     "/",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Inspector"),
     createInspectionValidation,
     createInspection
 );
