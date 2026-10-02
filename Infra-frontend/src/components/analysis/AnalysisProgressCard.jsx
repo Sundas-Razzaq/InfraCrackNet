@@ -7,12 +7,20 @@ const AnalysisProgressCard = ({
     return (
         <div className="analysis-status-card">
 
-            <div className="analysis-status-description">
+            <div className="analysis-status-header">
 
-                <p>
-                    The AI engine is analyzing the uploaded
-                    inspection images.
-                </p>
+                <div className="analysis-status-description">
+                    <p>
+                        The AI engine is analyzing the uploaded
+                        inspection images.
+                    </p>
+                </div>
+
+                <span
+                    className={`analysis-status-pill ${analysis?.status?.toLowerCase()}`}
+                >
+                    {analysis?.status}
+                </span>
 
             </div>
 
@@ -50,6 +58,9 @@ const AnalysisProgressCard = ({
                         </label>
 
                         <p>
+                            <span
+                                className={`status-dot ${analysis?.status?.toLowerCase()}`}
+                            />
                             {analysis?.status}
                         </p>
 
