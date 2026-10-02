@@ -112,21 +112,12 @@ const createInspectionSchema = Joi.object({
             "string.max":
                 "Field notes cannot exceed 2000 characters.",
         }),
+
 });
 
 /* UPDATE INSPECTION */
 
 const updateInspectionSchema = Joi.object({
-    project: Joi.string()
-        .trim()
-        .hex()
-        .length(24)
-        .messages({
-            "string.base": "Project ID must be a string.",
-            "string.hex": "Invalid Project ID.",
-            "string.length": "Invalid Project ID.",
-        }),
-
     inspectionType: Joi.string()
         .valid(
             "Routine",
@@ -176,21 +167,6 @@ const updateInspectionSchema = Joi.object({
                 "Priority must be Low, Medium, High, or Critical.",
         }),
 
-    status: Joi.string()
-        .valid(
-            "Draft",
-            "Images Uploaded",
-            "AI Processing",
-            "AI Completed",
-            "Validated",
-            "Report Generated",
-            "Completed"
-        )
-        .messages({
-            "any.only":
-                "Status must be Draft, Images Uploaded, AI Processing, AI Completed, Validated, Report Generated, or Completed.",
-        }),
-
     scheduledDate: Joi.date().messages({
         "date.base":
             "Scheduled date must be a valid date.",
@@ -211,20 +187,6 @@ const updateInspectionSchema = Joi.object({
             "string.max":
                 "Field notes cannot exceed 2000 characters.",
         }),
-
-    assignedEngineers: Joi.array().items(
-        Joi.string().hex().length(24).messages({
-            "string.hex": "Invalid Engineer ID.",
-            "string.length": "Invalid Engineer ID.",
-        })
-    ),
-
-    assignedInspectors: Joi.array().items(
-        Joi.string().hex().length(24).messages({
-            "string.hex": "Invalid Inspector ID.",
-            "string.length": "Invalid Inspector ID.",
-        })
-    ),
 });
 
 /* VALIDATION MIDDLEWARE */

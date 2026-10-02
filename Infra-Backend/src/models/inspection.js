@@ -98,6 +98,7 @@ const inspectionSchema = new mongoose.Schema(
                 values: [
                     "Draft",
                     "Images Uploaded",
+                    "Pending Analysis",
                     "AI Processing",
                     "AI Completed",
                     "Validated",
@@ -108,20 +109,6 @@ const inspectionSchema = new mongoose.Schema(
             },
             default: "Draft",
         },
-
-        assignedEngineers: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-            },
-        ],
-
-        assignedInspectors: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-            },
-        ],
 
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
@@ -140,8 +127,6 @@ inspectionSchema.index({ status: 1 });
 inspectionSchema.index({ priority: 1 });
 inspectionSchema.index({ inspectionType: 1 });
 inspectionSchema.index({ createdBy: 1 });
-inspectionSchema.index({ assignedEngineers: 1 });
-inspectionSchema.index({ assignedInspectors: 1 });
 
 module.exports = mongoose.model(
     "Inspection",

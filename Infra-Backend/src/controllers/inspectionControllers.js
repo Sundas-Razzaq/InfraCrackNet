@@ -1,60 +1,30 @@
 const Inspection = require("../models/inspection");
 const Project = require("../models/project");
-const User = require("../models/user");
 const InspectionImage = require("../models/inspectionImage");
 const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const Report = require("../models/report");
 
 const generateInspectionCode = require("../utils/inspectionCodeGenerator");
+const { hasProjectAccess } = require("../utils/projectAccess");
 
-/* HELPER FUNCTION */
+/* HELPER: resolve accessible project IDs for the current user */
 
-const validateAssignments = async (
-    assignedEngineers = [],
-    assignedInspectors = []
-) => {
-    const uniqueEngineers = [...new Set(assignedEngineers)];
-    const uniqueInspectors = [...new Set(assignedInspectors)];
+const getAccessibleProjectIds = async (user) => {
+    let projectQuery;
 
-    if (uniqueEngineers.length > 0) {
-        const engineers = await User.find({
-            _id: { $in: uniqueEngineers },
-            role: "Engineer",
-        });
-
-        if (engineers.length !== uniqueEngineers.length) {
-            const error = new Error(
-                "One or more assigned engineers are invalid."
-            );
-
-            error.statusCode = 400;
-
-            throw error;
-        }
+    if (user.role === "Engineer") {
+        projectQuery = { createdBy: user.id };
+    } else if (user.role === "Inspector") {
+        projectQuery = { assignedInspectors: user.id };
+    } else {
+        // Admin / other roles — no restriction
+        projectQuery = {};
     }
 
-    if (uniqueInspectors.length > 0) {
-        const inspectors = await User.find({
-            _id: { $in: uniqueInspectors },
-            role: "Inspector",
-        });
+    const projects = await Project.find(projectQuery).select("_id");
 
-        if (inspectors.length !== uniqueInspectors.length) {
-            const error = new Error(
-                "One or more assigned inspectors are invalid."
-            );
-
-            error.statusCode = 400;
-
-            throw error;
-        }
-    }
-
-    return {
-        assignedEngineers: uniqueEngineers,
-        assignedInspectors: uniqueInspectors,
-    };
+    return projects.map((project) => project._id);
 };
 
 /* Create Inspection */
@@ -63,11 +33,8 @@ const createInspection = async (req, res, next) => {
     try {
         const { project } = req.body;
 
-        // Check if project exists
-        const existingProject = await Project.findOne({
-            _id: project,
-            assignedInspectors: req.user.id,
-        });
+        const existingProject = await Project.findById(project);
+
         if (!existingProject) {
             return res.status(404).json({
                 success: false,
@@ -75,23 +42,27 @@ const createInspection = async (req, res, next) => {
             });
         }
 
-        // Validate assignments
-        const validatedAssignments =
-            await validateAssignments(
-                assignedEngineers,
-                assignedInspectors
-            );
+        if (!hasProjectAccess(existingProject, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this project.",
+            });
+        }
 
         const inspectionCode =
             await generateInspectionCode();
-
         const inspection = await Inspection.create({
-            ...req.body,
+            project: existingProject._id,
+            inspectionType: req.body.inspectionType,
+            structureArea: req.body.structureArea,
+            gpsLocation: req.body.gpsLocation,
+            weather: req.body.weather,
+            priority: req.body.priority,
+            scheduledDate: req.body.scheduledDate,
+            inspectionDate: req.body.inspectionDate,
+            fieldNotes: req.body.fieldNotes,
             inspectionCode,
-            assignedEngineers:
-                validatedAssignments.assignedEngineers,
-            assignedInspectors:
-                validatedAssignments.assignedInspectors,
             createdBy: req.user.id,
         });
 
@@ -109,27 +80,15 @@ const createInspection = async (req, res, next) => {
 
 const getInspections = async (req, res, next) => {
     try {
-        let query;
+        const projectIds = await getAccessibleProjectIds(
+            req.user
+        );
 
-        if (req.user.role === "Inspector") {
-            query = { createdBy: req.user.id };
-        } else if (req.user.role === "Engineer") {
-            query = { assignedEngineers: req.user.id };
-        } else {
-            query = {};
-        }
-
-        const inspections = await Inspection.find(query)
+        const inspections = await Inspection.find({
+            project: { $in: projectIds },
+        })
             .populate("project", "projectCode name")
             .populate("createdBy", "name email role")
-            .populate(
-                "assignedEngineers",
-                "name email role"
-            )
-            .populate(
-                "assignedInspectors",
-                "name email role"
-            )
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -143,25 +102,14 @@ const getInspections = async (req, res, next) => {
 };
 
 /* Get Draft Inspections */
-const getDraftInspections = async (
-    req,
-    res,
-    next
-) => {
+
+const getDraftInspections = async (req, res, next) => {
     try {
         const inspections = await Inspection.find({
             createdBy: req.user.id,
             status: "Draft",
         })
             .populate("project", "projectCode name")
-            .populate(
-                "assignedEngineers",
-                "name email role"
-            )
-            .populate(
-                "assignedInspectors",
-                "name email role"
-            )
             .sort({ updatedAt: -1 });
 
         res.status(200).json({
@@ -178,38 +126,23 @@ const getDraftInspections = async (
 
 const getInspectionById = async (req, res, next) => {
     try {
-        let query = {
-            _id: req.params.id,
-        };
-
-        if (req.user.role === "Inspector") {
-            query.createdBy = req.user.id;
-        } else if (req.user.role === "Engineer") {
-            query.assignedEngineers = req.user.id;
-        }
         const inspection =
-            await Inspection.findOne(query)
-                .populate(
-                    "project",
-                    "projectCode name"
-                )
-                .populate(
-                    "createdBy",
-                    "name email role"
-                )
-                .populate(
-                    "assignedEngineers",
-                    "name email role"
-                )
-                .populate(
-                    "assignedInspectors",
-                    "name email role"
-                );
+            await Inspection.findById(req.params.id)
+                .populate("project")
+                .populate("createdBy", "name email role");
 
         if (!inspection) {
             return res.status(404).json({
                 success: false,
                 message: "Inspection not found.",
+            });
+        }
+
+        if (!hasProjectAccess(inspection.project, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this inspection.",
             });
         }
 
@@ -222,57 +155,34 @@ const getInspectionById = async (req, res, next) => {
     }
 };
 
-/* Update Inspection */
+/* Update Inspection — Inspector only (already enforced by route) */
 
-const updateInspection = async (
-    req,
-    res,
-    next
-) => {
+const updateInspection = async (req, res, next) => {
     try {
-        // Prevent updating protected fields
-        delete req.body.inspectionCode;
-        delete req.body.createdBy;
+        const updateData = {};
 
-        // Validate project if changed
-        if (req.body.project) {
-            const existingProject =
-                await Project.findOne({ _id: req.body.project, createdBy: req.user.id });
+        const allowedFields = [
+            "inspectionType",
+            "structureArea",
+            "gpsLocation",
+            "weather",
+            "priority",
+            "scheduledDate",
+            "inspectionDate",
+            "fieldNotes",
+        ];
 
-            if (!existingProject) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Project not found.",
-                });
+        allowedFields.forEach((field) => {
+            if (req.body[field] !== undefined) {
+                updateData[field] = req.body[field];
             }
-        }
+        });
 
-        // Validate assignments if changed
-        if (
-            req.body.assignedEngineers ||
-            req.body.assignedInspectors
-        ) {
-            const validatedAssignments =
-                await validateAssignments(
-                    req.body.assignedEngineers || [],
-                    req.body.assignedInspectors || []
-                );
-
-            req.body.assignedEngineers =
-                validatedAssignments.assignedEngineers;
-
-            req.body.assignedInspectors =
-                validatedAssignments.assignedInspectors;
-        }
-
-        const inspection = await Inspection.findOneAndUpdate(
-            { _id: req.params.id, createdBy: req.user.id },
-            req.body,
-            {
-                returnDocument: "after",
-                runValidators: true,
-            }
-        );
+        // Load first, then check access via project.
+        const inspection =
+            await Inspection.findById(req.params.id).populate(
+                "project"
+            );
 
         if (!inspection) {
             return res.status(404).json({
@@ -281,29 +191,57 @@ const updateInspection = async (
             });
         }
 
+        if (!hasProjectAccess(inspection.project, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this inspection.",
+            });
+        }
+
+        // Optional safety: only allow editing before analysis begins.
+        const editableStatuses = [
+            "Draft",
+            "Images Uploaded",
+            "Pending Analysis",
+        ];
+
+        if (!editableStatuses.includes(inspection.status)) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Inspection can no longer be edited once analysis has started.",
+            });
+        }
+
+        const updated =
+            await Inspection.findByIdAndUpdate(
+                inspection._id,
+                updateData,
+                {
+                    new: true,
+                    runValidators: true,
+                }
+            );
+
         res.status(200).json({
             success: true,
-            message:
-                "Inspection updated successfully.",
-            data: inspection,
+            message: "Inspection updated successfully.",
+            data: updated,
         });
     } catch (error) {
         next(error);
     }
 };
 
-// Delete Inspection
-const deleteInspection = async (
-    req,
-    res,
-    next
-) => {
+/* Delete Inspection — Inspector only (already enforced by route) */
+
+const deleteInspection = async (req, res, next) => {
     try {
         const inspection =
-            await Inspection.findOne({
-                _id: req.params.id,
-                createdBy: req.user.id,
-            });
+            await Inspection.findById(req.params.id).populate(
+                "project"
+            );
 
         if (!inspection) {
             return res.status(404).json({
@@ -312,7 +250,29 @@ const deleteInspection = async (
             });
         }
 
-        // Find AI analyses
+        if (!hasProjectAccess(inspection.project, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this inspection.",
+            });
+        }
+
+        const deletableStatuses = [
+            "Draft",
+            "Images Uploaded",
+            "Pending Analysis",
+        ];
+
+        if (!deletableStatuses.includes(inspection.status)) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Inspection cannot be deleted once analysis has started.",
+            });
+        }
+
+        // Cascade delete (unchanged logic).
         const analyses = await AIAnalysis.find({
             inspection: inspection._id,
         }).select("_id");
@@ -321,33 +281,27 @@ const deleteInspection = async (
             (analysis) => analysis._id
         );
 
-        // Delete reports
         await Report.deleteMany({
             inspection: inspection._id,
         });
 
-        // Delete crack detections
         await CrackDetection.deleteMany({
             analysis: { $in: analysisIds },
         });
 
-        // Delete AI analyses
         await AIAnalysis.deleteMany({
             inspection: inspection._id,
         });
 
-        // Delete uploaded images
         await InspectionImage.deleteMany({
             inspection: inspection._id,
         });
 
-        // Delete inspection
         await inspection.deleteOne();
 
         res.status(200).json({
             success: true,
-            message:
-                "Inspection deleted successfully.",
+            message: "Inspection deleted successfully.",
         });
     } catch (error) {
         next(error);

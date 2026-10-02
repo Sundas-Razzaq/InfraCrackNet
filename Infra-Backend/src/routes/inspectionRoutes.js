@@ -20,7 +20,7 @@ const {
     authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-/* Create a new inspection */
+/* Create — Inspector only */
 router.post(
     "/",
     protect,
@@ -29,41 +29,34 @@ router.post(
     createInspection
 );
 
-/* Get all inspections */
-router.get(
-    "/",
-    protect,
-    getInspections
-);
+/* Get all — both roles (filtered inside controller) */
+router.get("/", protect, getInspections);
 
-// Get draft inspections
+/* Drafts — Inspector only */
 router.get(
     "/drafts",
     protect,
+    authorizeRoles("Inspector"),
     getDraftInspections
 );
 
-/* Get single inspection */
-router.get(
-    "/:id",
-    protect,
-    getInspectionById
-);
+/* Get single — both roles (filtered inside controller) */
+router.get("/:id", protect, getInspectionById);
 
-/* Update inspection */
+/* Update —  Inspector only */
 router.put(
     "/:id",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Inspector"),
     updateInspectionValidation,
     updateInspection
 );
 
-/* Delete inspection */
+/* Delete — Inspector only */
 router.delete(
     "/:id",
     protect,
-    authorizeRoles("Inspector", "Engineer"),
+    authorizeRoles("Inspector"),
     deleteInspection
 );
 
