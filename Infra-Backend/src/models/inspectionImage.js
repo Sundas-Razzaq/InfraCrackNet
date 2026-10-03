@@ -40,11 +40,22 @@ const inspectionImageSchema = new mongoose.Schema(
             required: [true, "MIME type is required."],
         },
 
+        mediaType: {
+            type: String,
+            enum: ["image", "video"],
+            required: true,
+        },
+
         width: {
             type: Number,
+            required: [true, "Width is required."],
         },
 
         height: {
+            type: Number,
+        },
+
+        duration: {
             type: Number,
         },
 

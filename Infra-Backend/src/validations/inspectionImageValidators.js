@@ -17,13 +17,19 @@ const uploadInspectionImagesSchema = Joi.object({
             "any.required": "Inspection ID is required.",
         }),
 });
+const requestAnalysisSchema = Joi.object({});
 
 /* VALIDATION MIDDLEWARE */
 
 const uploadInspectionImagesValidation =
     validateRequestBody(uploadInspectionImagesSchema);
 
+const requestAnalysisValidation =
+    validateRequestBody(requestAnalysisSchema);
+
 module.exports = {
     uploadInspectionImagesSchema,
     uploadInspectionImagesValidation,
+    requestAnalysisSchema,
+    requestAnalysisValidation,
 };

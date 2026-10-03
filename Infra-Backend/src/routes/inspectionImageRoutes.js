@@ -1,14 +1,17 @@
 const express = require("express");
 const router = express.Router();
+
 const {
     uploadInspectionImages,
     getInspectionImages,
     deleteInspectionImage,
+    requestAnalysis,
     getUploadedImageCount,
 } = require("../controllers/inspectionImageControllers");
 
 const {
     uploadInspectionImagesValidation,
+    requestAnalysisValidation,
 } = require("../validations/inspectionImageValidators");
 
 const {
@@ -18,7 +21,7 @@ const {
 
 const upload = require("../middleware/uploadMiddleware");
 
-/* Upload inspection images */
+/* Upload inspection images / videos */
 router.post(
     "/upload",
     protect,
@@ -28,17 +31,27 @@ router.post(
     uploadInspectionImages
 );
 
+/* Uploaded image count — MUST come before /:inspectionId */
+router.get(
+    "/stats/count",
+    protect,
+    getUploadedImageCount
+);
+
+/* Request analysis — Inspector hands off to Engineer */
+router.post(
+    "/:inspectionId/request-analysis",
+    protect,
+    authorizeRoles("Inspector"),
+    requestAnalysisValidation,
+    requestAnalysis
+);
+
 /* Get inspection images */
 router.get(
     "/:inspectionId",
     protect,
     getInspectionImages
-);
-/* Get uploaded image count */
-router.get(
-    "/stats/count",
-    protect,
-    getUploadedImageCount
 );
 
 /* Delete inspection image */

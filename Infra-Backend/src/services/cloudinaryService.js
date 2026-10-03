@@ -1,13 +1,13 @@
 const cloudinary = require("../config/cloudinary");
-
 const streamifier = require("streamifier");
 
-const uploadImage = (buffer, folder) => {
+// CHANGED: accept resourceType ("image" | "video") — default "image"
+const uploadImage = (buffer, folder, resourceType = "image") => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             {
                 folder,
-                resource_type: "image",
+                resource_type: resourceType,
             },
             (error, result) => {
                 if (error) {
@@ -22,12 +22,14 @@ const uploadImage = (buffer, folder) => {
     });
 };
 
-const deleteImage = async (publicId) => {
+const deleteImage = async (publicId, resourceType = "image") => {
     if (!publicId) {
         return;
     }
 
-    await cloudinary.uploader.destroy(publicId);
+    await cloudinary.uploader.destroy(publicId, {
+        resource_type: resourceType,
+    });
 };
 
 module.exports = {
