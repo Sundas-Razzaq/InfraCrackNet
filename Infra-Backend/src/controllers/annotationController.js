@@ -5,14 +5,12 @@ const CrackDetection = require("../models/crackDetection");
 const InspectionImage = require("../models/inspectionImage");
 const Inspection = require("../models/inspection");
 
-// CHANGED: imports for access + notifications
 const { hasProjectAccess } = require("../utils/projectAccess");
 const {
     createNotification,
 } = require("../services/notificationService");
 
 /* Helper: load analysis + verify project access */
-// CHANGED: new helper to replace `createdBy: req.user.id` queries.
 const loadAnalysisWithAccess = async (
     analysisId,
     user
@@ -42,7 +40,6 @@ const loadAnalysisWithAccess = async (
 };
 
 /* Helper: load crack + its analysis + verify access */
-// CHANGED: new helper for crack-level endpoints.
 const loadCrackWithAccess = async (crackId, user) => {
     if (!mongoose.Types.ObjectId.isValid(crackId)) {
         return { error: "invalid-id" };
@@ -50,7 +47,6 @@ const loadCrackWithAccess = async (crackId, user) => {
 
     const crack = await CrackDetection.findById(crackId);
 
-    // CHANGED: null check BEFORE any property access (was a crash risk).
     if (!crack) {
         return { error: "not-found" };
     }
@@ -80,7 +76,6 @@ const getAnnotationWorkspace = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        // CHANGED: hasProjectAccess
         const { analysis, error } =
             await loadAnalysisWithAccess(
                 analysisId,
@@ -166,7 +161,6 @@ const updateCrack = async (req, res, next) => {
     try {
         const { crackId } = req.params;
 
-        // CHANGED: hasProjectAccess + null check first
         const { crack, error } = await loadCrackWithAccess(
             crackId,
             req.user
@@ -248,7 +242,6 @@ const removeCrack = async (req, res, next) => {
     try {
         const { crackId } = req.params;
 
-        // CHANGED: hasProjectAccess + null check first
         const { crack, error } = await loadCrackWithAccess(
             crackId,
             req.user
@@ -316,7 +309,6 @@ const addManualCrack = async (req, res, next) => {
             reviewComments,
         } = req.body;
 
-        // CHANGED: hasProjectAccess on the analysis
         const { analysis, error } =
             await loadAnalysisWithAccess(
                 analysisId,
@@ -344,9 +336,7 @@ const addManualCrack = async (req, res, next) => {
             });
         }
 
-        // CHANGED: verify the image belongs to the SAME inspection
-        // as the analysis. Was previously checking uploadedBy which
-        // failed for Engineers (they didn't upload).
+        // verify the image belongs to the SAME inspection
         const image = await InspectionImage.findOne({
             _id: inspectionImage,
             inspection: analysis.inspection._id,
@@ -406,7 +396,6 @@ const validateCrack = async (req, res, next) => {
     try {
         const { crackId } = req.params;
 
-        // CHANGED: hasProjectAccess + null check first
         const { crack, error } = await loadCrackWithAccess(
             crackId,
             req.user
@@ -469,7 +458,6 @@ const completeAnnotationReview = async (
     try {
         const { analysisId } = req.params;
 
-        // CHANGED: hasProjectAccess
         const { analysis, error } =
             await loadAnalysisWithAccess(
                 analysisId,
@@ -521,7 +509,7 @@ const completeAnnotationReview = async (
             });
         }
 
-        // CHANGED: capture updated inspection so we can notify.
+        // capture updated inspection so we can notify.
         const inspection =
             await Inspection.findByIdAndUpdate(
                 analysis.inspection._id,
@@ -529,7 +517,7 @@ const completeAnnotationReview = async (
                 { new: true }
             );
 
-        // CHANGED: notify the Inspector that results are validated.
+        //  notify the Inspector that results are validated.
         if (inspection) {
             await createNotification({
                 recipient: inspection.createdBy,

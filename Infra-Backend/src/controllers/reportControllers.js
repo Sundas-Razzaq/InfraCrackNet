@@ -16,7 +16,6 @@ const generateReportCode = require("../utils/reportCodeGenerator");
 const generateRecommendations = require("../utils/recommendationGenerator");
 const generateReportPDF = require("../pdf/generateReport");
 
-// CHANGED: hasProjectAccess util
 const { hasProjectAccess } = require("../utils/projectAccess");
 
 /* GET Generate Report */
@@ -45,7 +44,6 @@ const generateReport = async (req, res, next) => {
             });
         }
 
-        // CHANGED: hasProjectAccess instead of manual createdBy check.
         if (
             !hasProjectAccess(
                 analysis.inspection.project,
@@ -143,7 +141,7 @@ const generateReport = async (req, res, next) => {
             recommendations,
         });
 
-        // CHANGED: notify the project's Engineer, not the Inspector
+        // notify the project's Engineer, not the Inspector
         // who just generated the report.
         const engineerId =
             analysis.inspection.project.createdBy;
@@ -200,7 +198,6 @@ const getReport = async (req, res, next) => {
             });
         }
 
-        // CHANGED: hasProjectAccess
         if (
             !hasProjectAccess(
                 report.inspection.project,
@@ -233,7 +230,6 @@ const getReport = async (req, res, next) => {
 /* GET ALL REPORTS — role-aware */
 const getAllReports = async (req, res, next) => {
     try {
-        // CHANGED: scope by role.
         let inspectionQuery = {};
 
         if (req.user.role === "Inspector") {
@@ -306,7 +302,6 @@ const downloadReport = async (req, res, next) => {
             });
         }
 
-        // CHANGED: hasProjectAccess
         if (
             !hasProjectAccess(
                 report.inspection.project,
@@ -338,7 +333,6 @@ const downloadReport = async (req, res, next) => {
 /* GET REPORT COUNT — role-aware */
 const getReportCount = async (req, res, next) => {
     try {
-        // CHANGED: scope by role instead of always createdBy.
         let inspectionQuery = {};
 
         if (req.user.role === "Inspector") {
