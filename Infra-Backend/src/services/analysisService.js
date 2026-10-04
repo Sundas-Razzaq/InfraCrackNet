@@ -271,13 +271,15 @@ const startMockAnalysis = async (analysisId) => {
 
         await analysis.save();
         // create a notification for the user when the analysis is completed
+        const inspection = await Inspection.findById(analysis.inspection);
+
         await createNotification({
-            recipient: analysis.createdBy,
+            recipient: inspection.createdBy,
             type: "analysis",
             title: "AI Analysis Completed",
-            message: `AI analysis ${analysis.analysisCode} has been completed successfully.`,
-            relatedEntity: "Analysis",
-            relatedEntityId: analysis._id,
+            message: `AI analysis for inspection ${inspection.inspectionCode} has completed. You can now review the results and generate the report.`,
+            relatedEntity: "Inspection",
+            relatedEntityId: inspection._id,
         });
 
         await Inspection.findByIdAndUpdate(

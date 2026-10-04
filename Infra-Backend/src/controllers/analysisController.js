@@ -11,33 +11,104 @@ const {
     startMockAnalysis,
 } = require("../services/analysisService");
 
-// START AI ANALYSIS 
+// CHANGED: import hasProjectAccess and createNotification
+const { hasProjectAccess } = require("../utils/projectAccess");
+const {
+    createNotification,
+} = require("../services/notificationService");
 
+/* ----------------------------------------
+   Helper: load analysis + verify project access
+---------------------------------------- */
+// CHANGED: new helper to replace the repeated
+// `AIAnalysis.findOne({ _id, createdBy: req.user.id })` pattern.
+const loadAnalysisWithAccess = async (
+    analysisId,
+    user
+) => {
+    if (!mongoose.Types.ObjectId.isValid(analysisId)) {
+        return { error: "invalid-id" };
+    }
+
+    const analysis = await AIAnalysis.findById(
+        analysisId
+    ).populate({
+        path: "inspection",
+        populate: { path: "project" },
+    });
+
+    if (!analysis) {
+        return { error: "not-found" };
+    }
+
+    const project = analysis.inspection?.project;
+
+    if (!hasProjectAccess(project, user)) {
+        return { error: "forbidden" };
+    }
+
+    return { analysis };
+};
+
+/* ----------------------------------------
+   Helper: load inspection + verify project access
+---------------------------------------- */
+// CHANGED: same as above but starting from an inspection.
+const loadInspectionWithAccess = async (
+    inspectionId,
+    user
+) => {
+    if (!mongoose.Types.ObjectId.isValid(inspectionId)) {
+        return { error: "invalid-id" };
+    }
+
+    const inspection = await Inspection.findById(
+        inspectionId
+    ).populate("project");
+
+    if (!inspection) {
+        return { error: "not-found" };
+    }
+
+    if (!hasProjectAccess(inspection.project, user)) {
+        return { error: "forbidden" };
+    }
+
+    return { inspection };
+};
+
+/* START AI ANALYSIS (Engineer only, route-enforced) */
 const startAnalysis = async (req, res, next) => {
     try {
         const { inspectionId } = req.params;
 
-        const existingInspection = await Inspection.findById(inspectionId)
-            .populate(
-                "project",
-                "createdBy assignedInspectors"
+        // CHANGED: use hasProjectAccess instead of project.createdBy
+        // comparison. Same effect, consistent with other modules.
+        const { inspection: existingInspection, error } =
+            await loadInspectionWithAccess(
+                inspectionId,
+                req.user
             );
 
-        if (!existingInspection) {
+        if (error === "invalid-id") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid inspection ID.",
+            });
+        }
+
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Inspection not found.",
             });
         }
 
-        if (
-            req.user.role !== "Engineer" ||
-            existingInspection.project.createdBy.toString() !==
-            req.user.id.toString()
-        ) {
+        if (error === "forbidden") {
             return res.status(403).json({
                 success: false,
-                message: "You are not authorized to run analysis for this inspection.",
+                message:
+                    "You are not authorized to run analysis for this inspection.",
             });
         }
 
@@ -71,10 +142,7 @@ const startAnalysis = async (req, res, next) => {
             await AIAnalysis.findOne({
                 inspection: inspectionId,
                 status: {
-                    $in: [
-                        "Queued",
-                        "Processing",
-                    ],
+                    $in: ["Queued", "Processing"],
                 },
             });
 
@@ -94,27 +162,20 @@ const startAnalysis = async (req, res, next) => {
                 inspection: inspectionId,
             })) + 1;
 
-        const analysis =
-            await AIAnalysis.create({
-                analysisCode,
-                inspection: inspectionId,
+        const analysis = await AIAnalysis.create({
+            analysisCode,
+            inspection: inspectionId,
+            analysisVersion,
+            status: "Queued",
+            progress: 0,
+            currentStep: "Waiting in queue",
+            validationStatus: "Pending",
+            totalImages,
+            processedImages: 0,
+            createdBy: req.user.id,
+        });
 
-                analysisVersion,
-
-                status: "Queued",
-                progress: 0,
-                currentStep: "Waiting in queue",
-                validationStatus: "Pending",
-
-                totalImages,
-                processedImages: 0,
-
-                createdBy: req.user.id,
-            });
-
-        existingInspection.status =
-            "AI Processing";
-
+        existingInspection.status = "AI Processing";
         await existingInspection.save();
 
         // Run AI asynchronously
@@ -124,8 +185,7 @@ const startAnalysis = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            message:
-                "AI analysis started successfully.",
+            message: "AI analysis started successfully.",
             data: analysis,
         });
     } catch (error) {
@@ -133,48 +193,43 @@ const startAnalysis = async (req, res, next) => {
     }
 };
 
-// GET LATEST ANALYSIS FOR AN INSPECTION
-
-const getInspectionAnalysis = async (
-    req,
-    res,
-    next
-) => {
+/* GET LATEST ANALYSIS FOR AN INSPECTION */
+const getInspectionAnalysis = async (req, res, next) => {
     try {
         const { inspectionId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                inspectionId
-            )
-        ) {
+        // CHANGED: use hasProjectAccess so both roles can read.
+        const { inspection, error } =
+            await loadInspectionWithAccess(
+                inspectionId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Invalid inspection ID.",
+                message: "Invalid inspection ID.",
             });
         }
 
-        const inspection =
-            await Inspection.findOne({
-                _id: inspectionId,
-                createdBy: req.user.id,
-            });
-
-        if (!inspection) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
-                message:
-                    "Inspection not found.",
+                message: "Inspection not found.",
             });
         }
 
-        const analysis =
-            await AIAnalysis.findOne({
-                inspection: inspectionId,
-            }).sort({
-                createdAt: -1,
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this inspection.",
             });
+        }
+
+        const analysis = await AIAnalysis.findOne({
+            inspection: inspection._id,
+        }).sort({ createdAt: -1 });
 
         return res.status(200).json({
             success: true,
@@ -185,12 +240,35 @@ const getInspectionAnalysis = async (
     }
 };
 
-// GET ALL AI ANALYSES
-
+/* GET ALL AI ANALYSES */
 const getAllAnalysis = async (req, res, next) => {
     try {
+        // CHANGED: role-aware. Inspector sees analyses for inspections
+        // they created; Engineer sees analyses for inspections in
+        // projects they own; Admin sees all.
+        let inspectionQuery = {};
+
+        if (req.user.role === "Inspector") {
+            inspectionQuery.createdBy = req.user.id;
+        } else if (req.user.role === "Engineer") {
+            const Project = require("../models/project");
+            const projectIds = await Project.find({
+                createdBy: req.user.id,
+            }).select("_id");
+
+            inspectionQuery.project = {
+                $in: projectIds.map((p) => p._id),
+            };
+        }
+
+        const inspections = await Inspection.find(
+            inspectionQuery
+        ).select("_id");
+
+        const inspectionIds = inspections.map((i) => i._id);
+
         const analyses = await AIAnalysis.find({
-            createdBy: req.user.id,
+            inspection: { $in: inspectionIds },
         })
             .select(
                 "analysisCode analysisVersion status validationStatus progress currentStep totalImages processedImages averageConfidence overallSeverity riskScore startedAt completedAt createdAt validatedBy validatedAt rejectionReason inspection"
@@ -209,9 +287,7 @@ const getAllAnalysis = async (req, res, next) => {
                 path: "validatedBy",
                 select: "name",
             })
-            .sort({
-                createdAt: -1,
-            });
+            .sort({ createdAt: -1 });
 
         return res.status(200).json({
             success: true,
@@ -223,39 +299,37 @@ const getAllAnalysis = async (req, res, next) => {
     }
 };
 
-// GET ANALYSIS PROGRESS STATUs
-
-const getAnalysisProgress = async (
-    req,
-    res,
-    next
-) => {
+/* GET ANALYSIS PROGRESS */
+const getAnalysisProgress = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                analysisId
-            )
-        ) {
+        // CHANGED: hasProjectAccess
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Invalid analysis ID.",
+                message: "Invalid analysis ID.",
             });
         }
 
-        const analysis =
-            await AIAnalysis.findOne({
-                _id: analysisId,
-                createdBy: req.user.id
-            });
-
-        if (!analysis) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
+                message: "Analysis not found.",
+            });
+        }
+
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
                 message:
-                    "Analysis not found.",
+                    "You do not have access to this analysis.",
             });
         }
 
@@ -263,14 +337,10 @@ const getAnalysisProgress = async (
             success: true,
             data: {
                 status: analysis.status,
-                progress:
-                    analysis.progress,
-                currentStep:
-                    analysis.currentStep,
-                processedImages:
-                    analysis.processedImages,
-                totalImages:
-                    analysis.totalImages,
+                progress: analysis.progress,
+                currentStep: analysis.currentStep,
+                processedImages: analysis.processedImages,
+                totalImages: analysis.totalImages,
             },
         });
     } catch (error) {
@@ -278,45 +348,37 @@ const getAnalysisProgress = async (
     }
 };
 
-// GET ANALYSIS RESULTS
-
-const getAnalysisResults = async (
-    req,
-    res,
-    next
-) => {
+/* GET ANALYSIS RESULTS */
+const getAnalysisResults = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                analysisId
-            )
-        ) {
+        // CHANGED: hasProjectAccess so Inspector can view.
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
                 message: "Invalid analysis ID.",
             });
         }
 
-        const analysis = await AIAnalysis.findOne({
-            _id: analysisId,
-            createdBy: req.user.id,
-        }).populate({
-            path: "inspection",
-            select:
-                "inspectionCode structureArea status totalImages project",
-            populate: {
-                path: "project",
-                select:
-                    "projectCode name structureType",
-            },
-        });
-
-        if (!analysis) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Analysis not found.",
+            });
+        }
+
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this analysis.",
             });
         }
 
@@ -338,31 +400,24 @@ const getAnalysisResults = async (
             .sort({ createdAt: 1 });
 
         // Aggregated Statistics
-
         const maxWidth =
             cracks.length > 0
                 ? Math.max(
-                    ...cracks.map(
-                        (crack) => crack.width
-                    )
+                    ...cracks.map((c) => c.width)
                 )
                 : 0;
 
         const maxLength =
             cracks.length > 0
                 ? Math.max(
-                    ...cracks.map(
-                        (crack) => crack.length
-                    )
+                    ...cracks.map((c) => c.length)
                 )
                 : 0;
 
-        const totalAffectedArea =
-            cracks.reduce(
-                (sum, crack) =>
-                    sum + (crack.area || 0),
-                0
-            );
+        const totalAffectedArea = cracks.reduce(
+            (sum, c) => sum + (c.area || 0),
+            0
+        );
 
         const severityBreakdown = {
             Low: 0,
@@ -372,63 +427,36 @@ const getAnalysisResults = async (
         };
 
         cracks.forEach((crack) => {
-            severityBreakdown[
-                crack.severity
-            ]++;
+            severityBreakdown[crack.severity]++;
         });
 
         const processingTime =
-            analysis.completedAt &&
-                analysis.startedAt
+            analysis.completedAt && analysis.startedAt
                 ? analysis.completedAt.getTime() -
                 analysis.startedAt.getTime()
                 : null;
 
         return res.status(200).json({
             success: true,
-
             data: {
                 analysis,
-
                 summary: {
-                    totalCracks:
-                        cracks.length,
-
+                    totalCracks: cracks.length,
                     averageConfidence:
-                        analysis.averageConfidence ??
-                        0,
-
+                        analysis.averageConfidence ?? 0,
                     overallSeverity:
-                        analysis.overallSeverity ??
-                        null,
-
-                    riskScore:
-                        analysis.riskScore ??
-                        0,
-
-                    totalImages:
-                        analysis.totalImages,
-
-                    processedImages:
-                        analysis.processedImages,
-
+                        analysis.overallSeverity ?? null,
+                    riskScore: analysis.riskScore ?? 0,
+                    totalImages: analysis.totalImages,
+                    processedImages: analysis.processedImages,
                     maxWidth,
-
                     maxLength,
-
                     totalAffectedArea,
-
                     severityBreakdown,
-
-                    startedAt:
-                        analysis.startedAt,
-
-                    completedAt:
-                        analysis.completedAt,
-
+                    startedAt: analysis.startedAt,
+                    completedAt: analysis.completedAt,
                     processingTime,
                 },
-
                 cracks,
             },
         });
@@ -437,33 +465,40 @@ const getAnalysisResults = async (
     }
 };
 
-// APPROVE AI ANALYSIS
+/* APPROVE AI ANALYSIS (Engineer only) */
 const approveAnalysis = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(analysisId)
-        ) {
+        // CHANGED: hasProjectAccess
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
                 message: "Invalid analysis ID.",
             });
         }
 
-        const analysis = await AIAnalysis.findOne({
-            _id: analysisId,
-            createdBy: req.user.id,
-        });
-
-        if (!analysis) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Analysis not found.",
             });
         }
 
-        // Analysis must be completed before approval
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this analysis.",
+            });
+        }
+
         if (analysis.status !== "Completed") {
             return res.status(400).json({
                 success: false,
@@ -472,7 +507,6 @@ const approveAnalysis = async (req, res, next) => {
             });
         }
 
-        // Prevent approving an already decided analysis
         if (
             ["Approved", "Rejected"].includes(
                 analysis.validationStatus
@@ -480,8 +514,7 @@ const approveAnalysis = async (req, res, next) => {
         ) {
             return res.status(400).json({
                 success: false,
-                message:
-                    `Analysis has already been ${analysis.validationStatus.toLowerCase()}.`,
+                message: `Analysis has already been ${analysis.validationStatus.toLowerCase()}.`,
             });
         }
 
@@ -492,13 +525,25 @@ const approveAnalysis = async (req, res, next) => {
 
         await analysis.save();
 
-        // Move inspection to validated state
-        await Inspection.findByIdAndUpdate(
-            analysis.inspection,
-            {
-                status: "Validated",
-            }
-        );
+        // CHANGED: capture the updated inspection so we can notify.
+        const inspection =
+            await Inspection.findByIdAndUpdate(
+                analysis.inspection,
+                { status: "Validated" },
+                { new: true }
+            );
+
+        // CHANGED: notify the Inspector (inspection.createdBy).
+        if (inspection) {
+            await createNotification({
+                recipient: inspection.createdBy,
+                type: "report",
+                title: "Analysis approved — ready for report",
+                message: `Analysis for inspection ${inspection.inspectionCode} was approved. You can now generate the report.`,
+                relatedEntity: "Inspection",
+                relatedEntityId: inspection._id,
+            });
+        }
 
         return res.status(200).json({
             success: true,
@@ -511,31 +556,38 @@ const approveAnalysis = async (req, res, next) => {
     }
 };
 
-
-// REJECT AI ANALYSIS
+/* REJECT AI ANALYSIS (Engineer only) — R2: back to Pending Analysis */
 const rejectAnalysis = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
         const { rejectionReason } = req.body;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(analysisId)
-        ) {
+        // CHANGED: hasProjectAccess
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
                 message: "Invalid analysis ID.",
             });
         }
 
-        const analysis = await AIAnalysis.findOne({
-            _id: analysisId,
-            createdBy: req.user.id,
-        });
-
-        if (!analysis) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Analysis not found.",
+            });
+        }
+
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "You do not have access to this analysis.",
             });
         }
 
@@ -554,26 +606,37 @@ const rejectAnalysis = async (req, res, next) => {
         ) {
             return res.status(400).json({
                 success: false,
-                message:
-                    `Analysis has already been ${analysis.validationStatus.toLowerCase()}.`,
+                message: `Analysis has already been ${analysis.validationStatus.toLowerCase()}.`,
             });
         }
 
         analysis.validationStatus = "Rejected";
         analysis.validatedBy = req.user.id;
         analysis.validatedAt = new Date();
-        analysis.rejectionReason =
-            rejectionReason.trim();
+        analysis.rejectionReason = rejectionReason.trim();
 
         await analysis.save();
 
-        // Rejected analysis can be analyzed again
-        await Inspection.findByIdAndUpdate(
-            analysis.inspection,
-            {
-                status: "Images Uploaded",
-            }
-        );
+        // CHANGED: R2 — rejected goes back to "Pending Analysis",
+        // back in the Engineer's queue for a re-run.
+        const inspection =
+            await Inspection.findByIdAndUpdate(
+                analysis.inspection,
+                { status: "Pending Analysis" },
+                { new: true }
+            );
+
+        // CHANGED: notify the Inspector.
+        if (inspection) {
+            await createNotification({
+                recipient: inspection.createdBy,
+                type: "warning",
+                title: "Analysis rejected",
+                message: `Analysis for inspection ${inspection.inspectionCode} was rejected. Reason: ${analysis.rejectionReason}`,
+                relatedEntity: "Inspection",
+                relatedEntityId: inspection._id,
+            });
+        }
 
         return res.status(200).json({
             success: true,
@@ -586,48 +649,42 @@ const rejectAnalysis = async (req, res, next) => {
     }
 };
 
-// CANCEL ANALYSIS 
-
-const cancelAnalysis = async (
-    req,
-    res,
-    next
-) => {
+/* CANCEL ANALYSIS (Engineer only) — R2 */
+const cancelAnalysis = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                analysisId
-            )
-        ) {
+        // CHANGED: hasProjectAccess
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Invalid analysis ID.",
+                message: "Invalid analysis ID.",
             });
         }
 
-        const analysis =
-            await AIAnalysis.findOne({
-                _id: analysisId,
-                createdBy: req.user.id
-            });
-
-        if (!analysis) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
+                message: "Analysis not found.",
+            });
+        }
+
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
                 message:
-                    "Analysis not found.",
+                    "You do not have access to this analysis.",
             });
         }
 
         if (
-            [
-                "Completed",
-                "Cancelled",
-                "Failed",
-            ].includes(
+            ["Completed", "Cancelled", "Failed"].includes(
                 analysis.status
             )
         ) {
@@ -637,24 +694,30 @@ const cancelAnalysis = async (
             });
         }
 
-        analysis.status =
-            "Cancelled";
-
-        analysis.currentStep =
-            "Analysis cancelled";
-
-        analysis.completedAt =
-            new Date();
+        analysis.status = "Cancelled";
+        analysis.currentStep = "Analysis cancelled";
+        analysis.completedAt = new Date();
 
         await analysis.save();
 
-        await Inspection.findByIdAndUpdate(
-            analysis.inspection,
-            {
-                status:
-                    "Images Uploaded",
-            }
-        );
+        // CHANGED: R2 — cancel puts inspection back to Pending Analysis.
+        const inspection =
+            await Inspection.findByIdAndUpdate(
+                analysis.inspection,
+                { status: "Pending Analysis" },
+                { new: true }
+            );
+
+        if (inspection) {
+            await createNotification({
+                recipient: inspection.createdBy,
+                type: "warning",
+                title: "Analysis cancelled",
+                message: `Analysis for inspection ${inspection.inspectionCode} was cancelled by the engineer.`,
+                relatedEntity: "Inspection",
+                relatedEntityId: inspection._id,
+            });
+        }
 
         return res.status(200).json({
             success: true,
