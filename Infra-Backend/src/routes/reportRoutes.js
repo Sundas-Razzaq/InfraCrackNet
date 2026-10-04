@@ -24,7 +24,7 @@ const {
 router.post(
     "/:analysisId/generate",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Inspector"),
     analysisIdValidation,
     generateReport
 );

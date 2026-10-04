@@ -4,13 +4,22 @@ const Report = require("../models/report");
 const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const Inspection = require("../models/inspection");
+const Project = require("../models/project");
+
 const fs = require("fs");
-const path = require("path");
-const { createNotification, } = require("../services/notificationService");
+
+const {
+    createNotification,
+} = require("../services/notificationService");
+
 const generateReportCode = require("../utils/reportCodeGenerator");
 const generateRecommendations = require("../utils/recommendationGenerator");
 const generateReportPDF = require("../pdf/generateReport");
 
+// CHANGED: hasProjectAccess util
+const { hasProjectAccess } = require("../utils/projectAccess");
+
+/* GET Generate Report */
 const generateReport = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
@@ -22,13 +31,12 @@ const generateReport = async (req, res, next) => {
             });
         }
 
-        const analysis = await AIAnalysis.findById(analysisId)
-            .populate({
-                path: "inspection",
-                populate: {
-                    path: "project",
-                },
-            });
+        const analysis = await AIAnalysis.findById(
+            analysisId
+        ).populate({
+            path: "inspection",
+            populate: { path: "project" },
+        });
 
         if (!analysis) {
             return res.status(404).json({
@@ -37,9 +45,12 @@ const generateReport = async (req, res, next) => {
             });
         }
 
+        // CHANGED: hasProjectAccess instead of manual createdBy check.
         if (
-            analysis.inspection.createdBy.toString() !== req.user.id &&
-            req.user.role !== "Admin"
+            !hasProjectAccess(
+                analysis.inspection.project,
+                req.user
+            )
         ) {
             return res.status(403).json({
                 success: false,
@@ -78,10 +89,8 @@ const generateReport = async (req, res, next) => {
             });
         }
 
-        // Generate report code
         const reportCode = await generateReportCode();
 
-        // Generate recommendations
         const recommendations = generateRecommendations(
             analysis.overallSeverity,
             analysis.riskScore
@@ -89,96 +98,74 @@ const generateReport = async (req, res, next) => {
 
         const cracks = await CrackDetection.find({
             analysis: analysis._id,
-            validationStatus: {
-                $ne: "Removed",
-            },
-        })
-            .populate(
-                "inspectionImage",
-                "originalFileName imageUrl"
-            );
+            validationStatus: { $ne: "Removed" },
+        }).populate(
+            "inspectionImage",
+            "originalFileName imageUrl"
+        );
 
-        // Generate PDF 
         const pdf = await generateReportPDF({
             reportCode,
-
             analysisCode: analysis.analysisCode,
-
-            projectCode: analysis.inspection.project.projectCode,
-
-            projectName: analysis.inspection.project.name,
-
-            structureType: analysis.inspection.project.structureType,
-
+            projectCode:
+                analysis.inspection.project.projectCode,
+            projectName:
+                analysis.inspection.project.name,
+            structureType:
+                analysis.inspection.project.structureType,
             location: analysis.inspection.project.location,
-
             priority: analysis.inspection.project.priority,
-
-            inspectionCode: analysis.inspection.inspectionCode,
-
-            inspectionType: analysis.inspection.inspectionType,
-
-            inspectionDate: analysis.inspection.inspectionDate,
-
+            inspectionCode:
+                analysis.inspection.inspectionCode,
+            inspectionType:
+                analysis.inspection.inspectionType,
+            inspectionDate:
+                analysis.inspection.inspectionDate,
             structureArea: analysis.inspection.structureArea,
-
             weather: analysis.inspection.weather,
-
             gpsLocation: analysis.inspection.gpsLocation,
-
             inspectionStatus: analysis.inspection.status,
-
             overallSeverity: analysis.overallSeverity,
-
             riskScore: analysis.riskScore,
-
             averageConfidence: analysis.averageConfidence,
-
             recommendations,
-
             cracks,
             totalImages: analysis.totalImages,
         });
 
-        // Create report document
         const report = await Report.create({
             reportCode,
-
-            inspection:
-                analysis.inspection._id,
-
-            analysis:
-                analysis._id,
-
-            generatedBy:
-                req.user.id,
-
-            reportUrl:
-                pdf.filePath,
-
-            fileName:
-                pdf.fileName,
-
+            inspection: analysis.inspection._id,
+            analysis: analysis._id,
+            generatedBy: req.user.id,
+            reportUrl: pdf.filePath,
+            fileName: pdf.fileName,
             recommendations,
         });
-        await createNotification({
-            recipient: req.user.id,
-            type: "report",
-            title: "Report Generated Successfully",
-            message: `Report ${report.reportCode} has been generated successfully for inspection ${analysis.inspection.inspectionCode}.`,
-            relatedEntity: "Report",
-            relatedEntityId: report._id,
-        });
-        // Update inspection status
-        analysis.inspection.status =
-            "Report Generated";
 
+        // CHANGED: notify the project's Engineer, not the Inspector
+        // who just generated the report.
+        const engineerId =
+            analysis.inspection.project.createdBy;
+
+        if (engineerId) {
+            await createNotification({
+                recipient: engineerId,
+                type: "report",
+                title: "Report Generated",
+                message: `Report ${report.reportCode} is ready for inspection ${analysis.inspection.inspectionCode}.`,
+                relatedEntity: "Report",
+                relatedEntityId: report._id,
+            });
+        }
+
+        // Update inspection status
+        analysis.inspection.status = "Report Generated";
         await analysis.inspection.save();
 
         return res.status(201).json({
             success: true,
-            message:
-                "Report generated successfully.",
+            message: "Report generated successfully.",
             data: report,
         });
     } catch (error) {
@@ -186,7 +173,7 @@ const generateReport = async (req, res, next) => {
     }
 };
 
-//GET REPORT
+/* GET REPORT */
 const getReport = async (req, res, next) => {
     try {
         const { reportId } = req.params;
@@ -201,9 +188,7 @@ const getReport = async (req, res, next) => {
         const report = await Report.findById(reportId)
             .populate({
                 path: "inspection",
-                populate: {
-                    path: "project",
-                },
+                populate: { path: "project" },
             })
             .populate("analysis")
             .populate("generatedBy", "name email");
@@ -215,9 +200,12 @@ const getReport = async (req, res, next) => {
             });
         }
 
+        // CHANGED: hasProjectAccess
         if (
-            report.inspection.createdBy.toString() !== req.user.id &&
-            req.user.role !== "Admin"
+            !hasProjectAccess(
+                report.inspection.project,
+                req.user
+            )
         ) {
             return res.status(403).json({
                 success: false,
@@ -227,9 +215,7 @@ const getReport = async (req, res, next) => {
 
         const cracks = await CrackDetection.find({
             analysis: report.analysis._id,
-            validationStatus: {
-                $ne: "Removed",
-            },
+            validationStatus: { $ne: "Removed" },
         }).populate(
             "inspectionImage",
             "imageUrl originalFileName"
@@ -237,42 +223,59 @@ const getReport = async (req, res, next) => {
 
         return res.status(200).json({
             success: true,
-            data: {
-                report,
-                cracks,
-            },
+            data: { report, cracks },
         });
     } catch (error) {
         next(error);
     }
 };
 
-//GET ALL REPORTS
+/* GET ALL REPORTS — role-aware */
 const getAllReports = async (req, res, next) => {
     try {
-        const reports = await Report.find()
+        // CHANGED: scope by role.
+        let inspectionQuery = {};
+
+        if (req.user.role === "Inspector") {
+            inspectionQuery.createdBy = req.user.id;
+        } else if (req.user.role === "Engineer") {
+            const projectIds = await Project.find({
+                createdBy: req.user.id,
+            }).select("_id");
+
+            inspectionQuery.project = {
+                $in: projectIds.map((p) => p._id),
+            };
+        }
+        // Admin / other: no filter
+
+        const inspections = await Inspection.find(
+            inspectionQuery
+        ).select("_id");
+
+        const inspectionIds = inspections.map((i) => i._id);
+
+        const reports = await Report.find({
+            inspection: { $in: inspectionIds },
+        })
             .populate({
                 path: "inspection",
                 select: "inspectionCode structureArea",
                 populate: {
                     path: "project",
-                    select: "projectCode name structureType",
+                    select:
+                        "projectCode name structureType",
                 },
             })
             .populate(
                 "analysis",
                 "analysisCode overallSeverity riskScore averageConfidence"
             )
-            .populate(
-                "generatedBy",
-                "name email"
-            )
-            .sort({
-                createdAt: -1,
-            });
+            .populate("generatedBy", "name email")
+            .sort({ createdAt: -1 });
 
         const filteredReports = reports.filter(
-            report => report.inspection !== null
+            (report) => report.inspection !== null
         );
 
         return res.status(200).json({
@@ -280,19 +283,21 @@ const getAllReports = async (req, res, next) => {
             count: filteredReports.length,
             data: filteredReports,
         });
-
     } catch (error) {
         next(error);
     }
 };
 
-// DOWNLOAD REPORT
+/* DOWNLOAD REPORT */
 const downloadReport = async (req, res, next) => {
     try {
         const { reportId } = req.params;
 
         const report = await Report.findById(reportId)
-            .populate("inspection", "createdBy");
+            .populate({
+                path: "inspection",
+                populate: { path: "project" },
+            });
 
         if (!report) {
             return res.status(404).json({
@@ -301,9 +306,12 @@ const downloadReport = async (req, res, next) => {
             });
         }
 
+        // CHANGED: hasProjectAccess
         if (
-            report.inspection.createdBy.toString() !== req.user.id &&
-            req.user.role !== "Admin"
+            !hasProjectAccess(
+                report.inspection.project,
+                req.user
+            )
         ) {
             return res.status(403).json({
                 success: false,
@@ -327,11 +335,27 @@ const downloadReport = async (req, res, next) => {
     }
 };
 
+/* GET REPORT COUNT — role-aware */
 const getReportCount = async (req, res, next) => {
     try {
-        const inspections = await Inspection.find({
-            createdBy: req.user.id,
-        }).select("_id");
+        // CHANGED: scope by role instead of always createdBy.
+        let inspectionQuery = {};
+
+        if (req.user.role === "Inspector") {
+            inspectionQuery.createdBy = req.user.id;
+        } else if (req.user.role === "Engineer") {
+            const projectIds = await Project.find({
+                createdBy: req.user.id,
+            }).select("_id");
+
+            inspectionQuery.project = {
+                $in: projectIds.map((p) => p._id),
+            };
+        }
+
+        const inspections = await Inspection.find(
+            inspectionQuery
+        ).select("_id");
 
         const inspectionIds = inspections.map(
             (inspection) => inspection._id

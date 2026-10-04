@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const Inspection = require("../models/inspection");
 
 const {
     protect,
@@ -27,7 +26,7 @@ const {
 router.get(
     "/:analysisId",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Engineer"),
     analysisIdValidation,
     getAnnotationWorkspace
 );
@@ -36,7 +35,7 @@ router.get(
 router.patch(
     "/cracks/:crackId",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Engineer"),
     crackIdValidation,
     updateCrackValidation,
     updateCrack
@@ -46,25 +45,25 @@ router.patch(
 router.patch(
     "/cracks/:crackId/remove",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Engineer"),
     crackIdValidation,
     removeCrack
 );
 
-// ADD MANUAL CRACK 
+// ADD MANUAL CRACK
 router.post(
     "/cracks",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Engineer"),
     addManualCrackValidation,
     addManualCrack
 );
 
-// VALIDATE AI CRACK
+// VALIDATE AI CRACK 
 router.patch(
     "/cracks/:crackId/validate",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Engineer"),
     crackIdValidation,
     validateCrack
 );
@@ -73,7 +72,7 @@ router.patch(
 router.patch(
     "/:analysisId/complete",
     protect,
-    authorizeRoles("Engineer", "Inspector"),
+    authorizeRoles("Engineer"),
     analysisIdValidation,
     completeAnnotationReview
 );

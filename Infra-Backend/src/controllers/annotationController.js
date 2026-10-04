@@ -4,33 +4,107 @@ const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const InspectionImage = require("../models/inspectionImage");
 const Inspection = require("../models/inspection");
-// GET ANNOTATION WORKSPACE
 
-const getAnnotationWorkspace = async (
-    req,
-    res,
-    next
+// CHANGED: imports for access + notifications
+const { hasProjectAccess } = require("../utils/projectAccess");
+const {
+    createNotification,
+} = require("../services/notificationService");
+
+/* Helper: load analysis + verify project access */
+// CHANGED: new helper to replace `createdBy: req.user.id` queries.
+const loadAnalysisWithAccess = async (
+    analysisId,
+    user
 ) => {
+    if (!mongoose.Types.ObjectId.isValid(analysisId)) {
+        return { error: "invalid-id" };
+    }
+
+    const analysis = await AIAnalysis.findById(
+        analysisId
+    ).populate({
+        path: "inspection",
+        populate: { path: "project" },
+    });
+
+    if (!analysis) {
+        return { error: "not-found" };
+    }
+
+    const project = analysis.inspection?.project;
+
+    if (!hasProjectAccess(project, user)) {
+        return { error: "forbidden" };
+    }
+
+    return { analysis };
+};
+
+/* Helper: load crack + its analysis + verify access */
+// CHANGED: new helper for crack-level endpoints.
+const loadCrackWithAccess = async (crackId, user) => {
+    if (!mongoose.Types.ObjectId.isValid(crackId)) {
+        return { error: "invalid-id" };
+    }
+
+    const crack = await CrackDetection.findById(crackId);
+
+    // CHANGED: null check BEFORE any property access (was a crash risk).
+    if (!crack) {
+        return { error: "not-found" };
+    }
+
+    const analysis = await AIAnalysis.findById(
+        crack.analysis
+    ).populate({
+        path: "inspection",
+        populate: { path: "project" },
+    });
+
+    if (!analysis) {
+        return { error: "not-found" };
+    }
+
+    const project = analysis.inspection?.project;
+
+    if (!hasProjectAccess(project, user)) {
+        return { error: "forbidden" };
+    }
+
+    return { crack, analysis };
+};
+
+/* GET ANNOTATION WORKSPACE */
+const getAnnotationWorkspace = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        const analysis =
-            await AIAnalysis.findOne({ _id: analysisId, createdBy: req.user.id })
-                .populate({
-                    path: "inspection",
-                    select:
-                        "inspectionCode structureArea status project",
-                    populate: {
-                        path: "project",
-                        select:
-                            "projectCode name structureType location priority",
-                    },
-                });
+        // CHANGED: hasProjectAccess
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
 
-        if (!analysis) {
+        if (error === "invalid-id") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid analysis ID.",
+            });
+        }
+
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Analysis not found.",
+            });
+        }
+
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
             });
         }
 
@@ -42,55 +116,40 @@ const getAnnotationWorkspace = async (
             });
         }
 
-        const images =
-            await InspectionImage.find({
-                inspection:
-                    analysis.inspection._id,
-            })
-                .select(
-                    "imageUrl originalFileName uploadedAt"
-                )
-                .sort({
-                    createdAt: 1,
-                });
+        const images = await InspectionImage.find({
+            inspection: analysis.inspection._id,
+        })
+            .select("imageUrl originalFileName uploadedAt")
+            .sort({ createdAt: 1 });
 
-        const cracks =
-            await CrackDetection.find({
-                analysis: analysisId,
-            })
-                .populate(
-                    "inspectionImage",
-                    "imageUrl originalFileName"
-                )
-                .sort({
-                    createdAt: 1,
-                });
+        const cracks = await CrackDetection.find({
+            analysis: analysisId,
+        })
+            .populate(
+                "inspectionImage",
+                "imageUrl originalFileName"
+            )
+            .sort({ createdAt: 1 });
 
         return res.status(200).json({
             success: true,
             data: {
                 analysis,
-
                 images,
-
                 cracks,
-
                 summary: {
                     totalImages: images.length,
-
                     totalCracks: cracks.filter(
-                        crack =>
+                        (crack) =>
                             crack.validationStatus !== "Removed"
                     ).length,
-
                     reviewedCracks: cracks.filter(
-                        crack =>
+                        (crack) =>
                             crack.validationStatus !== "Removed" &&
                             crack.reviewStatus === "Completed"
                     ).length,
-
                     pendingReview: cracks.filter(
-                        crack =>
+                        (crack) =>
                             crack.validationStatus !== "Removed" &&
                             crack.reviewStatus !== "Completed"
                     ).length,
@@ -102,37 +161,42 @@ const getAnnotationWorkspace = async (
     }
 };
 
-
-// UPDATE AI CRACK
-
+/* UPDATE AI CRACK */
 const updateCrack = async (req, res, next) => {
     try {
         const { crackId } = req.params;
 
-        const crack = await CrackDetection.findById(crackId);
-        if (crack.validationStatus === "Removed") {
+        // CHANGED: hasProjectAccess + null check first
+        const { crack, error } = await loadCrackWithAccess(
+            crackId,
+            req.user
+        );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
-                message: "Removed cracks cannot be edited.",
+                message: "Invalid crack ID.",
             });
         }
 
-        if (!crack) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Crack not found.",
             });
         }
 
-        const analysis = await AIAnalysis.findOne({
-            _id: crack.analysis,
-            createdBy: req.user.id,
-        });
-
-        if (!analysis) {
+        if (error === "forbidden") {
             return res.status(403).json({
                 success: false,
                 message: "Access denied.",
+            });
+        }
+
+        if (crack.validationStatus === "Removed") {
+            return res.status(400).json({
+                success: false,
+                message: "Removed cracks cannot be edited.",
             });
         }
 
@@ -147,32 +211,20 @@ const updateCrack = async (req, res, next) => {
             reviewComments,
         } = req.body;
 
-        // Update editable fields only if provided
         if (crackClass !== undefined)
             crack.crackClass = crackClass;
-
         if (severity !== undefined)
             crack.severity = severity;
-
         if (reviewedSeverity !== undefined)
             crack.reviewedSeverity = reviewedSeverity;
-
-        if (width !== undefined)
-            crack.width = width;
-
-        if (length !== undefined)
-            crack.length = length;
-
-        if (area !== undefined)
-            crack.area = area;
-
+        if (width !== undefined) crack.width = width;
+        if (length !== undefined) crack.length = length;
+        if (area !== undefined) crack.area = area;
         if (boundingBox !== undefined)
             crack.boundingBox = boundingBox;
-
         if (reviewComments !== undefined)
             crack.reviewComments = reviewComments;
 
-        // Review metadata
         crack.reviewStatus = "Completed";
         crack.validationStatus = "Edited";
         crack.reviewedBy = req.user.id;
@@ -191,41 +243,42 @@ const updateCrack = async (req, res, next) => {
     }
 };
 
-// REMOVE AI CRACK 
-
-const removeCrack = async (
-    req,
-    res,
-    next
-) => {
+/* REMOVE AI CRACK */
+const removeCrack = async (req, res, next) => {
     try {
         const { crackId } = req.params;
 
-        const crack = await CrackDetection.findById(
-            crackId
+        // CHANGED: hasProjectAccess + null check first
+        const { crack, error } = await loadCrackWithAccess(
+            crackId,
+            req.user
         );
-        if (crack.validationStatus === "Removed") {
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
-                message: "Crack is already removed.",
+                message: "Invalid crack ID.",
             });
         }
-        if (!crack) {
+
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Crack not found.",
             });
         }
 
-        const analysis = await AIAnalysis.findOne({
-            _id: crack.analysis,
-            createdBy: req.user.id,
-        });
-
-        if (!analysis) {
+        if (error === "forbidden") {
             return res.status(403).json({
                 success: false,
-                message: "Access denied."
+                message: "Access denied.",
+            });
+        }
+
+        if (crack.validationStatus === "Removed") {
+            return res.status(400).json({
+                success: false,
+                message: "Crack is already removed.",
             });
         }
 
@@ -240,8 +293,7 @@ const removeCrack = async (
 
         return res.status(200).json({
             success: true,
-            message:
-                "Crack removed successfully.",
+            message: "Crack removed successfully.",
             data: crack,
         });
     } catch (error) {
@@ -249,17 +301,11 @@ const removeCrack = async (
     }
 };
 
-
-// ADD MANUAL CRACK 
-
-const addManualCrack = async (
-    req,
-    res,
-    next
-) => {
+/* ADD MANUAL CRACK */
+const addManualCrack = async (req, res, next) => {
     try {
         const {
-            analysis,
+            analysis: analysisId,
             inspectionImage,
             crackClass,
             severity,
@@ -270,88 +316,84 @@ const addManualCrack = async (
             reviewComments,
         } = req.body;
 
-        // Verify analysis exists
-        const existingAnalysis =
-            await AIAnalysis.findOne({ _id: analysis, createdBy: req.user.id });
+        // CHANGED: hasProjectAccess on the analysis
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
 
-        if (!existingAnalysis) {
+        if (error === "invalid-id") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid analysis ID.",
+            });
+        }
+
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Analysis not found.",
             });
         }
 
-        // Verify inspection image exists
-        const image =
-            await InspectionImage.findOne({
-                _id: inspectionImage,
-                uploadedBy: req.user.id
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
             });
+        }
+
+        // CHANGED: verify the image belongs to the SAME inspection
+        // as the analysis. Was previously checking uploadedBy which
+        // failed for Engineers (they didn't upload).
+        const image = await InspectionImage.findOne({
+            _id: inspectionImage,
+            inspection: analysis.inspection._id,
+        });
 
         if (!image) {
             return res.status(404).json({
                 success: false,
-                message:
-                    "Inspection image not found.",
+                message: "Inspection image not found.",
             });
         }
 
-        // Generate next Crack ID
         const crackCount =
             await CrackDetection.countDocuments({
-                analysis,
+                analysis: analysisId,
             });
 
         const crackId = `CRK-${String(
             crackCount + 1
         ).padStart(3, "0")}`;
 
-        const crack =
-            await CrackDetection.create({
-                analysis,
-                inspectionImage,
-
-                crackId,
-
-                crackClass,
-                confidence: 100,
-
-                severity,
-
-                reviewedSeverity:
-                    severity,
-
-                width,
-                length,
-                area,
-
-                boundingBox,
-
-                source: "Manual",
-
-                validationStatus:
-                    "Added",
-
-                reviewStatus:
-                    "Completed",
-
-                reviewVersion: 1,
-
-                reviewedBy: req.user.id,
-                reviewedAt: new Date(),
-
-                reviewComments,
-
-                isValidated: true,
-
-                aiNotes:
-                    "Added manually by engineer.",
-            });
+        const crack = await CrackDetection.create({
+            analysis: analysisId,
+            inspectionImage,
+            crackId,
+            crackClass,
+            confidence: 100,
+            severity,
+            reviewedSeverity: severity,
+            width,
+            length,
+            area,
+            boundingBox,
+            source: "Manual",
+            validationStatus: "Added",
+            reviewStatus: "Completed",
+            reviewVersion: 1,
+            reviewedBy: req.user.id,
+            reviewedAt: new Date(),
+            reviewComments,
+            isValidated: true,
+            aiNotes: "Added manually by engineer.",
+        });
 
         return res.status(201).json({
             success: true,
-            message:
-                "Manual crack added successfully.",
+            message: "Manual crack added successfully.",
             data: crack,
         });
     } catch (error) {
@@ -359,80 +401,58 @@ const addManualCrack = async (
     }
 };
 
-// VALIDATE AI CRACK 
-const validateCrack = async (
-    req,
-    res,
-    next
-) => {
+/* VALIDATE AI CRACK */
+const validateCrack = async (req, res, next) => {
     try {
         const { crackId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                crackId
-            )
-        ) {
+        // CHANGED: hasProjectAccess + null check first
+        const { crack, error } = await loadCrackWithAccess(
+            crackId,
+            req.user
+        );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
                 message: "Invalid crack ID.",
             });
         }
 
-        const crack =
-            await CrackDetection.findById(
-                crackId
-            );
-
-        if (crack.validationStatus === "Removed") {
-            return res.status(400).json({
-                success: false,
-                message: "Removed cracks cannot be validated.",
-            });
-        }
-
-        if (!crack) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Crack not found.",
             });
         }
 
-        const analysis = await AIAnalysis.findOne({
-            _id: crack.analysis,
-            createdBy: req.user.id,
-        });
-
-        if (!analysis) {
+        if (error === "forbidden") {
             return res.status(403).json({
                 success: false,
-                message: "Access denied."
+                message: "Access denied.",
             });
         }
 
-        crack.validationStatus =
-            "Validated";
+        if (crack.validationStatus === "Removed") {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Removed cracks cannot be validated.",
+            });
+        }
 
-        crack.reviewStatus =
-            "Completed";
-
-        crack.reviewedBy =
-            req.user.id;
-
-        crack.reviewedAt =
-            new Date();
-
-        crack.isValidated =
-            true;
-
+        crack.validationStatus = "Validated";
+        crack.reviewStatus = "Completed";
+        crack.reviewedBy = req.user.id;
+        crack.reviewedAt = new Date();
+        crack.isValidated = true;
         crack.reviewVersion += 1;
 
         await crack.save();
 
         return res.status(200).json({
             success: true,
-            message:
-                "Crack validated successfully.",
+            message: "Crack validated successfully.",
             data: crack,
         });
     } catch (error) {
@@ -440,7 +460,7 @@ const validateCrack = async (
     }
 };
 
-//complete Annotation Review
+/* COMPLETE ANNOTATION REVIEW */
 const completeAnnotationReview = async (
     req,
     res,
@@ -449,31 +469,37 @@ const completeAnnotationReview = async (
     try {
         const { analysisId } = req.params;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                analysisId
-            )
-        ) {
+        // CHANGED: hasProjectAccess
+        const { analysis, error } =
+            await loadAnalysisWithAccess(
+                analysisId,
+                req.user
+            );
+
+        if (error === "invalid-id") {
             return res.status(400).json({
                 success: false,
                 message: "Invalid analysis ID.",
             });
         }
 
-        const analysis =
-            await AIAnalysis.findOne({ _id: analysisId, createdBy: req.user.id });
-
-        if (!analysis) {
+        if (error === "not-found") {
             return res.status(404).json({
                 success: false,
                 message: "Analysis not found.",
             });
         }
 
-        const cracks =
-            await CrackDetection.find({
-                analysis: analysisId,
+        if (error === "forbidden") {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied.",
             });
+        }
+
+        const cracks = await CrackDetection.find({
+            analysis: analysisId,
+        });
 
         if (cracks.length === 0) {
             return res.status(400).json({
@@ -483,12 +509,9 @@ const completeAnnotationReview = async (
             });
         }
 
-        const pendingReviews =
-            cracks.filter(
-                (crack) =>
-                    crack.reviewStatus !==
-                    "Completed"
-            );
+        const pendingReviews = cracks.filter(
+            (crack) => crack.reviewStatus !== "Completed"
+        );
 
         if (pendingReviews.length > 0) {
             return res.status(400).json({
@@ -498,12 +521,25 @@ const completeAnnotationReview = async (
             });
         }
 
-        await Inspection.findByIdAndUpdate(
-            analysis.inspection,
-            {
-                status: "Validated",
-            }
-        );
+        // CHANGED: capture updated inspection so we can notify.
+        const inspection =
+            await Inspection.findByIdAndUpdate(
+                analysis.inspection._id,
+                { status: "Validated" },
+                { new: true }
+            );
+
+        // CHANGED: notify the Inspector that results are validated.
+        if (inspection) {
+            await createNotification({
+                recipient: inspection.createdBy,
+                type: "report",
+                title: "Annotation review complete — ready for report",
+                message: `Annotation review for inspection ${inspection.inspectionCode} is complete. You can now generate the report.`,
+                relatedEntity: "Inspection",
+                relatedEntityId: inspection._id,
+            });
+        }
 
         return res.status(200).json({
             success: true,
@@ -511,10 +547,8 @@ const completeAnnotationReview = async (
                 "Annotation review completed successfully.",
             data: {
                 analysisId,
-                reviewedCracks:
-                    cracks.length,
-                inspectionStatus:
-                    "Validated",
+                reviewedCracks: cracks.length,
+                inspectionStatus: "Validated",
             },
         });
     } catch (error) {
