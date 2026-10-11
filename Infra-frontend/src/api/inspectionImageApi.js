@@ -63,3 +63,12 @@ export const getUploadedImageCount = async () => {
 
     return data;
 };
+
+//request analysis for an inspection
+export const requestAnalysis = async (inspectionId) => {
+    const { data } = await authApi.post(
+        `/inspection-images/${inspectionId}/request-analysis`
+    );
+
+    return data;
+};

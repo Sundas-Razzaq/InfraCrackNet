@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
-import { startAnalysis } from "../../../api/analysisApi";
 import ImageUploadZone from "../../../components/inspectionImage/ImageUploadZone";
 import UploadRequirements from "../../../components/inspectionImage/UploadRequirements";
 import UploadedImagesPanel from "../../../components/inspectionImage/UploadedImagesPanel";
@@ -11,6 +11,7 @@ import {
     getInspectionImages,
     uploadInspectionImages,
     deleteInspectionImage,
+    requestAnalysis,
 } from "../../../api/inspectionImageApi";
 
 import { getInspectionById } from "../../../api/inspectionApi";
@@ -20,19 +21,16 @@ import { toast } from "react-toastify";
 
 const UploadImagesPage = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
+
     const [inspection, setInspection] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [images, setImages] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
-
     const [uploading, setUploading] = useState(false);
+    const [deletingImageId, setDeletingImageId] = useState(null);
+    const [notifying, setNotifying] = useState(false);
 
-    const [deletingImageId, setDeletingImageId] =
-        useState(null);
-
-    // Fetch uploaded images
     const fetchInspectionImages = useCallback(async () => {
         const response = await getInspectionImages(id);
         setImages(response.data || []);
@@ -41,11 +39,8 @@ const UploadImagesPage = () => {
     useEffect(() => {
         const fetchInspection = async () => {
             try {
-                const response =
-                    await getInspectionById(id);
-
+                const response = await getInspectionById(id);
                 setInspection(response.data);
-
                 await fetchInspectionImages();
             } catch (error) {
                 toast.error(
@@ -62,23 +57,16 @@ const UploadImagesPage = () => {
         fetchInspection();
     }, [id, fetchInspectionImages]);
 
-    // Local file selection
     const handleFilesSelected = (files) => {
         setSelectedFiles((prev) => {
-            const existingFiles = [
-                ...prev,
-                ...images,
-            ];
+            const existingFiles = [...prev, ...images];
 
             const newFiles = files.filter((file) => {
                 return !existingFiles.some((existing) => {
                     const existingName =
-                        existing.originalFileName ||
-                        existing.name;
-
+                        existing.originalFileName || existing.name;
                     const existingSize =
-                        existing.fileSize ||
-                        existing.size;
+                        existing.fileSize || existing.size;
 
                     return (
                         existingName === file.name &&
@@ -97,7 +85,6 @@ const UploadImagesPage = () => {
         });
     };
 
-    // Upload images
     const handleUploadImages = async () => {
         if (selectedFiles.length === 0) {
             toast.warning(
@@ -114,13 +101,14 @@ const UploadImagesPage = () => {
                 selectedFiles
             );
 
-            toast.success(
-                "Images uploaded successfully."
-            );
+            toast.success("Images uploaded successfully.");
 
             setSelectedFiles([]);
-
             await fetchInspectionImages();
+
+            // Refresh inspection so status reflects backend change.
+            const refreshed = await getInspectionById(id);
+            setInspection(refreshed.data);
         } catch (error) {
             toast.error(
                 getApiErrorMessage(
@@ -133,19 +121,19 @@ const UploadImagesPage = () => {
         }
     };
 
-    // Delete image
     const handleDeleteImage = async (imageId) => {
-        console.log("Deleting image:", imageId);
         try {
             setDeletingImageId(imageId);
 
             await deleteInspectionImage(imageId);
 
             toast.success("Image deleted successfully.");
-
             await fetchInspectionImages();
+
+            // Refresh inspection status (may reset to Draft if no images remain).
+            const refreshed = await getInspectionById(id);
+            setInspection(refreshed.data);
         } catch (error) {
-            console.log(error.response?.data);
             toast.error(
                 getApiErrorMessage(
                     error,
@@ -157,25 +145,26 @@ const UploadImagesPage = () => {
         }
     };
 
-    // AI module placeholder
-    const handleRunAI = async () => {
+    const handleNotifyEngineer = async () => {
         try {
-            const response = await startAnalysis(
-                inspection._id
-            );
+            setNotifying(true);
+
+            const response = await requestAnalysis(inspection._id);
 
             toast.success(response.message);
 
-            navigate(
-                `/dashboard/inspection/${inspection._id}/ai-analysis/${response.data._id}`
-            );
+            // Refresh inspection status
+            const refreshed = await getInspectionById(id);
+            setInspection(refreshed.data);
         } catch (error) {
             toast.error(
                 getApiErrorMessage(
                     error,
-                    "Failed to start AI analysis."
+                    "Failed to notify engineer."
                 )
             );
+        } finally {
+            setNotifying(false);
         }
     };
 
@@ -197,7 +186,6 @@ const UploadImagesPage = () => {
 
     return (
         <div className="upload-images-page">
-
             <PageHeader
                 title="Upload Inspection Images"
                 subtitle={`${inspection.inspectionCode} • ${inspection.project?.name}`}
@@ -206,19 +194,14 @@ const UploadImagesPage = () => {
             <InspectionStepper currentStep={2} />
 
             <div className="upload-images-layout">
-
                 <div className="upload-images-left">
-
                     <ImageUploadZone
                         onFilesSelected={handleFilesSelected}
                     />
-
                     <UploadRequirements />
-
                 </div>
 
                 <div className="upload-images-right">
-
                     <UploadedImagesPanel
                         images={images}
                         selectedFiles={selectedFiles}
@@ -226,13 +209,13 @@ const UploadImagesPage = () => {
                         onUpload={handleUploadImages}
                         onDelete={handleDeleteImage}
                         deletingImageId={deletingImageId}
-                        onRunAI={handleRunAI}
+                        // CHANGED: pass the notify handler + current status
+                        onNotifyEngineer={handleNotifyEngineer}
+                        notifying={notifying}
+                        inspectionStatus={inspection.status}
                     />
-
                 </div>
-
             </div>
-
         </div>
     );
 };
