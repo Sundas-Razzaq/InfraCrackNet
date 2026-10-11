@@ -11,7 +11,7 @@ import { getProjects } from "../../api/projectApi";
 import ProjectCard from "./projectCard";
 import EmptyState from "../dashboard/shared/EmptyState";
 
-import { useRole } from "../../context/useRole";
+import { useRole } from "../../utils/useRole";
 
 const ProjectGrid = () => {
     const [projects, setProjects] = useState([]);

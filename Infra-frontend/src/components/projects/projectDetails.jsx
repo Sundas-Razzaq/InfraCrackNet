@@ -6,7 +6,7 @@ import {
     faUserTie,
     faPlay,
 } from "@fortawesome/free-solid-svg-icons";
-import { useRole } from "../../context/useRole";
+import { useRole } from "../../utils/useRole";
 
 const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
     const navigate = useNavigate();
