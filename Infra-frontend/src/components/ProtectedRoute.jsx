@@ -28,7 +28,7 @@ function ProtectedRoute({
             allowedRoles.length > 0 &&
             !allowedRoles.includes(user?.role)
         ) {
-            navigate("/");
+            navigate("/dashboard");
         }
     }, [
         isAuthenticated,

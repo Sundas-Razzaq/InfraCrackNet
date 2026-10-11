@@ -231,7 +231,7 @@ function App() {
           <Route
             path="inspection/:inspectionId/ai-analysis/:analysisId"
             element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <ProtectedRoute allowedRoles={["Engineer"]}>
                 <AIProcessingPage />
               </ProtectedRoute>
             }

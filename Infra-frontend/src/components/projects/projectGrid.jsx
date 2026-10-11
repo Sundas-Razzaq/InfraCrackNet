@@ -11,17 +11,19 @@ import { getProjects } from "../../api/projectApi";
 import ProjectCard from "./projectCard";
 import EmptyState from "../dashboard/shared/EmptyState";
 
+import { useRole } from "../../context/useRole";
+
 const ProjectGrid = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
+    const { isEngineer } = useRole();
 
     useEffect(() => {
         const fetchProjects = async () => {
             try {
                 const response = await getProjects();
-
                 setProjects(response.data || []);
             } catch (error) {
                 console.error(
@@ -45,6 +47,16 @@ const ProjectGrid = () => {
     }
 
     if (projects.length === 0) {
+        if (!isEngineer) {
+            return (
+                <EmptyState
+                    icon={faFolderOpen}
+                    title="No Assigned Projects"
+                    message="You haven't been assigned to any projects yet. Once an Engineer adds you to a project, it will appear here."
+                />
+            );
+        }
+
         return (
             <EmptyState
                 icon={faFolderOpen}

@@ -6,9 +6,11 @@ import {
     faUserTie,
     faPlay,
 } from "@fortawesome/free-solid-svg-icons";
+import { useRole } from "../../context/useRole";
 
 const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
     const navigate = useNavigate();
+    const { isEngineer, isInspector } = useRole();
 
     if (!project) {
         return (
@@ -37,36 +39,46 @@ const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
 
                 <div className="project-actions">
 
-                    <button
-                        className="btn btn-primary"
-                        onClick={onStartInspection}
-                    >
-                        <FontAwesomeIcon
-                            icon={faPlay}
-                            className="project-btn-icon"
-                        />
-                        Start Inspection
-                    </button>
+                    {/* Start Inspection is Inspector-only */}
+                    {isInspector && (
+                        <button
+                            className="btn btn-primary"
+                            onClick={onStartInspection}
+                        >
+                            <FontAwesomeIcon
+                                icon={faPlay}
+                                className="project-btn-icon"
+                            />
+                            Start Inspection
+                        </button>
+                    )}
 
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() =>
-                            navigate(
-                                `/dashboard/projects/${project._id}/edit`
-                            )
-                        }
-                    >
-                        Edit Project
-                    </button>
+                    {/* Edit Project is Engineer-only */}
+                    {isEngineer && (
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() =>
+                                navigate(
+                                    `/dashboard/projects/${project._id}/edit`
+                                )
+                            }
+                        >
+                            Edit Project
+                        </button>
+                    )}
 
-                    <button
-                        className="btn btn-danger"
-                        onClick={onDelete}
-                    >
-                        Delete Project
-                    </button>
+                    {/* Delete Project is Engineer-only */}
+                    {isEngineer && (
+                        <button
+                            className="btn btn-danger"
+                            onClick={onDelete}
+                        >
+                            Delete Project
+                        </button>
+                    )}
 
                 </div>
+
 
             </div>
 
