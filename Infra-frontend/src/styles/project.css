@@ -386,6 +386,49 @@
 
 /*PROJECT DETAILS*/
 
+.project-inspectors-card {
+    margin-top: 1.5rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.project-inspectors-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.75rem;
+}
+
+.project-inspectors-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.project-inspector-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.project-inspector-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.project-inspector-name {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.project-inspector-email {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
 .project-details {
     display: flex;
     flex-direction: column;
@@ -468,6 +511,58 @@
     padding: 4rem;
     text-align: center;
     color: var(--color-text-secondary);
+}
+
+.project-form-inspectors {
+    margin-top: 1.5rem;
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+.inspector-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.5rem;
+}
+
+.inspector-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.inspector-picker-item:hover {
+    background: #f9fafb;
+}
+
+.inspector-picker-item.is-selected {
+    border-color: #1e3a8a;
+    background: #eff6ff;
+}
+
+.inspector-picker-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.inspector-picker-name {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.inspector-picker-email {
+    font-size: 0.8rem;
+    color: #6b7280;
 }
 
 /*DELETE MODAL*/

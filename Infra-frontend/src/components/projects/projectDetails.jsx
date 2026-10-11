@@ -79,7 +79,6 @@ const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
 
                 </div>
 
-
             </div>
 
             <div className="project-details-card">
@@ -88,82 +87,101 @@ const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
 
                     <div className="project-detail">
                         <label>Description</label>
-
                         <p>{project.description}</p>
                     </div>
 
                     <div className="project-detail">
                         <label>Structure Type</label>
-
                         <p>{project.structureType}</p>
                     </div>
 
                     <div className="project-detail">
-
                         <label>Location</label>
-
                         <p className="project-meta">
-
                             <FontAwesomeIcon
                                 icon={faLocationDot}
                                 className="detail-icon"
                             />
-
                             {project.location}
-
                         </p>
-
                     </div>
 
                     <div className="project-detail">
                         <label>Priority</label>
-
                         <p>{project.priority}</p>
                     </div>
 
                     <div className="project-detail">
                         <label>Status</label>
-
                         <p>{project.status}</p>
                     </div>
 
                     <div className="project-detail">
-
                         <label>Created By</label>
-
                         <p className="project-meta">
-
                             <FontAwesomeIcon
                                 icon={faUserTie}
                                 className="detail-icon"
                             />
-
                             {project.createdBy?.name}
-
                         </p>
-
                     </div>
 
                     <div className="project-detail">
-
                         <label>Created On</label>
-
                         <p className="project-meta">
-
                             <FontAwesomeIcon
                                 icon={faCalendarDays}
                                 className="detail-icon"
                             />
-
                             {new Date(
                                 project.createdAt
                             ).toLocaleDateString()}
-
                         </p>
-
                     </div>
 
                 </div>
+
+                {/* Inspectors section — outside the grid, inside the card */}
+                {project.assignedInspectors &&
+                    project.assignedInspectors.length > 0 && (
+                        <div className="project-inspectors-section">
+                            <h3 className="project-inspectors-title">
+                                Assigned Inspectors
+                            </h3>
+
+                            <ul className="project-inspectors-list">
+                                {project.assignedInspectors.map((inspector) => (
+                                    <li
+                                        key={
+                                            typeof inspector === "string"
+                                                ? inspector
+                                                : inspector._id
+                                        }
+                                        className="project-inspector-item"
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faUserTie}
+                                            className="detail-icon"
+                                        />
+
+                                        <div className="project-inspector-info">
+                                            <span className="project-inspector-name">
+                                                {inspector.name ||
+                                                    "Unknown inspector"}
+                                            </span>
+
+                                            {inspector.email && (
+                                                <span className="project-inspector-email">
+                                                    {inspector.email}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
             </div>
 
