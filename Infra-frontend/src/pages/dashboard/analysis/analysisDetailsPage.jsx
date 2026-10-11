@@ -7,6 +7,7 @@ import SummaryCards from "../../../components/analysis/SummaryCards";
 import DetectionImage from "../../../components/analysis/DetectionImage";
 import SeverityBar from "../../../components/analysis/SeverityBar";
 import CrackTable from "../../../components/analysis/CrackTable";
+import { useRole } from "../../../utils/useRole";
 
 import { getAnalysisResults } from "../../../api/analysisApi";
 import { getApiErrorMessage } from "../../../api/authApi";
@@ -16,6 +17,7 @@ import { toast } from "react-toastify";
 const AnalysisDetailsPage = () => {
     const navigate = useNavigate();
     const { analysisId } = useParams();
+    const { isEngineer } = useRole();
 
     const [loading, setLoading] = useState(true);
     const [results, setResults] = useState(null);
@@ -86,7 +88,7 @@ const AnalysisDetailsPage = () => {
                         {analysis.validationStatus}
                     </div>
 
-                    {isPending && (
+                    {isEngineer && isPending && (
                         <div className="results-actions">
 
                             <button

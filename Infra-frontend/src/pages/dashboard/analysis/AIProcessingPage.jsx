@@ -17,6 +17,7 @@ import {
     getAnalysisProgress,
     cancelAnalysis,
 } from "../../../api/analysisApi";
+import { useRole } from "../../../utils/useRole";
 
 import { getInspectionById } from "../../../api/inspectionApi";
 import { getApiErrorMessage } from "../../../api/authApi";
@@ -25,22 +26,13 @@ import { toast } from "react-toastify";
 
 const AIProcessingPage = () => {
     const { inspectionId } = useParams();
-
     const navigate = useNavigate();
-
     const pollingRef = useRef(null);
-
-    const [inspection, setInspection] =
-        useState(null);
-
-    const [analysis, setAnalysis] =
-        useState(null);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [cancelLoading, setCancelLoading] =
-        useState(false);
+    const [inspection, setInspection] = useState(null);
+    const [analysis, setAnalysis] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [cancelLoading, setCancelLoading] = useState(false);
+    const { isEngineer, isInspector } = useRole();
 
     const stopPolling = () => {
         if (pollingRef.current) {
@@ -204,19 +196,18 @@ const AIProcessingPage = () => {
                 />
 
                 <div className="analysis-actions">
-
-                    <button
-                        className="btn btn-danger"
-                        onClick={handleCancel}
-                        disabled={cancelLoading}
-                    >
-                        {cancelLoading
-                            ? "Cancelling..."
-                            : "Cancel Analysis"}
-                    </button>
+                    {/* Cancel is Engineer-only */}
+                    {isEngineer && (
+                        <button
+                            className="btn btn-danger"
+                            onClick={handleCancel}
+                            disabled={cancelLoading}
+                        >
+                            {cancelLoading ? "Cancelling..." : "Cancel Analysis"}
+                        </button>
+                    )}
 
                     {analysis.status === "Completed" && (
-
                         <button
                             className="btn btn-primary"
                             onClick={() =>
@@ -227,9 +218,13 @@ const AIProcessingPage = () => {
                         >
                             View Results
                         </button>
-
                     )}
 
+                    {isInspector && analysis.status !== "Completed" && (
+                        <p className="analysis-waiting-note">
+                            Waiting for the engineer to complete analysis…
+                        </p>
+                    )}
                 </div>
 
             </div>

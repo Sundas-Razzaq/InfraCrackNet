@@ -21,7 +21,7 @@ const InspectionDetailsPage = () => {
     const [loading, setLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
-    const [setAnalysisLoading] = useState(false);
+    const [analysisLoading, setAnalysisLoading] = useState(false);
 
     useEffect(() => {
         const fetchInspection = async () => {
@@ -53,7 +53,6 @@ const InspectionDetailsPage = () => {
         );
     };
 
-    // CHANGED: Engineer-only action, triggers AI analysis run.
     const handleRunAnalysis = async () => {
         try {
             setAnalysisLoading(true);
@@ -120,6 +119,7 @@ const InspectionDetailsPage = () => {
                 onDelete={() => setShowDeleteModal(true)}
                 onUploadImages={handleUploadImages}
                 onRunAnalysis={handleRunAnalysis}
+                analysisLoading={analysisLoading}
             />
 
             <DeleteConfirmationModal

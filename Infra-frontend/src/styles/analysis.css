@@ -16,6 +16,20 @@
     gap: 32px;
 }
 
+.analysis-waiting-note {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin: 0;
+}
+.results-readonly-note {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin: 0;
+    text-align: right;
+}
+
 /* PROGRESS CARD*/
 
 .analysis-status-card {

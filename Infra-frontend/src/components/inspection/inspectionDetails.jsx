@@ -16,6 +16,7 @@ const InspectionDetails = ({
     onDelete,
     onUploadImages,
     onRunAnalysis,
+    analysisLoading,
 }) => {
     const { isEngineer, isInspector } = useRole();
 
@@ -72,12 +73,15 @@ const InspectionDetails = ({
                         <button
                             className="btn btn-primary"
                             onClick={onRunAnalysis}
+                            disabled={analysisLoading}
                         >
                             <FontAwesomeIcon
                                 icon={faPlay}
                                 className="inspection-btn-icon"
                             />
-                            Run AI Analysis
+                            {analysisLoading
+                                ? "Starting AI Analysis..."
+                                : "Run AI Analysis"}
                         </button>
                     )}
                 </div>

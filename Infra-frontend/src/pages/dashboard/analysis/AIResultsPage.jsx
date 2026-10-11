@@ -8,6 +8,7 @@ import SummaryCards from "../../../components/analysis/SummaryCards";
 import DetectionImage from "../../../components/analysis/DetectionImage";
 import SeverityBar from "../../../components/analysis/SeverityBar";
 import CrackTable from "../../../components/analysis/CrackTable";
+import { useRole } from "../../../utils/useRole";
 
 import { getAnalysisResults } from "../../../api/analysisApi";
 import { getApiErrorMessage } from "../../../api/authApi";
@@ -17,9 +18,9 @@ import { toast } from "react-toastify";
 const AIResultsPage = () => {
     const { analysisId } = useParams();
     const navigate = useNavigate();
-
     const [loading, setLoading] = useState(true);
     const [results, setResults] = useState(null);
+    const { isEngineer } = useRole();
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -81,29 +82,39 @@ const AIResultsPage = () => {
                 />
 
                 <div className="results-actions">
+                    {isEngineer && (
+                        <>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() =>
+                                    navigate(
+                                        `/dashboard/inspection/${analysis.inspection._id}/annotation/${analysis._id}`
+                                    )
+                                }
+                            >
+                                Annotate
+                            </button>
 
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() =>
-                            navigate(
-                                `/dashboard/inspection/${analysis.inspection._id}/annotation/${analysis._id}`
-                            )
-                        }
-                    >
-                        Annotate
-                    </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() =>
+                                    navigate(
+                                        `/dashboard/inspection/${analysis.inspection._id}/validation/${analysis._id}`
+                                    )
+                                }
+                            >
+                                Validate
+                            </button>
+                        </>
+                    )}
 
-                    <button
-                        className="btn btn-primary"
-                        onClick={() =>
-                            navigate(
-                                `/dashboard/inspection/${analysis.inspection._id}/validation/${analysis._id}`
-                            )
-                        }
-                    >
-                        Validate
-                    </button>
-
+                    {/* Inspector sees a read-only note */}
+                    {!isEngineer && (
+                        <p className="results-readonly-note">
+                            You are viewing this analysis in read-only mode. The engineer
+                            will review and finalize the results.
+                        </p>
+                    )}
                 </div>
 
             </div>

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import RejectAnalysisModal from "../../../components/annotation/RejectAnalysisModal";
 import { startAnalysis } from "../../../api/analysisApi";
 import { approveAnalysis, rejectAnalysis, getValidationResults } from "../../../api/validationApi";
-import { generateReport } from "../../../api/reportApi";
 import {
     faChevronLeft,
     faChevronRight,
@@ -96,8 +96,7 @@ const ValidationPage = () => {
 
     const handleApprove = async () => {
         try {
-            const inspectionId =
-                data?.analysis?.inspection?._id;
+            const inspectionId = data?.analysis?.inspection?._id;
 
             if (!inspectionId) {
                 setError(
@@ -109,45 +108,23 @@ const ValidationPage = () => {
             setApproving(true);
             setError("");
 
-            // STEP 1: Approve analysis
             await approveAnalysis(analysisId);
 
-            // STEP 2: Generate final report
-            const reportResponse =
-                await generateReport(analysisId);
-
-            console.log(
-                "GENERATED REPORT:",
-                reportResponse
+            toast.success(
+                "Analysis approved. The inspector has been notified to generate the report."
             );
 
-            const report =
-                reportResponse?.data;
-
-            const reportId =
-                report?._id;
-
-            if (!reportId) {
-                throw new Error(
-                    "Report was generated but report ID was not returned."
-                );
-            }
-
-            // STEP 3: Navigate to report details
-            navigate(
-                `/dashboard/inspection/${inspectionId}/report/${reportId}`
-            );
-
+            navigate(`/dashboard/inspection/${inspectionId}`);
         } catch (error) {
             console.error(
-                "Failed to approve and generate report:",
+                "Failed to approve analysis:",
                 error
             );
 
             setError(
                 error.response?.data?.message ||
                 error.message ||
-                "Failed to approve and generate report."
+                "Failed to approve analysis."
             );
         } finally {
             setApproving(false);
