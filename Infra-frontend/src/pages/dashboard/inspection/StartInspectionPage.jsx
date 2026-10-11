@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import DashboardLayout from "../../../layouts/DashboardLayout";
-
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import InspectionStepper from "../../../components/inspection/InspectionStepper";
 import InspectionForm from "../../../components/inspection/InspectionForm";
@@ -18,13 +16,8 @@ const StartInspectionPage = () => {
     const projectId = location.state?.projectId || "";
 
     const [projects, setProjects] = useState([]);
-
-    const [loadingProjects, setLoadingProjects] =
-        useState(true);
-
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
-
+    const [loadingProjects, setLoadingProjects] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
@@ -37,8 +30,6 @@ const StartInspectionPage = () => {
         scheduledDate: "",
         inspectionDate: "",
         fieldNotes: "",
-        assignedEngineers: [],
-        assignedInspectors: [],
     });
 
     const isProjectLocked = Boolean(projectId);
@@ -46,9 +37,7 @@ const StartInspectionPage = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response =
-                    await getProjects();
-
+                const response = await getProjects();
                 setProjects(response.data || []);
             } catch (error) {
                 setErrors((prev) => ({
@@ -77,14 +66,22 @@ const StartInspectionPage = () => {
         }));
     };
 
+    const buildPayload = () => {
+        const payload = { ...formData };
+
+        if (!payload.scheduledDate) delete payload.scheduledDate;
+        if (!payload.inspectionDate) delete payload.inspectionDate;
+        if (!payload.fieldNotes) delete payload.fieldNotes;
+
+        return payload;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         setIsSubmitting(true);
 
         try {
-            const response =
-                await createInspection(formData);
+            const response = await createInspection(buildPayload());
 
             navigate(
                 `/dashboard/inspection/${response.data._id}/upload-images`
@@ -103,9 +100,9 @@ const StartInspectionPage = () => {
         setIsSubmitting(true);
 
         try {
-            await createInspection(formData);
+            await createInspection(buildPayload());
 
-            // Success message will be added later.
+            // TODO: add success toast + navigate somewhere if desired
         } catch (error) {
             setErrors((prev) => ({
                 ...prev,
@@ -117,45 +114,39 @@ const StartInspectionPage = () => {
     };
 
     return (
-        <>
-            <div className="start-inspection-page">
-                <PageHeader
-                    title="Start New Inspection"
-                    subtitle="Select a project and provide inspection details before uploading images."
+        <div className="start-inspection-page">
+            <PageHeader
+                title="Start New Inspection"
+                subtitle="Select a project and provide inspection details before uploading images."
+            >
+                <button
+                    className="btn btn-secondary"
+                    onClick={() => navigate("/dashboard/inspection")}
                 >
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() => navigate("/dashboard/inspection")}
-                    >
-                        Back to Inspections
-                    </button>
-                </PageHeader>
+                    Back to Inspections
+                </button>
+            </PageHeader>
 
-                <InspectionStepper currentStep={1} />
+            <InspectionStepper currentStep={1} />
 
-                {errors.api && (
-                    <div className="inspection-api-error">
-                        <p className="form-error">
-                            {errors.api}
-                        </p>
-                    </div>
-                )}
+            {errors.api && (
+                <div className="inspection-api-error">
+                    <p className="form-error">{errors.api}</p>
+                </div>
+            )}
 
-                <InspectionForm
-                    formData={formData}
-                    errors={errors}
-                    projects={projects}
-                    loadingProjects={loadingProjects}
-                    isProjectLocked={isProjectLocked}
-                    isSubmitting={isSubmitting}
-                    onChange={handleChange}
-                    onSubmit={handleSubmit}
-                    onSaveDraft={
-                        handleSaveDraft
-                    }
-                />
-            </div>
-        </>
+            <InspectionForm
+                formData={formData}
+                errors={errors}
+                projects={projects}
+                loadingProjects={loadingProjects}
+                isProjectLocked={isProjectLocked}
+                isSubmitting={isSubmitting}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                onSaveDraft={handleSaveDraft}
+            />
+        </div>
     );
 };
 

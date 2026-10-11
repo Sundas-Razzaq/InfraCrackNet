@@ -8,6 +8,7 @@ import {
     getInspectionById,
     deleteInspection,
 } from "../../../api/inspectionApi";
+import { startAnalysis } from "../../../api/analysisApi";
 
 import { getApiErrorMessage } from "../../../api/authApi";
 import { toast } from "react-toastify";
@@ -16,24 +17,16 @@ const InspectionDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [inspection, setInspection] =
-        useState(null);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [showDeleteModal, setShowDeleteModal] =
-        useState(false);
-
-    const [deleteLoading, setDeleteLoading] =
-        useState(false);
+    const [inspection, setInspection] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [setAnalysisLoading] = useState(false);
 
     useEffect(() => {
         const fetchInspection = async () => {
             try {
-                const response =
-                    await getInspectionById(id);
-
+                const response = await getInspectionById(id);
                 setInspection(response.data);
             } catch (error) {
                 toast.error(
@@ -51,9 +44,7 @@ const InspectionDetailsPage = () => {
     }, [id]);
 
     const handleEdit = () => {
-        navigate(
-            `/dashboard/inspection/${inspection._id}/edit`
-        );
+        navigate(`/dashboard/inspection/${inspection._id}/edit`);
     };
 
     const handleUploadImages = () => {
@@ -62,18 +53,35 @@ const InspectionDetailsPage = () => {
         );
     };
 
+    // CHANGED: Engineer-only action, triggers AI analysis run.
+    const handleRunAnalysis = async () => {
+        try {
+            setAnalysisLoading(true);
+
+            const response = await startAnalysis(inspection._id);
+
+            toast.success(response.message);
+
+            navigate(
+                `/dashboard/inspection/${inspection._id}/ai-analysis/${response.data._id}`
+            );
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to start AI analysis."
+                )
+            );
+        } finally {
+            setAnalysisLoading(false);
+        }
+    };
+
     const handleDelete = async () => {
         try {
             setDeleteLoading(true);
-
-            await deleteInspection(
-                inspection._id
-            );
-
-            toast.success(
-                "Inspection deleted successfully."
-            );
-
+            await deleteInspection(inspection._id);
+            toast.success("Inspection deleted successfully.");
             navigate("/dashboard/inspection");
         } catch (error) {
             toast.error(
@@ -111,6 +119,7 @@ const InspectionDetailsPage = () => {
                 onEdit={handleEdit}
                 onDelete={() => setShowDeleteModal(true)}
                 onUploadImages={handleUploadImages}
+                onRunAnalysis={handleRunAnalysis}
             />
 
             <DeleteConfirmationModal
@@ -121,9 +130,7 @@ const InspectionDetailsPage = () => {
                 confirmText="Delete Inspection"
                 loadingText="Deleting..."
                 isLoading={deleteLoading}
-                onClose={() =>
-                    setShowDeleteModal(false)
-                }
+                onClose={() => setShowDeleteModal(false)}
                 onConfirm={handleDelete}
             />
         </>

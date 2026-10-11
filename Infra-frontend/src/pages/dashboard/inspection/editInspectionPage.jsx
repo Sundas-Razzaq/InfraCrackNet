@@ -9,7 +9,6 @@ import {
     getInspectionById,
     updateInspection,
 } from "../../../api/inspectionApi";
-
 import { getProjects } from "../../../api/projectApi";
 import { getApiErrorMessage } from "../../../api/authApi";
 
@@ -20,16 +19,9 @@ const EditInspectionPage = () => {
     const navigate = useNavigate();
 
     const [projects, setProjects] = useState([]);
-
-    const [loadingProjects, setLoadingProjects] =
-        useState(true);
-
-    const [loadingInspection, setLoadingInspection] =
-        useState(true);
-
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
-
+    const [loadingProjects, setLoadingProjects] = useState(true);
+    const [loadingInspection, setLoadingInspection] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
@@ -42,8 +34,6 @@ const EditInspectionPage = () => {
         scheduledDate: "",
         inspectionDate: "",
         fieldNotes: "",
-        assignedEngineers: [],
-        assignedInspectors: [],
     });
 
     useEffect(() => {
@@ -57,46 +47,22 @@ const EditInspectionPage = () => {
 
                 setProjects(projectsResponse.data || []);
 
-                const inspection =
-                    inspectionResponse.data;
+                const inspection = inspectionResponse.data;
 
                 setFormData({
-                    project:
-                        inspection.project?._id || "",
-                    inspectionType:
-                        inspection.inspectionType || "",
-                    structureArea:
-                        inspection.structureArea || "",
-                    gpsLocation:
-                        inspection.gpsLocation || "",
-                    weather:
-                        inspection.weather || "",
-                    priority:
-                        inspection.priority || "Medium",
-                    scheduledDate:
-                        inspection.scheduledDate
-                            ? inspection.scheduledDate.slice(
-                                0,
-                                10
-                            )
-                            : "",
-                    inspectionDate:
-                        inspection.inspectionDate
-                            ? inspection.inspectionDate.slice(
-                                0,
-                                10
-                            )
-                            : "",
-                    fieldNotes:
-                        inspection.fieldNotes || "",
-                    assignedEngineers:
-                        inspection.assignedEngineers?.map(
-                            (user) => user._id
-                        ) || [],
-                    assignedInspectors:
-                        inspection.assignedInspectors?.map(
-                            (user) => user._id
-                        ) || [],
+                    project: inspection.project?._id || "",
+                    inspectionType: inspection.inspectionType || "",
+                    structureArea: inspection.structureArea || "",
+                    gpsLocation: inspection.gpsLocation || "",
+                    weather: inspection.weather || "",
+                    priority: inspection.priority || "Medium",
+                    scheduledDate: inspection.scheduledDate
+                        ? inspection.scheduledDate.slice(0, 10)
+                        : "",
+                    inspectionDate: inspection.inspectionDate
+                        ? inspection.inspectionDate.slice(0, 10)
+                        : "",
+                    fieldNotes: inspection.fieldNotes || "",
                 });
             } catch (error) {
                 toast.error(
@@ -128,24 +94,27 @@ const EditInspectionPage = () => {
         }));
     };
 
+    const buildPayload = () => {
+        const payload = { ...formData };
+
+        delete payload.project;
+
+        if (!payload.scheduledDate) delete payload.scheduledDate;
+        if (!payload.inspectionDate) delete payload.inspectionDate;
+        if (!payload.fieldNotes) delete payload.fieldNotes;
+
+        return payload;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         setIsSubmitting(true);
 
         try {
-            await updateInspection(
-                id,
-                formData
-            );
+            await updateInspection(id, buildPayload());
 
-            toast.success(
-                "Inspection updated successfully."
-            );
-
-            navigate(
-                `/dashboard/inspection/${id}`
-            );
+            toast.success("Inspection updated successfully.");
+            navigate(`/dashboard/inspection/${id}`);
         } catch (error) {
             setErrors((prev) => ({
                 ...prev,
@@ -166,7 +135,6 @@ const EditInspectionPage = () => {
 
     return (
         <div className="edit-inspection-page">
-
             <PageHeader
                 title="Edit Inspection"
                 subtitle="Update inspection information."
@@ -174,18 +142,14 @@ const EditInspectionPage = () => {
 
             <InspectionStepper currentStep={1} />
 
-            {errors.api && (
-                <p className="form-error">
-                    {errors.api}
-                </p>
-            )}
+            {errors.api && <p className="form-error">{errors.api}</p>}
 
             <InspectionForm
                 formData={formData}
                 errors={errors}
                 projects={projects}
                 loadingProjects={loadingProjects}
-                isProjectLocked={false}
+                isProjectLocked={true}
                 isSubmitting={isSubmitting}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
@@ -194,7 +158,6 @@ const EditInspectionPage = () => {
                 draftButtonText="Save Changes"
                 submittingText="Updating Inspection..."
             />
-
         </div>
     );
 };
