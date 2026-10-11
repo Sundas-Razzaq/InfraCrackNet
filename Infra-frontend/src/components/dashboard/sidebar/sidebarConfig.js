@@ -2,7 +2,6 @@ import {
     faBell,
     faChartLine,
     faClipboardCheck,
-    faClock,
     faFolderOpen,
     faGaugeHigh,
     faGear,
@@ -11,12 +10,14 @@ import {
     faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 
+// If allowedRoles is omitted, item shows for everyone authenticated.
 export const sidebarItems = [
     {
         id: "dashboard",
         title: "Dashboard",
         path: "/dashboard",
         icon: faGaugeHigh,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname === "/dashboard",
     },
@@ -26,6 +27,7 @@ export const sidebarItems = [
         title: "Projects",
         path: "/dashboard/projects",
         icon: faFolderOpen,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/projects" ||
             pathname.startsWith("/dashboard/projects/"),
@@ -36,6 +38,7 @@ export const sidebarItems = [
         title: "Inspection",
         path: "/dashboard/inspection",
         icon: faClipboardCheck,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) => {
             if (!pathname.startsWith("/dashboard/inspection")) {
                 return false;
@@ -55,6 +58,7 @@ export const sidebarItems = [
         title: "Analytics",
         path: "/dashboard/ai-analysis",
         icon: faChartLine,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname.includes("/ai-analysis/") ||
             pathname.includes("/ai-results/") ||
@@ -67,6 +71,7 @@ export const sidebarItems = [
         title: "Reports",
         path: "/dashboard/reports",
         icon: faFileLines,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/reports" ||
             pathname.startsWith("/dashboard/reports/"),
@@ -77,21 +82,11 @@ export const sidebarItems = [
         title: "Team Management",
         path: "/dashboard/team",
         icon: faUsers,
+        // CHANGED: Engineer-only — Inspector does not manage the team.
+        allowedRoles: ["Engineer"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/team" ||
             pathname.startsWith("/dashboard/team/"),
-    },
-
-    {
-        id: "history",
-        title: "History",
-        path: "/dashboard/inspection-history",
-        icon: faClock,
-        activeMatch: (pathname) =>
-            pathname === "/dashboard/inspection-history" ||
-            pathname.startsWith(
-                "/dashboard/inspection-history/"
-            ),
     },
 
     {
@@ -99,11 +94,10 @@ export const sidebarItems = [
         title: "Notifications",
         path: "/dashboard/notifications",
         icon: faBell,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/notifications" ||
-            pathname.startsWith(
-                "/dashboard/notifications/"
-            ),
+            pathname.startsWith("/dashboard/notifications/"),
     },
 
     {
@@ -111,6 +105,7 @@ export const sidebarItems = [
         title: "Profile",
         path: "/dashboard/profile",
         icon: faUser,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/profile" ||
             pathname.startsWith("/dashboard/profile/"),
@@ -121,6 +116,7 @@ export const sidebarItems = [
         title: "Settings",
         path: "/dashboard/settings",
         icon: faGear,
+        allowedRoles: ["Engineer", "Inspector"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/settings" ||
             pathname.startsWith("/dashboard/settings/"),

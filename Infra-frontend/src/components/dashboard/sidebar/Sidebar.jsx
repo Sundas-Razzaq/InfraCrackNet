@@ -23,6 +23,13 @@ function Sidebar({
         }
     };
 
+    const visibleItems = sidebarItems.filter((item) => {
+        if (!item.allowedRoles || item.allowedRoles.length === 0) {
+            return true;
+        }
+        return item.allowedRoles.includes(userRole);
+    });
+
     return (
         <>
             <div
@@ -57,7 +64,7 @@ function Sidebar({
                     aria-label="Dashboard Navigation"
                 >
                     <ul className="sidebar-nav-list">
-                        {sidebarItems.map((item) => (
+                        {visibleItems.map((item) => (
                             <SidebarItem
                                 key={item.id}
                                 item={item}
