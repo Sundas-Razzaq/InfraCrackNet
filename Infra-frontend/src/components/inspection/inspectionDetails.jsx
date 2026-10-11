@@ -5,6 +5,7 @@ import {
     faUserTie,
     faClipboardCheck,
     faPlay,
+    faFileLines,
 } from "@fortawesome/free-solid-svg-icons";
 
 import InspectionStatusBadge from "./inspectionStatusBadge";
@@ -17,6 +18,8 @@ const InspectionDetails = ({
     onUploadImages,
     onRunAnalysis,
     analysisLoading,
+    onGenerateReport,
+    reportLoading = false,
 }) => {
     const { isEngineer, isInspector } = useRole();
 
@@ -30,6 +33,9 @@ const InspectionDetails = ({
 
     const canRunAnalysis =
         isEngineer && inspection.status === "Pending Analysis";
+
+    const canGenerateReport =
+        isInspector && inspection.status === "Validated";
 
     return (
         <div className="inspection-details">
@@ -82,6 +88,22 @@ const InspectionDetails = ({
                             {analysisLoading
                                 ? "Starting AI Analysis..."
                                 : "Run AI Analysis"}
+                        </button>
+                    )}
+
+                    {canGenerateReport && (
+                        <button
+                            className="btn btn-primary"
+                            onClick={onGenerateReport}
+                            disabled={reportLoading}
+                        >
+                            <FontAwesomeIcon
+                                icon={faFileLines}
+                                className="inspection-btn-icon"
+                            />
+                            {reportLoading
+                                ? "Generating..."
+                                : "Generate Report"}
                         </button>
                     )}
                 </div>

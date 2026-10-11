@@ -8,7 +8,8 @@ import {
     getInspectionById,
     deleteInspection,
 } from "../../../api/inspectionApi";
-import { startAnalysis } from "../../../api/analysisApi";
+import { startAnalysis, getInspectionAnalysis } from "../../../api/analysisApi";
+import { generateReport } from "../../../api/reportApi";
 
 import { getApiErrorMessage } from "../../../api/authApi";
 import { toast } from "react-toastify";
@@ -22,6 +23,7 @@ const InspectionDetailsPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [analysisLoading, setAnalysisLoading] = useState(false);
+    const [reportLoading, setReportLoading] = useState(false);
 
     useEffect(() => {
         const fetchInspection = async () => {
@@ -76,6 +78,46 @@ const InspectionDetailsPage = () => {
         }
     };
 
+    // CHANGED: Inspector generates the report from a validated inspection.
+    const handleGenerateReport = async () => {
+        try {
+            setReportLoading(true);
+
+            // Find the latest analysis for this inspection
+            const analysisResponse = await getInspectionAnalysis(
+                inspection._id
+            );
+
+            const analysis = analysisResponse.data;
+
+            if (!analysis || !analysis._id) {
+                toast.error(
+                    "No analysis found for this inspection."
+                );
+                return;
+            }
+
+            const response = await generateReport(analysis._id);
+
+            toast.success("Report generated successfully.");
+
+            const reportId = response?.data?._id;
+
+            navigate(
+                `/dashboard/inspection/${inspection._id}/report/${reportId}`
+            );
+        } catch (error) {
+            toast.error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to generate report."
+                )
+            );
+        } finally {
+            setReportLoading(false);
+        }
+    };
+
     const handleDelete = async () => {
         try {
             setDeleteLoading(true);
@@ -120,6 +162,8 @@ const InspectionDetailsPage = () => {
                 onUploadImages={handleUploadImages}
                 onRunAnalysis={handleRunAnalysis}
                 analysisLoading={analysisLoading}
+                onGenerateReport={handleGenerateReport}
+                reportLoading={reportLoading}
             />
 
             <DeleteConfirmationModal
