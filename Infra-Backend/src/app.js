@@ -12,6 +12,7 @@ const analysisRoutes = require("./routes/analysisRoutes");
 const annotationRoutes = require("./routes/annotationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use("/api/analysis", analysisRoutes);
 app.use("/api/annotations", annotationRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/users", userRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
