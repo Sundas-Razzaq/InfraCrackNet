@@ -1,32 +1,12 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 
-import { getUnreadNotificationCount } from "../../../api/notificationApi";
+import { useNotifications } from "../../../context/useNotifications";
 
 function NotificationBell() {
     const navigate = useNavigate();
-    const location = useLocation();
-
-    const [unreadCount, setUnreadCount] = useState(0);
-
-    useEffect(() => {
-        const fetchUnreadCount = async () => {
-            try {
-                const response = await getUnreadNotificationCount();
-
-                setUnreadCount(response.count || 0);
-            } catch (error) {
-                console.error(
-                    "Failed to fetch unread notification count:",
-                    error
-                );
-            }
-        };
-
-        fetchUnreadCount();
-    }, [location.pathname]);
+    const { unreadCount } = useNotifications();
 
     const handleNotificationClick = () => {
         navigate("/dashboard/notifications");

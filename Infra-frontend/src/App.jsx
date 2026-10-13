@@ -1,5 +1,4 @@
 import {
-  BrowserRouter,
   Route,
   Routes,
   useNavigate,
@@ -12,9 +11,7 @@ import SignupPage from "./pages/auth/signup";
 import LoginPage from "./pages/auth/login";
 import ForgotPasswordPage from "./pages/auth/forgotPassword";
 import ResetPasswordPage from "./pages/auth/resetPassword";
-
 import DashboardLayout from "./layouts/DashboardLayout";
-
 import DashboardHome from "./pages/dashboard/dashboardHome";
 import Profile from "./pages/dashboard/profile";
 import Notifications from "./pages/dashboard/notifications";
@@ -70,82 +67,81 @@ function ResetPasswordRoute() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
+    <Routes>
+      {/* Public Routes */}
 
-        <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<LandingPage />} />
 
+      <Route
+        path="/login"
+        element={<LoginRoute />}
+      />
+
+      <Route
+        path="/signup"
+        element={<SignupRoute />}
+      />
+
+      <Route
+        path="/forgot-password"
+        element={<ForgotPasswordRoute />}
+      />
+
+      <Route
+        path="/reset-password/:token"
+        element={<ResetPasswordRoute />}
+      />
+
+      {/* Protected Dashboard */}
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route
-          path="/login"
-          element={<LoginRoute />}
+          index
+          element={<DashboardHome />}
         />
-
+        {/* project routes */}
         <Route
-          path="/signup"
-          element={<SignupRoute />}
-        />
-
-        <Route
-          path="/forgot-password"
-          element={<ForgotPasswordRoute />}
-        />
-
-        <Route
-          path="/reset-password/:token"
-          element={<ResetPasswordRoute />}
-        />
-
-        {/* Protected Dashboard */}
-
-        <Route
-          path="/dashboard"
+          path="projects"
           element={
-            <ProtectedRoute>
-              <DashboardLayout />
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <ProjectsPage />
             </ProtectedRoute>
           }
-        >
-          <Route
-            index
-            element={<DashboardHome />}
-          />
-          {/* project routes */}
-          <Route
-            path="projects"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <ProjectsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="projects/new"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer"]}>
-                <NewProjectPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="projects/:id"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <ProjectDetailsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="projects/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer"]}>
-                <EditProjectPage />
-              </ProtectedRoute>
-            }
-          />
+        />
+        <Route
+          path="projects/new"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer"]}>
+              <NewProjectPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="projects/:id"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <ProjectDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="projects/:id/edit"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer"]}>
+              <EditProjectPage />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* team management */}
-          {/* <Route
+        {/* team management */}
+        {/* <Route
             path="team"
             element={
               <ProtectedRoute allowedRoles={["Engineer"]}>
@@ -154,174 +150,173 @@ function App() {
             }
           /> */}
 
-          {/* inspection routes */}
-          <Route
-            path="inspection"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <InspectionsPage />
-              </ProtectedRoute>
-            }
-          />
+        {/* inspection routes */}
+        <Route
+          path="inspection"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <InspectionsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/new"
-            element={
-              <ProtectedRoute allowedRoles={["Inspector"]}>
-                <StartInspectionPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/new"
+          element={
+            <ProtectedRoute allowedRoles={["Inspector"]}>
+              <StartInspectionPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/drafts"
-            element={
-              <ProtectedRoute allowedRoles={["Inspector"]}>
-                <DraftInspectionsPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/drafts"
+          element={
+            <ProtectedRoute allowedRoles={["Inspector"]}>
+              <DraftInspectionsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/:id"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <InspectionDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/:id"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <InspectionDetailsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={["Inspector"]}>
-                <EditInspectionPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/:id/edit"
+          element={
+            <ProtectedRoute allowedRoles={["Inspector"]}>
+              <EditInspectionPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/:id/upload-images"
-            element={
-              <ProtectedRoute allowedRoles={["Inspector"]}>
-                <UploadImagesPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/:id/upload-images"
+          element={
+            <ProtectedRoute allowedRoles={["Inspector"]}>
+              <UploadImagesPage />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* analysis routes */}
-          <Route
-            path="/dashboard/ai-analysis"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <AnalyticsPage />
-              </ProtectedRoute>
-            }
-          />
+        {/* analysis routes */}
+        <Route
+          path="/dashboard/ai-analysis"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="/dashboard/ai-analysis/:analysisId"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <AnalysisDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/dashboard/ai-analysis/:analysisId"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <AnalysisDetailsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/:inspectionId/ai-analysis/:analysisId"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer"]}>
-                <AIProcessingPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/:inspectionId/ai-analysis/:analysisId"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer"]}>
+              <AIProcessingPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/:inspectionId/ai-results/:analysisId"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <AIResultsPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/:inspectionId/ai-results/:analysisId"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <AIResultsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* annotation routes — Engineer only */}
-          <Route
-            path="inspection/:inspectionId/annotation/:analysisId"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer"]}>
-                <AnnotationWorkspacePage />
-              </ProtectedRoute>
-            }
-          />
+        {/* annotation routes — Engineer only */}
+        <Route
+          path="inspection/:inspectionId/annotation/:analysisId"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer"]}>
+              <AnnotationWorkspacePage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="inspection/:inspectionId/validation/:analysisId"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer"]}>
-                <ValidationPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="inspection/:inspectionId/validation/:analysisId"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer"]}>
+              <ValidationPage />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* report routes — view/download for both roles */}
-          <Route
-            path="reports"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <ReportsPage />
-              </ProtectedRoute>
-            }
-          />
+        {/* report routes — view/download for both roles */}
+        <Route
+          path="reports"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="/dashboard/inspection/:inspectionId/report/:reportId"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <ReportDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/dashboard/inspection/:inspectionId/report/:reportId"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <ReportDetailsPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="/dashboard/reports/:reportId/export"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <ReportExportPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/dashboard/reports/:reportId/export"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <ReportExportPage />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="profile"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="notifications"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <Notifications />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="notifications"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <Notifications />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="settings"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        <Route
+          path="settings"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+    </Routes>
   );
 }
 
