@@ -192,7 +192,7 @@ function SearchBar() {
                 />
 
                 <input
-                    type="search"
+                    type="text"
                     className="search-input"
                     placeholder="Search projects, inspections, analyses, reports..."
                     value={query}
