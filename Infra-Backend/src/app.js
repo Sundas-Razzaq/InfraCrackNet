@@ -17,10 +17,18 @@ const searchRoutes = require("./routes/searchRoutes");
 
 const app = express();
 
+const normalizeOrigin = (value) =>
+    String(value || "")
+        .trim()
+        .replace(/\/+$/, "");
+
 const allowedOrigins = [
     "http://localhost:5173",
     "https://infra-crack-net-6msy.vercel.app",
-];
+    process.env.FRONTEND_URL,
+    ...String(process.env.ALLOWED_ORIGINS || ""), split(","),
+].map(normalizeOrigin)
+    .filter(Boolean);
 
 const corsOptions = {
     origin: (origin, callback) => {
@@ -29,13 +37,16 @@ const corsOptions = {
             return callback(null, true);
         }
 
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(normalizeOrigin(origin))) {
             return callback(null, true);
         }
-
-        return callback(new Error("Not allowed by CORS"));
+        console.warn(`CORS blocked origin: ${origin}`);
+        return callback(new Error("Not allowed by CORS"), null, false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
 };
 
 // Middlewares

@@ -4,7 +4,7 @@
 # Environment files
 **/.env
 *.local
-
+**/.env.example
 # Build output
 dist
 dist-ssr
