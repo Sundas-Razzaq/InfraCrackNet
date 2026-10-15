@@ -6,7 +6,7 @@ import InspectionStepper from "../../../components/inspection/InspectionStepper"
 import ImageUploadZone from "../../../components/inspectionImage/ImageUploadZone";
 import UploadRequirements from "../../../components/inspectionImage/UploadRequirements";
 import UploadedImagesPanel from "../../../components/inspectionImage/UploadedImagesPanel";
-
+import CameraCaptureModal from "../../../components/inspectionImage/CameraCaptureModal";
 import {
     getInspectionImages,
     uploadInspectionImages,
@@ -24,12 +24,12 @@ const UploadImagesPage = () => {
 
     const [inspection, setInspection] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const [images, setImages] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [deletingImageId, setDeletingImageId] = useState(null);
     const [notifying, setNotifying] = useState(false);
+    const [cameraOpen, setCameraOpen] = useState(false);
 
     const fetchInspectionImages = useCallback(async () => {
         const response = await getInspectionImages(id);
@@ -168,6 +168,17 @@ const UploadImagesPage = () => {
         }
     };
 
+    const handleCameraCapture = (files) => {
+        // Reuse the same dedup logic as drag/drop
+        handleFilesSelected(files);
+    };
+
+    const handleRemoveSelectedFile = (fileOrIndex) => {
+        setSelectedFiles((prev) =>
+            prev.filter((f) => f !== fileOrIndex)
+        );
+    };
+
     if (loading) {
         return (
             <div className="page-loading">
@@ -197,6 +208,7 @@ const UploadImagesPage = () => {
                 <div className="upload-images-left">
                     <ImageUploadZone
                         onFilesSelected={handleFilesSelected}
+                        onOpenCamera={() => setCameraOpen(true)}
                     />
                     <UploadRequirements />
                 </div>
@@ -208,14 +220,19 @@ const UploadImagesPage = () => {
                         uploading={uploading}
                         onUpload={handleUploadImages}
                         onDelete={handleDeleteImage}
+                        onRemoveSelected={handleRemoveSelectedFile}
                         deletingImageId={deletingImageId}
-                        // CHANGED: pass the notify handler + current status
                         onNotifyEngineer={handleNotifyEngineer}
                         notifying={notifying}
                         inspectionStatus={inspection.status}
                     />
                 </div>
             </div>
+            <CameraCaptureModal
+                isOpen={cameraOpen}
+                onClose={() => setCameraOpen(false)}
+                onCapture={handleCameraCapture}
+            />
         </div>
     );
 };

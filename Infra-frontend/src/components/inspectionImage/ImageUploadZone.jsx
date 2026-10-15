@@ -6,24 +6,27 @@ import {
     faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 
+const isAllowedFile = (file) =>
+    file.type.startsWith("image/") ||
+    file.type.startsWith("video/");
+
 const ImageUploadZone = ({
     onFilesSelected,
+    onOpenCamera,
 }) => {
     const browseInputRef = useRef(null);
-    const captureInputRef = useRef(null);
 
     const handleFileSelection = (event) => {
-        const files = Array.from(
-            event.target.files || []
+        const files = Array.from(event.target.files || []).filter(
+            isAllowedFile
         );
 
         if (files.length === 0) {
+            event.target.value = "";
             return;
         }
 
         onFilesSelected(files);
-
-        // Allow selecting the same file again
         event.target.value = "";
     };
 
@@ -36,9 +39,7 @@ const ImageUploadZone = ({
 
         const files = Array.from(
             event.dataTransfer.files || []
-        ).filter((file) =>
-            file.type.startsWith("image/")
-        );
+        ).filter(isAllowedFile);
 
         if (files.length === 0) {
             return;
@@ -49,35 +50,29 @@ const ImageUploadZone = ({
 
     return (
         <div className="image-upload-card">
-
             <div
                 className="image-upload-zone"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
             >
-
                 <div className="image-upload-icon">
-                    <FontAwesomeIcon
-                        icon={faCloudArrowUp}
-                    />
+                    <FontAwesomeIcon icon={faCloudArrowUp} />
                 </div>
 
                 <h3 className="image-upload-title">
-                    Drag &amp; Drop Inspection Images
+                    Drag &amp; Drop Inspection Media
                 </h3>
 
                 <p className="image-upload-description">
-                    Drop images here or choose one of
-                    the options below.
+                    Drop images or videos here, or choose one of the
+                    options below.
                 </p>
 
                 <p className="image-upload-supported">
-                    JPG • PNG • HEIC • TIFF • Maximum
-                    50 MB per image
+                    JPG • PNG • HEIC • TIFF • MP4 • MOV • WEBM • Max 50 MB
                 </p>
 
                 <div className="image-upload-actions">
-
                     <button
                         type="button"
                         className="btn btn-secondary"
@@ -85,56 +80,29 @@ const ImageUploadZone = ({
                             browseInputRef.current.click()
                         }
                     >
-                        <FontAwesomeIcon
-                            icon={faFolderOpen}
-                        />
+                        <FontAwesomeIcon icon={faFolderOpen} />
                         Browse Files
                     </button>
 
                     <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={() =>
-                            captureInputRef.current.click()
-                        }
+                        onClick={onOpenCamera}
                     >
-                        <FontAwesomeIcon
-                            icon={faCamera}
-                        />
-                        Capture Images
+                        <FontAwesomeIcon icon={faCamera} />
+                        Open Camera
                     </button>
-
                 </div>
-
-                {/* Browse */}
 
                 <input
                     ref={browseInputRef}
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept="image/*,video/*"
                     hidden
-                    onChange={
-                        handleFileSelection
-                    }
+                    onChange={handleFileSelection}
                 />
-
-                {/* Camera */}
-
-                <input
-                    ref={captureInputRef}
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    capture="environment"
-                    hidden
-                    onChange={
-                        handleFileSelection
-                    }
-                />
-
             </div>
-
         </div>
     );
 };

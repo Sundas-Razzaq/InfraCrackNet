@@ -1,11 +1,9 @@
-/* Search bar wrapper — position: relative so dropdown anchors below */
 .search-bar-wrapper {
     position: relative;
     width: 100%;
     max-width: 520px;
 }
 
-/* Existing .search-bar — add icon + clear button layout */
 .search-bar {
     display: flex;
     align-items: center;
@@ -135,4 +133,32 @@
     text-align: center;
     color: #6b7280;
     font-size: 0.85rem;
+}
+
+.search-bar .search-input,
+.search-bar input.search-input,
+.search-bar input[type="text"],
+.search-bar input[type="search"] {
+    flex: 1;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto;
+    font-size: 0.9rem;
+    color: #111827;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.search-bar input::-webkit-search-cancel-button,
+.search-bar input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.search-bar input:focus {
+    box-shadow: none !important;
 }

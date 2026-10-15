@@ -14,12 +14,12 @@ const UploadedImagesPanel = ({
     uploading,
     onUpload,
     onDelete,
+    onRemoveSelected,
     deletingImageId,
     onNotifyEngineer,
     notifying,
     inspectionStatus,
 }) => {
-    // determine whether analysis has already been requested.
     const analysisRequested = [
         "Pending Analysis",
         "AI Processing",
@@ -37,7 +37,7 @@ const UploadedImagesPanel = ({
             <div className="uploaded-images-header">
                 <div>
                     <h3 className="uploaded-images-title">
-                        Uploaded Images
+                        Uploaded Media
                     </h3>
 
                     <p className="uploaded-images-subtitle">
@@ -54,32 +54,40 @@ const UploadedImagesPanel = ({
 
             {selectedFiles.length > 0 && (
                 <div className="selected-files-section">
-                    <h4>Selected Files</h4>
+                    <h4>
+                        Selected Files ({selectedFiles.length})
+                    </h4>
 
-                    {selectedFiles.map((file, index) => (
-                        <div
-                            key={index}
-                            className="selected-file-item"
-                        >
-                            <span>{file.name}</span>
-                            <span>
-                                {(file.size / (1024 * 1024)).toFixed(
-                                    2
-                                )}{" "}
-                                MB
-                            </span>
-                        </div>
-                    ))}
+                    <div className="selected-files-grid">
+                        {selectedFiles.map((file, index) => {
+                            const localFile = {
+                                name: file.name,
+                                fileSize: file.size,
+                                mimeType: file.type,
+                                preview: URL.createObjectURL(file),
+                            };
+
+                            return (
+                                <UploadedImageCard
+                                    key={`${file.name}-${index}`}
+                                    image={localFile}
+                                    onDelete={() =>
+                                        onRemoveSelected(file)
+                                    }
+                                />
+                            );
+                        })}
+                    </div>
 
                     <button
-                        className="btn btn-primary"
+                        className="btn btn-primary selected-upload-btn"
                         onClick={onUpload}
                         disabled={uploading}
                     >
                         <FontAwesomeIcon icon={faCloudArrowUp} />
                         {uploading
                             ? "Uploading..."
-                            : "Upload Selected Images"}
+                            : "Upload Selected Files"}
                     </button>
                 </div>
             )}
@@ -91,10 +99,10 @@ const UploadedImagesPanel = ({
                             icon={faImages}
                             className="uploaded-empty-icon"
                         />
-                        <h4>No Images Uploaded</h4>
+                        <h4>No Media Uploaded</h4>
                         <p>
-                            Upload inspection images to begin AI crack
-                            detection.
+                            Upload inspection images or videos to
+                            begin AI crack detection.
                         </p>
                     </div>
                 ) : (
@@ -109,7 +117,6 @@ const UploadedImagesPanel = ({
                 )}
             </div>
 
-            {/* notify / status footer */}
             <div className="uploaded-images-footer">
                 {analysisRequested ? (
                     <div className="notify-status">
