@@ -1,3 +1,8 @@
+import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationCrosshairs, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
+
 import InspectionActions from "./InspectionActions";
 import ProjectSelector from "./ProjectSelector";
 
@@ -15,11 +20,65 @@ const InspectionForm = ({
     draftButtonText = "Save as Draft",
     submittingText = "Creating Inspection...",
 }) => {
+    const [locating, setLocating] = useState(false);
+
+    const handleUseMyLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error(
+                "Geolocation is not supported by this browser."
+            );
+            return;
+        }
+
+        setLocating(true);
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                const formatted = `${latitude.toFixed(
+                    6
+                )}, ${longitude.toFixed(6)}`;
+
+                onChange({
+                    target: {
+                        name: "gpsLocation",
+                        value: formatted,
+                    },
+                });
+
+                toast.success("Location captured.");
+                setLocating(false);
+            },
+            (error) => {
+                let message =
+                    "Unable to get your location. Please enter it manually.";
+
+                if (error.code === error.PERMISSION_DENIED) {
+                    message =
+                        "Location access denied. Please allow location access in your browser settings.";
+                } else if (
+                    error.code === error.POSITION_UNAVAILABLE
+                ) {
+                    message =
+                        "Location information is unavailable on this device.";
+                } else if (error.code === error.TIMEOUT) {
+                    message =
+                        "Location request timed out. Please try again or enter manually.";
+                }
+
+                toast.error(message);
+                setLocating(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0,
+            }
+        );
+    };
+
     return (
-        <form
-            className="inspection-form"
-            onSubmit={onSubmit}
-        >
+        <form className="inspection-form" onSubmit={onSubmit}>
             <div className="inspection-form-card">
                 <ProjectSelector
                     projects={projects}
@@ -36,7 +95,6 @@ const InspectionForm = ({
                             Inspection Type{" "}
                             <span className="required">*</span>
                         </label>
-
                         <select
                             name="inspectionType"
                             value={formData.inspectionType}
@@ -50,24 +108,17 @@ const InspectionForm = ({
                             <option value="">
                                 Select inspection type
                             </option>
-
-                            <option value="Routine">
-                                Routine
-                            </option>
-
+                            <option value="Routine">Routine</option>
                             <option value="Emergency">
                                 Emergency
                             </option>
-
                             <option value="Maintenance">
                                 Maintenance
                             </option>
-
                             <option value="Follow-up">
                                 Follow-up
                             </option>
                         </select>
-
                         {errors.inspectionType && (
                             <p className="form-error">
                                 {errors.inspectionType}
@@ -80,27 +131,15 @@ const InspectionForm = ({
                             Priority{" "}
                             <span className="required">*</span>
                         </label>
-
                         <select
                             name="priority"
                             value={formData.priority}
                             onChange={onChange}
                         >
-                            <option value="Low">
-                                Low
-                            </option>
-
-                            <option value="Medium">
-                                Medium
-                            </option>
-
-                            <option value="High">
-                                High
-                            </option>
-
-                            <option value="Critical">
-                                Critical
-                            </option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
                         </select>
                     </div>
 
@@ -109,7 +148,6 @@ const InspectionForm = ({
                             Structure Area{" "}
                             <span className="required">*</span>
                         </label>
-
                         <input
                             type="text"
                             name="structureArea"
@@ -117,7 +155,6 @@ const InspectionForm = ({
                             onChange={onChange}
                             placeholder="Enter structure area"
                         />
-
                         {errors.structureArea && (
                             <p className="form-error">
                                 {errors.structureArea}
@@ -131,13 +168,37 @@ const InspectionForm = ({
                             <span className="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="gpsLocation"
-                            value={formData.gpsLocation}
-                            onChange={onChange}
-                            placeholder="Enter GPS location"
-                        />
+                        <div className="input-with-action">
+                            <input
+                                type="text"
+                                name="gpsLocation"
+                                value={formData.gpsLocation}
+                                onChange={onChange}
+                                placeholder="Enter GPS location or use live capture"
+                            />
+
+                            <button
+                                type="button"
+                                className="input-action-btn"
+                                onClick={handleUseMyLocation}
+                                disabled={locating}
+                                title="Use my current location"
+                            >
+                                <FontAwesomeIcon
+                                    icon={
+                                        locating
+                                            ? faSpinner
+                                            : faLocationCrosshairs
+                                    }
+                                    spin={locating}
+                                />
+                                <span>
+                                    {locating
+                                        ? "Locating..."
+                                        : "Use My Location"}
+                                </span>
+                            </button>
+                        </div>
 
                         {errors.gpsLocation && (
                             <p className="form-error">
@@ -151,7 +212,6 @@ const InspectionForm = ({
                             Weather{" "}
                             <span className="required">*</span>
                         </label>
-
                         <input
                             type="text"
                             name="weather"
@@ -159,7 +219,6 @@ const InspectionForm = ({
                             onChange={onChange}
                             placeholder="Enter weather condition"
                         />
-
                         {errors.weather && (
                             <p className="form-error">
                                 {errors.weather}
@@ -171,7 +230,6 @@ const InspectionForm = ({
                         <label className="form-label">
                             Scheduled Date
                         </label>
-
                         <input
                             type="date"
                             name="scheduledDate"
@@ -184,7 +242,6 @@ const InspectionForm = ({
                         <label className="form-label">
                             Inspection Date
                         </label>
-
                         <input
                             type="date"
                             name="inspectionDate"
@@ -198,7 +255,6 @@ const InspectionForm = ({
                     <label className="form-label">
                         Field Notes
                     </label>
-
                     <textarea
                         name="fieldNotes"
                         rows={5}
@@ -207,7 +263,6 @@ const InspectionForm = ({
                         placeholder="Enter any observations or notes..."
                     />
                 </div>
-
 
                 <InspectionActions
                     onSaveDraft={onSaveDraft}
