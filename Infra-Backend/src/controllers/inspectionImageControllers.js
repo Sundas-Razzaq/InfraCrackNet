@@ -126,6 +126,14 @@ const uploadInspectionImages = async (req, res) => {
                     resourceType
                 );
 
+                const normalizedMimeType = isVideo
+                    ? mime.startsWith("video/")
+                        ? mime
+                        : "video/webm"
+                    : mime.startsWith("image/")
+                        ? mime
+                        : "image/jpeg";
+
                 return {
                     inspection: existingInspection._id,
                     imageUrl: uploaded.secure_url,
@@ -135,7 +143,7 @@ const uploadInspectionImages = async (req, res) => {
                         "latin1"
                     ).toString("utf8"),
                     fileSize: file.size,
-                    mimeType: file.mimetype,
+                    mimeType: normalizedMimeType,
                     mediaType:
                         resourceType === "video"
                             ? "video"
