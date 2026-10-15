@@ -8,13 +8,47 @@ export const uploadInspectionImages = async (
 ) => {
     const formData = new FormData();
 
-    formData.append(
-        "inspection",
-        inspectionId
-    );
+    formData.append("inspection", inspectionId);
 
     files.forEach((file) => {
-        formData.append("images", file);
+
+        let type = file.type;
+
+        if (!type) {
+            const ext = (file.name || "")
+                .split(".")
+                .pop()
+                ?.toLowerCase();
+
+            const map = {
+                jpg: "image/jpeg",
+                jpeg: "image/jpeg",
+                png: "image/png",
+                heic: "image/heic",
+                heif: "image/heif",
+                tiff: "image/tiff",
+                tif: "image/tiff",
+                avif: "image/avif",
+                webp: "image/webp",
+                bmp: "image/bmp",
+                gif: "image/gif",
+                mp4: "video/mp4",
+                mov: "video/quicktime",
+                webm: "video/webm",
+                avi: "video/x-msvideo",
+                mkv: "video/x-matroska",
+                m4v: "video/x-m4v",
+            };
+
+            type = map[ext] || "application/octet-stream";
+        }
+
+        const typedFile = new File([file], file.name, {
+            type,
+            lastModified: file.lastModified || Date.now(),
+        });
+
+        formData.append("images", typedFile, file.name);
     });
 
     const { data } = await authApi.post(
@@ -22,8 +56,7 @@ export const uploadInspectionImages = async (
         formData,
         {
             headers: {
-                "Content-Type":
-                    "multipart/form-data",
+                "Content-Type": "multipart/form-data",
             },
         }
     );

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Inspection = require("../models/inspection");
 const InspectionImage = require("../models/inspectionImage");
 const Project = require("../models/project");
+const path = require("path");
 
 const {
     uploadImage,
@@ -100,11 +101,25 @@ const uploadInspectionImages = async (req, res) => {
 
         const uploadedImages = await Promise.all(
             req.files.map(async (file) => {
-                const resourceType =
-                    file.mimetype.startsWith("video/")
-                        ? "video"
-                        : "image";
+                const mime = (file.mimetype || "").toLowerCase();
+                const ext = path
+                    .extname(file.originalname || "")
+                    .toLowerCase();
 
+                const videoExtensions = [
+                    ".mp4", ".mov", ".webm", ".avi", ".mkv", ".m4v",
+                ];
+
+                const isVideo =
+                    mime.startsWith("video/") ||
+                    videoExtensions.includes(ext);
+
+                const resourceType = isVideo ? "video" : "image";
+                console.log("Uploading file:", {
+                    name: file.originalname,
+                    mime: file.mimetype,
+                    resourceType,
+                });
                 const uploaded = await uploadImage(
                     file.buffer,
                     `InfraCrackNet/Inspections/${existingInspection.inspectionCode}`,
