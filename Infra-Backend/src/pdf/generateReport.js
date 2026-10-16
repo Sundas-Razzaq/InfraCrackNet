@@ -1,65 +1,40 @@
-const fs = require("fs");
-const path = require("path");
-
 const PdfPrinter = require("pdfmake/src/printer");
 const fonts = require("./fonts");
 const createDocumentDefinition = require("./documentDefinition");
 
 const printer = new PdfPrinter(fonts);
 
-const generateReportPDF = async (reportData) => {
+/* Generates the report PDF fully in memory and returns it as a Buffer.*/
+const generateReportPDF = (reportData) =>
+    new Promise((resolve, reject) => {
+        try {
+            const fileName = `${reportData.reportCode}.pdf`;
 
-    const reportsDir = path.join(__dirname, "../reports");
+            const documentDefinition = createDocumentDefinition(
+                JSON.parse(JSON.stringify(reportData))
+            );
 
-    if (!fs.existsSync(reportsDir)) {
+            documentDefinition.defaultStyle = {
+                font: "Roboto",
+            };
 
-        fs.mkdirSync(reportsDir, {
-            recursive: true,
-        });
+            const pdfDoc = printer.createPdfKitDocument(documentDefinition);
 
-    }
+            const chunks = [];
 
-    const fileName = `${reportData.reportCode}.pdf`;
+            pdfDoc.on("data", (chunk) => chunks.push(chunk));
+            pdfDoc.on("end", () =>
+                resolve({
+                    fileName,
+                    buffer: Buffer.concat(chunks),
+                })
+            );
+            pdfDoc.on("error", reject);
 
-    const filePath = path.join(
-        reportsDir,
-        fileName
-    );
-
-    const documentDefinition = createDocumentDefinition(
-        JSON.parse(JSON.stringify(reportData)));
-
-    documentDefinition.defaultStyle = {
-        font: "Roboto",
-    };
-
-    const pdfDoc =
-        printer.createPdfKitDocument(
-            documentDefinition
-        );
-
-    const stream =
-        fs.createWriteStream(filePath);
-
-    pdfDoc.pipe(stream);
-
-    pdfDoc.end();
-
-    return new Promise((resolve, reject) => {
-
-        stream.on("finish", () => {
-
-            resolve({
-                fileName,
-                filePath,
-            });
-
-        });
-
-        stream.on("error", reject);
-
+            pdfDoc.end();
+        } catch (error) {
+            reject(error);
+        }
     });
-
-};
 
 module.exports = generateReportPDF;

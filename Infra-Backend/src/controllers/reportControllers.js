@@ -136,8 +136,9 @@ const generateReport = async (req, res, next) => {
             inspection: analysis.inspection._id,
             analysis: analysis._id,
             generatedBy: req.user.id,
-            reportUrl: pdf.filePath,
+            reportUrl: '/api/reports/${reportCode}',
             fileName: pdf.fileName,
+            pdfData: pdf.buffer,
             recommendations,
         });
 
@@ -290,6 +291,7 @@ const downloadReport = async (req, res, next) => {
         const { reportId } = req.params;
 
         const report = await Report.findById(reportId)
+            .select("+pdfData")
             .populate({
                 path: "inspection",
                 populate: { path: "project" },
@@ -314,17 +316,30 @@ const downloadReport = async (req, res, next) => {
             });
         }
 
-        if (!fs.existsSync(report.reportUrl)) {
-            return res.status(404).json({
-                success: false,
-                message: "PDF file not found.",
-            });
+        const fileName = report.fileName || `${report.reportCode}.pdf`;
+
+        if (report.pdfData && report.pdfData.length > 0) {
+            const pdfBuffer = Buffer.from(report.pdfData);
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+                "Content-Disposition",
+                `attachment; filename="${fileName}"`
+            );
+            res.setHeader("Content-Length", pdfBuffer.length);
+
+            return res.status(200).send(pdfBuffer);
         }
 
-        return res.download(
-            report.reportUrl,
-            report.fileName
-        );
+        if (report.reportUrl && fs.existsSync(report.reportUrl)) {
+            return res.download(report.reportUrl, fileName);
+        }
+
+        return res.status(404).json({
+            success: false,
+            message:
+                "PDF file not found. This report was created before PDFs were stored in the database.",
+        });
     } catch (error) {
         next(error);
     }

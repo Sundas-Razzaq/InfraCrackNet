@@ -52,6 +52,11 @@ const reportSchema = new mongoose.Schema(
             default: "",
         },
 
+        pdfData: {
+            type: Buffer,
+            select: false,
+        },
+
         recommendations: [
             {
                 type: String,
@@ -66,6 +71,18 @@ const reportSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
+        toJSON: {
+            transform: (doc, ret) => {
+                delete ret.pdfData;
+                return ret;
+            },
+        },
+        toObject: {
+            transform: (doc, ret) => {
+                delete ret.pdfData;
+                return ret;
+            },
+        },
     }
 );
 
