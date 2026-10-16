@@ -158,7 +158,7 @@ function InspectorDashboard() {
                 initial="hidden"
                 animate="visible"
             >
-                <ReminderWidget />
+                <ReminderWidget inspections={inspections} />
             </motion.section>
 
             <motion.section className="dashboard-table"

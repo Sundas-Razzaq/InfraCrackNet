@@ -955,6 +955,64 @@
     color: var(--color-text-muted);
     line-height: var(--line-height-body);
 }
+/* Success state — green instead of amber */
+.reminder-banner-success {
+    background: #ecfdf5;
+    border-left: 4px solid #10b981;
+}
+
+.reminder-banner-success .reminder-icon {
+    color: #047857;
+    background: #d1fae5;
+}
+
+.reminder-banner-success .reminder-title {
+    color: #065f46;
+}
+
+/* Bullet list inside the reminder */
+.reminder-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.reminder-list li {
+    position: relative;
+    padding-left: 1rem;
+    font-size: 0.85rem;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.reminder-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.reminder-list li.reminder-more {
+    font-style: italic;
+    color: #94a3b8;
+}
+
+.reminder-list li.reminder-more::before {
+    content: "";
+}
+
+/* Action buttons */
+.reminder-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
 
 /* Shared Animation and Buttons */
 
