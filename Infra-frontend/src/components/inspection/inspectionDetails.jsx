@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -6,10 +7,19 @@ import {
     faClipboardCheck,
     faPlay,
     faFileLines,
+    faImages,
+    faPen,
+    faTrashCan,
+    faCloudSun,
+    faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
-import InspectionStatusBadge from "./inspectionStatusBadge";
 import { useRole } from "../../utils/useRole";
+import { Button, Card, Chip, Fact, Row } from "../dashboard/shared/DetailsKit";
+
+
+const formatDate = (value) =>
+    value ? new Date(value).toLocaleDateString() : "-";
 
 const InspectionDetails = ({
     inspection,
@@ -38,190 +48,150 @@ const InspectionDetails = ({
         isInspector && inspection.status === "Validated";
 
     return (
-        <div className="inspection-details">
-            <div className="inspection-details-header">
-                <div className="inspection-details-title">
-                    <h1 className="inspection-code">
+        <div className="dtl">
+            <Link to="/dashboard/inspection" className="dtl-back">
+                <FontAwesomeIcon icon={faChevronLeft} />
+                All inspections
+            </Link>
+
+            <header className="dtl-header">
+                <div className="dtl-heading">
+                    <h1 className="dtl-title">
                         {inspection.inspectionCode}
                     </h1>
-                    <p className="inspection-project">
-                        {inspection.project?.name}
-                    </p>
+
+                    <div className="dtl-heading-meta">
+                        <span className="dtl-subtitle">
+                            {inspection.project?.name}
+                        </span>
+                        <Chip>{inspection.status}</Chip>
+                    </div>
                 </div>
 
-                <div className="inspection-actions">
-                    {isInspector && (
-                        <>
-                            <button
-                                className="btn btn-secondary"
-                                onClick={onUploadImages}
-                            >
-                                Upload Images
-                            </button>
-
-                            <button
-                                className="btn btn-primary"
-                                onClick={onEdit}
-                            >
-                                Edit Inspection
-                            </button>
-
-                            <button
-                                className="btn btn-danger"
-                                onClick={onDelete}
-                            >
-                                Delete Inspection
-                            </button>
-                        </>
-                    )}
-
+                <div className="dtl-toolbar">
                     {canRunAnalysis && (
-                        <button
-                            className="btn btn-primary"
+                        <Button
+                            variant="primary"
+                            icon={faPlay}
                             onClick={onRunAnalysis}
                             disabled={analysisLoading}
                         >
-                            <FontAwesomeIcon
-                                icon={faPlay}
-                                className="inspection-btn-icon"
-                            />
                             {analysisLoading
                                 ? "Starting AI Analysis..."
                                 : "Run AI Analysis"}
-                        </button>
+                        </Button>
                     )}
 
                     {canGenerateReport && (
-                        <button
-                            className="btn btn-primary"
+                        <Button
+                            variant="primary"
+                            icon={faFileLines}
                             onClick={onGenerateReport}
                             disabled={reportLoading}
                         >
-                            <FontAwesomeIcon
-                                icon={faFileLines}
-                                className="inspection-btn-icon"
-                            />
                             {reportLoading
                                 ? "Generating..."
                                 : "Generate Report"}
-                        </button>
+                        </Button>
+                    )}
+
+                    {isInspector && (
+                        <>
+                            <Button icon={faImages} onClick={onUploadImages}>
+                                Upload Images
+                            </Button>
+
+                            <Button icon={faPen} onClick={onEdit}>
+                                Edit Inspection
+                            </Button>
+
+                            <span className="dtl-toolbar-sep" aria-hidden="true" />
+
+                            <Button
+                                variant="danger"
+                                icon={faTrashCan}
+                                onClick={onDelete}
+                            >
+                                Delete Inspection
+                            </Button>
+                        </>
                     )}
                 </div>
-            </div>
+            </header>
 
-            <div className="inspection-details-card">
-                <div className="inspection-details-grid">
-                    <div className="inspection-detail">
-                        <label>Project</label>
-                        <p>{inspection.project?.name}</p>
-                    </div>
+            <dl className="dtl-strip">
+                <Fact label="Inspection type">{inspection.inspectionType}</Fact>
+                <Fact label="Priority">
+                    <Chip>{inspection.priority}</Chip>
+                </Fact>
+                <Fact label="Scheduled date" icon={faCalendarDays}>
+                    {formatDate(inspection.scheduledDate)}
+                </Fact>
+                <Fact label="Inspection date" icon={faCalendarDays}>
+                    {formatDate(inspection.inspectionDate)}
+                </Fact>
+            </dl>
 
-                    <div className="inspection-detail">
-                        <label>Project Code</label>
-                        <p>{inspection.project?.projectCode}</p>
-                    </div>
+            <div className="dtl-layout">
+                <div className="dtl-main">
+                    <Card title="Site conditions">
+                        <dl className="dtl-facts dtl-facts--3">
+                            <Fact label="Structure area" icon={faClipboardCheck}>
+                                {inspection.structureArea}
+                            </Fact>
 
-                    <div className="inspection-detail">
-                        <label>Status</label>
-                        <InspectionStatusBadge status={inspection.status} />
-                    </div>
+                            <Fact label="GPS location" icon={faLocationDot}>
+                                {inspection.gpsLocation}
+                            </Fact>
 
-                    <div className="inspection-detail">
-                        <label>Inspection Type</label>
-                        <p>{inspection.inspectionType}</p>
-                    </div>
+                            <Fact label="Weather" icon={faCloudSun}>
+                                {inspection.weather}
+                            </Fact>
+                        </dl>
+                    </Card>
 
-                    <div className="inspection-detail">
-                        <label>Structure Area</label>
-                        <p className="inspection-meta">
-                            <FontAwesomeIcon
-                                icon={faClipboardCheck}
-                                className="detail-icon"
-                            />
-                            {inspection.structureArea}
+                    <Card title="Field notes">
+                        <p
+                            className={`dtl-prose ${inspection.fieldNotes ? "" : "dtl-prose--empty"
+                                }`}
+                        >
+                            {inspection.fieldNotes || "No notes added."}
                         </p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>GPS Location</label>
-                        <p className="inspection-meta">
-                            <FontAwesomeIcon
-                                icon={faLocationDot}
-                                className="detail-icon"
-                            />
-                            {inspection.gpsLocation}
-                        </p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Weather</label>
-                        <p>{inspection.weather}</p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Priority</label>
-                        <p>{inspection.priority}</p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Scheduled Date</label>
-                        <p className="inspection-meta">
-                            <FontAwesomeIcon
-                                icon={faCalendarDays}
-                                className="detail-icon"
-                            />
-                            {inspection.scheduledDate
-                                ? new Date(
-                                    inspection.scheduledDate
-                                ).toLocaleDateString()
-                                : "-"}
-                        </p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Inspection Date</label>
-                        <p className="inspection-meta">
-                            <FontAwesomeIcon
-                                icon={faCalendarDays}
-                                className="detail-icon"
-                            />
-                            {inspection.inspectionDate
-                                ? new Date(
-                                    inspection.inspectionDate
-                                ).toLocaleDateString()
-                                : "-"}
-                        </p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Field Notes</label>
-                        <p>{inspection.fieldNotes || "No notes added."}</p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Created By</label>
-                        <p className="inspection-meta">
-                            <FontAwesomeIcon
-                                icon={faUserTie}
-                                className="detail-icon"
-                            />
-                            {inspection.createdBy?.name}
-                        </p>
-                    </div>
-
-                    <div className="inspection-detail">
-                        <label>Created On</label>
-                        <p className="inspection-meta">
-                            <FontAwesomeIcon
-                                icon={faCalendarDays}
-                                className="detail-icon"
-                            />
-                            {new Date(
-                                inspection.createdAt
-                            ).toLocaleDateString()}
-                        </p>
-                    </div>
+                    </Card>
                 </div>
+
+                <aside className="dtl-side">
+                    <Card title="Project">
+                        <dl className="dtl-rows">
+                            <Row label="Name">{inspection.project?.name}</Row>
+                            <Row label="Code">
+                                {inspection.project?.projectCode}
+                            </Row>
+                        </dl>
+
+                        {inspection.project?._id && (
+                            <Link
+                                to={`/dashboard/projects/${inspection.project._id}`}
+                                className="dtl-link"
+                            >
+                                View project
+                            </Link>
+                        )}
+                    </Card>
+
+                    <Card title="Inspection record">
+                        <dl className="dtl-rows">
+                            <Row label="Created by" icon={faUserTie}>
+                                {inspection.createdBy?.name}
+                            </Row>
+                            <Row label="Created on" icon={faCalendarDays}>
+                                {new Date(
+                                    inspection.createdAt
+                                ).toLocaleDateString()}
+                            </Row>
+                        </dl>
+                    </Card>
+                </aside>
             </div>
         </div>
     );

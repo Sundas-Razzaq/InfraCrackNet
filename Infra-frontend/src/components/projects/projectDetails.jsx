@@ -1,12 +1,25 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faLocationDot,
     faCalendarDays,
     faUserTie,
     faPlay,
+    faPen,
+    faTrashCan,
+    faCubes,
+    faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRole } from "../../utils/useRole";
+import { Button, Card, Chip, Fact, Row } from "../dashboard/shared/DetailsKit";
+
+const initialsOf = (name = "") =>
+    name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join("") || "?";
 
 const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
     const navigate = useNavigate();
@@ -20,43 +33,42 @@ const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
         );
     }
 
+    const inspectors = project.assignedInspectors || [];
+
     return (
-        <div className="project-details">
+        <div className="dtl">
+            <Link to="/dashboard/projects" className="dtl-back">
+                <FontAwesomeIcon icon={faChevronLeft} />
+                All projects
+            </Link>
 
-            <div className="project-details-header">
+            <header className="dtl-header">
+                <div className="dtl-heading">
+                    <h1 className="dtl-title">{project.name}</h1>
 
-                <div className="project-details-title">
-
-                    <h1 className="project-name">
-                        {project.name}
-                    </h1>
-
-                    <p className="project-code">
-                        {project.projectCode}
-                    </p>
-
+                    <div className="dtl-heading-meta">
+                        <span className="dtl-code">{project.projectCode}</span>
+                        <Chip>{project.status}</Chip>
+                        <Chip>{project.priority}</Chip>
+                    </div>
                 </div>
 
-                <div className="project-actions">
-
+                <div className="dtl-toolbar">
                     {/* Start Inspection is Inspector-only */}
                     {isInspector && (
-                        <button
-                            className="btn btn-primary"
+                        <Button
+                            variant="primary"
+                            icon={faPlay}
                             onClick={onStartInspection}
                         >
-                            <FontAwesomeIcon
-                                icon={faPlay}
-                                className="project-btn-icon"
-                            />
                             Start Inspection
-                        </button>
+                        </Button>
                     )}
 
                     {/* Edit Project is Engineer-only */}
                     {isEngineer && (
-                        <button
-                            className="btn btn-secondary"
+                        <Button
+                            icon={faPen}
                             onClick={() =>
                                 navigate(
                                     `/dashboard/projects/${project._id}/edit`
@@ -64,127 +76,97 @@ const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
                             }
                         >
                             Edit Project
-                        </button>
+                        </Button>
                     )}
 
                     {/* Delete Project is Engineer-only */}
                     {isEngineer && (
-                        <button
-                            className="btn btn-danger"
-                            onClick={onDelete}
-                        >
-                            Delete Project
-                        </button>
+                        <>
+                            <span className="dtl-toolbar-sep" aria-hidden="true" />
+                            <Button
+                                variant="danger"
+                                icon={faTrashCan}
+                                onClick={onDelete}
+                            >
+                                Delete Project
+                            </Button>
+                        </>
                     )}
-
                 </div>
+            </header>
 
-            </div>
-
-            <div className="project-details-card">
-
-                <div className="project-details-grid">
-
-                    <div className="project-detail">
-                        <label>Description</label>
-                        <p>{project.description}</p>
-                    </div>
-
-                    <div className="project-detail">
-                        <label>Structure Type</label>
-                        <p>{project.structureType}</p>
-                    </div>
-
-                    <div className="project-detail">
-                        <label>Location</label>
-                        <p className="project-meta">
-                            <FontAwesomeIcon
-                                icon={faLocationDot}
-                                className="detail-icon"
-                            />
-                            {project.location}
+            <div className="dtl-layout">
+                <div className="dtl-main">
+                    <Card title="Overview">
+                        <p className="dtl-prose">
+                            {project.description || "No description added."}
                         </p>
-                    </div>
 
-                    <div className="project-detail">
-                        <label>Priority</label>
-                        <p>{project.priority}</p>
-                    </div>
+                        <dl className="dtl-facts dtl-facts--2">
+                            <Fact label="Structure type" icon={faCubes}>
+                                {project.structureType}
+                            </Fact>
 
-                    <div className="project-detail">
-                        <label>Status</label>
-                        <p>{project.status}</p>
-                    </div>
+                            <Fact label="Location" icon={faLocationDot}>
+                                {project.location}
+                            </Fact>
+                        </dl>
+                    </Card>
 
-                    <div className="project-detail">
-                        <label>Created By</label>
-                        <p className="project-meta">
-                            <FontAwesomeIcon
-                                icon={faUserTie}
-                                className="detail-icon"
-                            />
-                            {project.createdBy?.name}
-                        </p>
-                    </div>
-
-                    <div className="project-detail">
-                        <label>Created On</label>
-                        <p className="project-meta">
-                            <FontAwesomeIcon
-                                icon={faCalendarDays}
-                                className="detail-icon"
-                            />
-                            {new Date(
-                                project.createdAt
-                            ).toLocaleDateString()}
-                        </p>
-                    </div>
-
-                </div>
-
-                {/* Inspectors section — outside the grid, inside the card */}
-                {project.assignedInspectors &&
-                    project.assignedInspectors.length > 0 && (
-                        <div className="project-inspectors-section">
-                            <h3 className="project-inspectors-title">
-                                Assigned Inspectors
-                            </h3>
-
-                            <ul className="project-inspectors-list">
-                                {project.assignedInspectors.map((inspector) => (
+                    {/* Inspectors section */}
+                    {inspectors.length > 0 && (
+                        <Card title="Assigned inspectors">
+                            <ul className="dtl-people">
+                                {inspectors.map((inspector) => (
                                     <li
                                         key={
                                             typeof inspector === "string"
                                                 ? inspector
                                                 : inspector._id
                                         }
-                                        className="project-inspector-item"
+                                        className="dtl-person"
                                     >
-                                        <FontAwesomeIcon
-                                            icon={faUserTie}
-                                            className="detail-icon"
-                                        />
+                                        <span
+                                            className="dtl-avatar"
+                                            aria-hidden="true"
+                                        >
+                                            {initialsOf(inspector.name)}
+                                        </span>
 
-                                        <div className="project-inspector-info">
-                                            <span className="project-inspector-name">
+                                        <span className="dtl-person-info">
+                                            <span className="dtl-person-name">
                                                 {inspector.name ||
                                                     "Unknown inspector"}
                                             </span>
 
                                             {inspector.email && (
-                                                <span className="project-inspector-email">
+                                                <span className="dtl-person-sub">
                                                     {inspector.email}
                                                 </span>
                                             )}
-                                        </div>
+                                        </span>
                                     </li>
                                 ))}
                             </ul>
-                        </div>
+                        </Card>
                     )}
+                </div>
 
+                <aside className="dtl-side">
+                    <Card title="Project record">
+                        <dl className="dtl-rows">
+                            <Row label="Created by" icon={faUserTie}>
+                                {project.createdBy?.name}
+                            </Row>
+                            <Row label="Created on" icon={faCalendarDays}>
+                                {new Date(
+                                    project.createdAt
+                                ).toLocaleDateString()}
+                            </Row>
+                        </dl>
+                    </Card>
+                </aside>
             </div>
-
         </div>
     );
 };
