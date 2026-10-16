@@ -31,9 +31,7 @@ const startMockAnalysis = async (analysisId) => {
 
         if (!analysis) return;
 
-        /* -----------------------------
-           STEP 1 : Preparing Images
-        ------------------------------*/
+        /* STEP 1 : Preparing Images*/
 
         analysis.status = "Processing";
         analysis.startedAt = new Date();
@@ -57,9 +55,7 @@ const startMockAnalysis = async (analysisId) => {
         let totalCracks = 0;
         let highestSeverityIndex = 0;
 
-        /* -----------------------------
-           STEP 2 : Crack Detection
-        ------------------------------*/
+        /*STEP 2 : Crack Detection*/
 
         analysis.currentStep =
             "Running crack detection";
@@ -198,9 +194,7 @@ const startMockAnalysis = async (analysisId) => {
             }
         }
 
-        /* -----------------------------
-           STEP 3 : Severity Classification
-        ------------------------------*/
+        /*STEP 3 : Severity Classification*/
 
         analysis.currentStep =
             "Severity classification";
@@ -225,9 +219,7 @@ const startMockAnalysis = async (analysisId) => {
             highestSeverityIndex
             ];
 
-        /* -----------------------------
-           STEP 4 : Risk Assessment
-        ------------------------------*/
+        /*STEP 4 : Risk Assessment*/
 
         analysis.currentStep =
             "Structural risk assessment";
@@ -249,9 +241,7 @@ const startMockAnalysis = async (analysisId) => {
             analysis.overallSeverity
             ];
 
-        /* -----------------------------
-           STEP 5 : Compiling Analysis
-        ------------------------------*/
+        /*STEP 5 : Compiling Analysis*/
 
         analysis.currentStep =
             "Compiling analysis";
@@ -277,9 +267,9 @@ const startMockAnalysis = async (analysisId) => {
             recipient: inspection.createdBy,
             type: "analysis",
             title: "AI Analysis Completed",
-            message: `AI analysis for inspection ${inspection.inspectionCode} has completed. You can now review the results and generate the report.`,
-            relatedEntity: "Inspection",
-            relatedEntityId: inspection._id,
+            message: `AI analysis for inspection ${inspection.inspectionCode} has completed. You can now review the results.`,
+            relatedEntity: "Analysis",
+            relatedEntityId: analysis._id,
         });
 
         await Inspection.findByIdAndUpdate(
