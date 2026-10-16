@@ -22,12 +22,15 @@ const normalizeOrigin = (value) =>
         .trim()
         .replace(/\/+$/, "");
 
+const extraOrigins = String(process.env.ALLOWED_ORIGINS || "").split(",");
+
 const allowedOrigins = [
     "http://localhost:5173",
     "https://infra-crack-net-6msy.vercel.app",
     process.env.FRONTEND_URL,
-    ...String(process.env.ALLOWED_ORIGINS || ""), split(","),
-].map(normalizeOrigin)
+    ...extraOrigins,
+]
+    .map(normalizeOrigin)
     .filter(Boolean);
 
 const corsOptions = {
@@ -37,6 +40,7 @@ const corsOptions = {
             return callback(null, true);
         }
 
+        // Check if the origin is in the allowed list
         if (allowedOrigins.includes(normalizeOrigin(origin))) {
             return callback(null, true);
         }
