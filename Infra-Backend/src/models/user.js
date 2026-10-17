@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         resetPasswordToken: {
             type: String,
         },
@@ -66,6 +70,11 @@ const userSchema = new mongoose.Schema(
         },
     },
     { timestamps: true }
+);
+
+userSchema.index(
+    { role: 1 },
+    { unique: true, partialFilterExpression: { role: "Admin" } }
 );
 
 module.exports = mongoose.model("User", userSchema);

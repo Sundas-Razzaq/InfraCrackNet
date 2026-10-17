@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+const User = require("../models/user");
 const { verifyToken } = require("../services/authService");
 
 const validateRequestBody = (schema) => (req, res, next) => {
@@ -47,7 +49,10 @@ const getTokenFromRequest = (req) => {
     return null;
 };
 
-const protect = (req, res, next) => {
+const protect = async (req, res, next) => {
+    // 1) Verify the token itself
+    let decoded;
+
     try {
         const token = getTokenFromRequest(req);
 
@@ -57,18 +62,45 @@ const protect = (req, res, next) => {
             });
         }
 
-        const decoded = verifyToken(token);
-
-        req.user = {
-            id: decoded.userId,
-            role: decoded.role,
-        };
-
-        next();
+        decoded = verifyToken(token);
     } catch (error) {
         return res.status(401).json({
             message: "Invalid or expired token",
         });
+    }
+
+    // 2) Check the user against the database
+    try {
+        if (!mongoose.isValidObjectId(decoded.userId)) {
+            return res.status(401).json({
+                message: "Invalid or expired token",
+            });
+        }
+
+        const user = await User.findById(decoded.userId)
+            .select("role isActive")
+            .lean();
+
+        if (!user) {
+            return res.status(401).json({
+                message: "User no longer exists",
+            });
+        }
+
+        if (user.isActive === false) {
+            return res.status(403).json({
+                message: "Account is deactivated",
+            });
+        }
+
+        req.user = {
+            id: user._id.toString(),
+            role: user.role, // role comes from DB, not from the token
+        };
+
+        next();
+    } catch (error) {
+        next(error);
     }
 };
 

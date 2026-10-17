@@ -1,7 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-/* Small presentational helpers shared by the project and
-   inspection details pages. Styles live in styles/details.css */
 
 const TONES = {
     // project status

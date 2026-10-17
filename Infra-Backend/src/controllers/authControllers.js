@@ -112,6 +112,13 @@ const login = async (req, res) => {
             });
         }
 
+        if (user.isActive === false) {
+            return res.status(403).json({
+                message:
+                    "Account is deactivated. Please contact the administrator.",
+            });
+        }
+
         const token = generateAccessToken(user);
 
         setAuthCookie(res, token);

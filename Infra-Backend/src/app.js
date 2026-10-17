@@ -14,6 +14,7 @@ const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const userRoutes = require("./routes/userRoutes");
 const searchRoutes = require("./routes/searchRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
