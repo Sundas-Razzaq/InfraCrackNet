@@ -4,7 +4,8 @@ const AIAnalysis = require("../models/AIAnalysis");
 const Inspection = require("../models/inspection");
 const InspectionImage = require("../models/inspectionImage");
 const CrackDetection = require("../models/crackDetection");
-
+const { logActivity } = require("../services/activityLogService");
+const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 const generateAnalysisCode = require("../utils/analysisCodeGenerator");
 
 const {
@@ -17,11 +18,7 @@ const {
     createNotification,
 } = require("../services/notificationService");
 
-/* ----------------------------------------
-   Helper: load analysis + verify project access
----------------------------------------- */
-// CHANGED: new helper to replace the repeated
-// `AIAnalysis.findOne({ _id, createdBy: req.user.id })` pattern.
+/* Helper: load analysis + verify project access */
 const loadAnalysisWithAccess = async (
     analysisId,
     user
@@ -50,10 +47,7 @@ const loadAnalysisWithAccess = async (
     return { analysis };
 };
 
-/* ----------------------------------------
-   Helper: load inspection + verify project access
----------------------------------------- */
-// CHANGED: same as above but starting from an inspection.
+/*Helper: load inspection + verify project access */
 const loadInspectionWithAccess = async (
     inspectionId,
     user
@@ -82,8 +76,6 @@ const startAnalysis = async (req, res, next) => {
     try {
         const { inspectionId } = req.params;
 
-        // CHANGED: use hasProjectAccess instead of project.createdBy
-        // comparison. Same effect, consistent with other modules.
         const { inspection: existingInspection, error } =
             await loadInspectionWithAccess(
                 inspectionId,
@@ -177,6 +169,19 @@ const startAnalysis = async (req, res, next) => {
 
         existingInspection.status = "AI Processing";
         await existingInspection.save();
+
+        await logActivity({
+            actor: req.user,
+            action: ACTIVITY_ACTIONS.ANALYSIS_STARTED,
+            targetType: "Analysis",
+            targetId: analysis._id,
+            targetLabel: analysis.analysisCode,
+            metadata: {
+                inspectionCode: existingInspection.inspectionCode,
+                projectCode: existingInspection.project?.projectCode,
+                analysisVersion: analysis.analysisVersion,
+            },
+        });
 
         // Run AI asynchronously
         setImmediate(() => {

@@ -5,7 +5,8 @@ const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const Inspection = require("../models/inspection");
 const Project = require("../models/project");
-
+const { logActivity } = require("../services/activityLogService");
+const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 const fs = require("fs");
 
 const {
@@ -142,6 +143,17 @@ const generateReport = async (req, res, next) => {
             recommendations,
         });
 
+        await logActivity({
+            actor: req.user,
+            action: ACTIVITY_ACTIONS.REPORT_GENERATED,
+            targetType: "Report",
+            targetId: report._id,
+            targetLabel: report.reportCode,
+            metadata: {
+                inspectionCode: analysis.inspection.inspectionCode,
+                projectCode: analysis.inspection.project.projectCode,
+            },
+        });
         // notify the project's Engineer, not the Inspector
         // who just generated the report.
         const engineerId =

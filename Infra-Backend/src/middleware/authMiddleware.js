@@ -37,6 +37,26 @@ const validateRequestParams = (schema) => {
     };
 };
 
+const validateRequestQuery = (schema) => (req, res, next) => {
+    const { error, value } = schema.validate(req.query, {
+        abortEarly: false,
+        stripUnknown: true,
+    });
+
+    if (error) {
+        return res.status(400).json({
+            message: "Validation failed",
+            errors: error.details.map((detail) => ({
+                field: detail.path.join("."),
+                message: detail.message,
+            })),
+        });
+    }
+
+    req.validatedQuery = value;
+    return next();
+};
+
 const getTokenFromRequest = (req) => {
     if (req.cookies?.token) return req.cookies.token;
 
@@ -125,6 +145,7 @@ const authorizeRoles = (...roles) => {
 module.exports = {
     validateRequestBody,
     validateRequestParams,
+    validateRequestQuery,
     protect,
     authorizeRoles,
 };

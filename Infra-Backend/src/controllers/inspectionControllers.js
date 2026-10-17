@@ -4,6 +4,8 @@ const InspectionImage = require("../models/inspectionImage");
 const AIAnalysis = require("../models/AIAnalysis");
 const CrackDetection = require("../models/crackDetection");
 const Report = require("../models/report");
+const { logActivity } = require("../services/activityLogService");
+const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 
 const generateInspectionCode = require("../utils/inspectionCodeGenerator");
 const { hasProjectAccess } = require("../utils/projectAccess");
@@ -64,6 +66,18 @@ const createInspection = async (req, res, next) => {
             fieldNotes: req.body.fieldNotes,
             inspectionCode,
             createdBy: req.user.id,
+        });
+
+        await logActivity({
+            actor: req.user,
+            action: ACTIVITY_ACTIONS.INSPECTION_CREATED,
+            targetType: "Inspection",
+            targetId: inspection._id,
+            targetLabel: inspection.inspectionCode,
+            metadata: {
+                projectId: existingProject._id,
+                projectCode: existingProject.projectCode,
+            },
         });
 
         res.status(201).json({
