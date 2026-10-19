@@ -17,6 +17,8 @@ const ACTIVITY_ACTIONS = {
     TEAM_LEAD_REPLACED: "team.lead_replaced",
     TEAM_MEMBER_ADDED: "team.member_added",
     TEAM_MEMBER_REMOVED: "team.member_removed",
+    TEAM_UPDATED: "team.updated",
+    TEAM_ACTIVATED: "team.activated",
 
     // Projects
     PROJECT_CREATED: "project.created",

@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        team: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Team",
+            default: null,
+        },
         resetPasswordToken: {
             type: String,
         },
@@ -74,7 +79,8 @@ const userSchema = new mongoose.Schema(
 
 userSchema.index(
     { role: 1 },
-    { unique: true, partialFilterExpression: { role: "Admin" } }
+    { unique: true, partialFilterExpression: { role: "Admin" } },
+    { team: 1 }
 );
 
 module.exports = mongoose.model("User", userSchema);

@@ -87,6 +87,7 @@ const listManagedUsers = async (req, res, next) => {
         const [users, total] = await Promise.all([
             User.find(filter)
                 .select(SAFE_FIELDS)
+                .populate("team", "name status")
                 .sort(SORTS[sort])
                 .skip((page - 1) * limit)
                 .limit(limit),
@@ -111,7 +112,7 @@ const listManagedUsers = async (req, res, next) => {
 /* GET /api/admin/users/:id */
 const getManagedUser = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.id).select(SAFE_FIELDS);
+        const user = await User.findById(req.params.id).select(SAFE_FIELDS).populate("team", "name status");
 
         if (!user) {
             return res.status(404).json({
@@ -160,9 +161,8 @@ const updateUserStatus = async (req, res, next) => {
         if (currentlyActive === isActive) {
             return res.status(409).json({
                 success: false,
-                message: `User is already ${
-                    isActive ? "active" : "deactivated"
-                }.`,
+                message: `User is already ${isActive ? "active" : "deactivated"
+                    }.`,
             });
         }
 
@@ -204,7 +204,7 @@ const updateUserRole = async (req, res, next) => {
         const { role } = req.body;
 
         const target = await User.findById(req.params.id).select(
-            "name email role"
+            "name email role team"
         );
 
         if (!target) {
@@ -225,6 +225,14 @@ const updateUserRole = async (req, res, next) => {
             return res.status(409).json({
                 success: false,
                 message: `User is already an ${role}.`,
+            });
+        }
+
+        if (target.team) {
+            return res.status(409).json({
+                success: false,
+                message:
+                    "This user belongs to a team. Remove them from the team before changing the role.",
             });
         }
 
