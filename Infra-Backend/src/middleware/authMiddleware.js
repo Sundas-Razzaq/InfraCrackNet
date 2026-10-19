@@ -3,7 +3,7 @@ const User = require("../models/user");
 const { verifyToken } = require("../services/authService");
 
 const validateRequestBody = (schema) => (req, res, next) => {
-    const { error, value } = schema.validate(req.body, {
+    const { error, value } = schema.validate(req.body ?? {}, {
         abortEarly: false,
         stripUnknown: true,
     });
