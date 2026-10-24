@@ -67,6 +67,16 @@ const {
     deleteProjectQueryValidation,
 } = require("../validations/adminProjectValidators");
 
+const {
+    getDashboard,
+    listInspections,
+    getInspection,
+} = require("../controllers/adminMonitoringController");
+const {
+    listAdminInspectionsValidation,
+    adminIdParamValidation,
+} = require("../validations/adminMonitoringValidators");
+
 // Every route added below this line is Admin-only automatically.
 router.use(protect, authorizeRoles("Admin"));
 
@@ -159,4 +169,8 @@ router.get(
     teamMemberParamValidation,
     getMemberImpact
 );
+
+router.get("/dashboard", getDashboard);
+router.get("/inspections", listAdminInspectionsValidation, listInspections);
+router.get("/inspections/:id", adminIdParamValidation, getInspection);
 module.exports = router;
