@@ -25,6 +25,8 @@ const ACTIVITY_ACTIONS = {
     PROJECT_ASSIGNED: "project.assigned",
     PROJECT_UNASSIGNED: "project.unassigned",
     PROJECT_REASSIGNED: "project.reassigned",
+    PROJECT_UPDATED: "project.updated",
+    PROJECT_DELETED: "project.deleted",
 
     // Inspections
     INSPECTION_CREATED: "inspection.created",

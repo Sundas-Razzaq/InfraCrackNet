@@ -49,6 +49,23 @@ const {
     addMemberValidation,
     teamStatusValidation,
 } = require("../validations/teamValidators");
+const {
+    createAdminProject,
+    listAdminProjects,
+    getAdminProject,
+    updateAdminProject,
+    assignProjectTeam,
+    unassignProjectTeam,
+    deleteAdminProject,
+} = require("../controllers/adminProjectController");
+const {
+    createAdminProjectValidation,
+    updateAdminProjectValidation,
+    listAdminProjectsValidation,
+    projectIdParamValidation,
+    assignTeamValidation,
+    deleteProjectQueryValidation,
+} = require("../validations/adminProjectValidators");
 
 // Every route added below this line is Admin-only automatically.
 router.use(protect, authorizeRoles("Admin"));
@@ -109,5 +126,31 @@ router.delete(
     "/teams/:id/members/:userId",
     teamMemberParamValidation,
     removeTeamMember
+);
+router.post("/projects", createAdminProjectValidation, createAdminProject);
+router.get("/projects", listAdminProjectsValidation, listAdminProjects);
+router.get("/projects/:id", projectIdParamValidation, getAdminProject);
+router.patch(
+    "/projects/:id",
+    projectIdParamValidation,
+    updateAdminProjectValidation,
+    updateAdminProject
+);
+router.put(
+    "/projects/:id/team",
+    projectIdParamValidation,
+    assignTeamValidation,
+    assignProjectTeam
+);
+router.delete(
+    "/projects/:id/team",
+    projectIdParamValidation,
+    unassignProjectTeam
+);
+router.delete(
+    "/projects/:id",
+    projectIdParamValidation,
+    deleteProjectQueryValidation,
+    deleteAdminProject
 );
 module.exports = router;

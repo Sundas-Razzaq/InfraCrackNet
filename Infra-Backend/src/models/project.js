@@ -77,6 +77,22 @@ const projectSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
+        team: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Team",
+            default: null,
+        },
+
+        assignedAt: {
+            type: Date,
+            default: null,
+        },
+
+        assignedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
     },
     {
         timestamps: true,
@@ -91,4 +107,5 @@ projectSchema.index({ location: 1 });
 projectSchema.index({ createdBy: 1 });
 projectSchema.index({ assignedInspectors: 1 });
 projectSchema.index({ assignedEngineers: 1 });
+projectSchema.index({ team: 1 });
 module.exports = mongoose.model("Project", projectSchema);
