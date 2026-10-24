@@ -153,4 +153,10 @@ router.delete(
     deleteProjectQueryValidation,
     deleteAdminProject
 );
+
+router.get(
+    "/teams/:id/members/:userId/impact",
+    teamMemberParamValidation,
+    getMemberImpact
+);
 module.exports = router;

@@ -4,6 +4,10 @@ const Project = require("../models/project");
 const { logActivity } = require("../services/activityLogService");
 const { notifySafely } = require("../services/invitationService");
 const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
+const {
+    countRunningAnalyses,
+    getMemberImpact: buildMemberImpact,
+} = require("../services/teamImpactService");
 
 /* Recommended (NOT enforced) inspector range. Configurable via .env */
 const RECOMMENDED_MIN =
@@ -421,13 +425,17 @@ const setTeamLead = async (req, res, next) => {
             });
         }
 
-        // Replacing the lead of a live team needs the safe workflow (B6).
-        if (team.engineerLead && team.status === "Active") {
-            return res.status(409).json({
-                success: false,
-                message:
-                    "An active team already has a lead. Deactivate the team first, or use the membership change workflow to replace the lead safely.",
-            });
+        // Lead badalna theek hai, lekin analysis chalte waqt nahi.
+        if (team.engineerLead) {
+            const running = await countRunningAnalyses(team._id);
+
+            if (running > 0) {
+                return res.status(409).json({
+                    success: false,
+                    message: `Cannot replace the lead while ${running} analysis is running. Try again after it finishes.`,
+                    runningAnalyses: running,
+                });
+            }
         }
 
         const engineer = await User.findById(engineerId).select(
@@ -511,16 +519,16 @@ const setTeamLead = async (req, res, next) => {
             },
             metadata: { leadEmail: engineer.email },
         });
-
-        await notifySafely({
-            recipient: engineer._id,
-            type: "team",
-            title: "Assigned as team lead",
-            message: `You are now the Engineer lead of team "${team.name}".`,
-            relatedEntity: "Team",
-            relatedEntityId: team._id,
-        });
-
+        if (previousLeadId) {
+            await notifySafely({
+                recipient: previousLeadId,
+                type: "team",
+                title: "Team lead changed",
+                message: `You are no longer the Engineer lead of team "${team.name}".`,
+                relatedEntity: "Team",
+                relatedEntityId: team._id,
+            });
+        }
         res.status(200).json({
             success: true,
             message: previousLeadId
@@ -661,7 +669,15 @@ const removeTeamMember = async (req, res, next) => {
                     "The team lead cannot be removed here. Replace the lead through the membership change workflow.",
             });
         }
+        const running = await countRunningAnalyses(team._id, userId);
 
+        if (running > 0) {
+            return res.status(409).json({
+                success: false,
+                message: `Cannot remove this Inspector while ${running} analysis on their inspections is running.`,
+                runningAnalyses: running,
+            });
+        }
         const removed = await User.findOneAndUpdate(
             { _id: userId, team: team._id, role: "Inspector" },
             { team: null },
@@ -752,6 +768,48 @@ const listAvailableMembers = async (req, res, next) => {
     }
 };
 
+/* GET /api/admin/teams/:id/members/:userId/impact */
+const getMemberImpact = async (req, res, next) => {
+    try {
+        const { id, userId } = req.params;
+
+        const team = await Team.findById(id).select(
+            "name status engineerLead"
+        );
+
+        if (!team) {
+            return res.status(404).json({
+                success: false,
+                message: "Team not found.",
+            });
+        }
+
+        const member = await User.findOne({
+            _id: userId,
+            team: team._id,
+        }).select("name email role isActive");
+
+        if (!member) {
+            return res.status(404).json({
+                success: false,
+                message: "This user is not a member of the team.",
+            });
+        }
+
+        const impact = await buildMemberImpact(team, member);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                team: { _id: team._id, name: team.name, status: team.status },
+                member,
+                ...impact,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 module.exports = {
     createTeam,
     listTeams,
@@ -762,4 +820,5 @@ module.exports = {
     addTeamMember,
     removeTeamMember,
     listAvailableMembers,
+    getMemberImpact,
 };
