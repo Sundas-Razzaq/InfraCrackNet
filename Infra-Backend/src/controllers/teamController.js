@@ -1,6 +1,6 @@
 const Team = require("../models/team");
 const User = require("../models/user");
-
+const Project = require("../models/project");
 const { logActivity } = require("../services/activityLogService");
 const { notifySafely } = require("../services/invitationService");
 const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
@@ -322,7 +322,20 @@ const updateTeamStatus = async (req, res, next) => {
                 message: `Team is already ${status.toLowerCase()}.`,
             });
         }
+        if (status === "Inactive") {
+            const openProjects = await Project.countDocuments({
+                team: team._id,
+                status: { $ne: "Completed" },
+            });
 
+            if (openProjects > 0) {
+                return res.status(409).json({
+                    success: false,
+                    message: `This team still has ${openProjects} open project(s). Reassign or complete them before deactivating the team.`,
+                    openProjects,
+                });
+            }
+        }
         if (status === "Active") {
             const lead = team.engineerLead
                 ? await User.findById(team.engineerLead).select(

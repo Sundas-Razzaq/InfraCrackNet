@@ -58,20 +58,6 @@ const projectSchema = new mongoose.Schema(
             default: "Active",
         },
 
-        assignedEngineers: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-            },
-        ],
-
-        assignedInspectors: [
-            {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-            },
-        ],
-
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -105,7 +91,5 @@ projectSchema.index({ status: 1 });
 projectSchema.index({ structureType: 1 });
 projectSchema.index({ location: 1 });
 projectSchema.index({ createdBy: 1 });
-projectSchema.index({ assignedInspectors: 1 });
-projectSchema.index({ assignedEngineers: 1 });
 projectSchema.index({ team: 1 });
 module.exports = mongoose.model("Project", projectSchema);

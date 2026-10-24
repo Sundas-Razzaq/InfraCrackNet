@@ -14,8 +14,12 @@ const {
     createNotification,
 } = require("../services/notificationService");
 
-const { hasProjectAccess } = require("../utils/projectAccess");
-
+const {
+    hasProjectAccess,
+    getProjectScope,
+    isInspectionOwner,
+    getProjectLeadId,
+} = require("../utils/projectAccess");
 /* Helper: load inspection + its project, verify access */
 const loadInspectionWithAccess = async (
     inspectionId,
@@ -78,6 +82,12 @@ const uploadInspectionImages = async (req, res) => {
                 success: false,
                 message:
                     "You do not have access to this inspection.",
+            });
+        }
+        if (!isInspectionOwner(existingInspection, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only modify your own inspections.",
             });
         }
 
@@ -275,6 +285,12 @@ const requestAnalysis = async (req, res) => {
                     "You do not have access to this inspection.",
             });
         }
+        if (!isInspectionOwner(inspection, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only modify your own inspections.",
+            });
+        }
 
         // Must have at least one image before requesting analysis
         const imageCount =
@@ -313,11 +329,8 @@ const requestAnalysis = async (req, res) => {
         inspection.status = "Pending Analysis";
         await inspection.save();
 
-        // Notify the project's Engineer(s).
-        // We use the project creator as the recipient — matches
-        // Engineer ownership model established in the Project module.
-        const engineerId =
-            inspection.project?.createdBy || null;
+        // Notify the project's team lead
+        const engineerId = await getProjectLeadId(inspection.project);
 
         if (engineerId) {
             await createNotification({
@@ -393,7 +406,12 @@ const deleteInspectionImage = async (req, res) => {
                 message: "Inspection not found.",
             });
         }
-
+        if (!isInspectionOwner(inspection, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only modify your own inspections.",
+            });
+        }
         // block deletion once analysis has started.
         const deletableStatuses = [
             "Draft",
@@ -456,26 +474,21 @@ const getUploadedImageCount = async (req, res) => {
         let count;
 
         if (req.user.role === "Inspector") {
-            count =
-                await InspectionImage.countDocuments({
-                    uploadedBy: req.user.id,
-                });
-        } else if (req.user.role === "Engineer") {
-            const projectIds = await Project.find({
-                createdBy: req.user.id,
-            }).select("_id");
+            // Inspector: apni upload ki hui images
+            count = await InspectionImage.countDocuments({
+                uploadedBy: req.user.id,
+            });
+        } else {
+            // Engineer: apni team ki; Admin: sab
+            const projects = await Project.find(getProjectScope(req.user)).select("_id");
 
-            const inspectionIds = await Inspection.find({
-                project: { $in: projectIds.map((p) => p._id) },
+            const inspections = await Inspection.find({
+                project: { $in: projects.map((p) => p._id) },
             }).select("_id");
 
             count = await InspectionImage.countDocuments({
-                inspection: {
-                    $in: inspectionIds.map((i) => i._id),
-                },
+                inspection: { $in: inspections.map((i) => i._id) },
             });
-        } else {
-            count = await InspectionImage.countDocuments({});
         }
 
         return res.status(200).json({

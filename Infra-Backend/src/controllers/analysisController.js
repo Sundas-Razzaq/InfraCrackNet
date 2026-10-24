@@ -11,9 +11,8 @@ const generateAnalysisCode = require("../utils/analysisCodeGenerator");
 const {
     startMockAnalysis,
 } = require("../services/analysisService");
-
-// CHANGED: import hasProjectAccess and createNotification
-const { hasProjectAccess } = require("../utils/projectAccess");
+const Project = require("../models/project");
+const { hasProjectAccess, getProjectScope } = require("../utils/projectAccess");
 const {
     createNotification,
 } = require("../services/notificationService");
@@ -248,23 +247,10 @@ const getInspectionAnalysis = async (req, res, next) => {
 /* GET ALL AI ANALYSES */
 const getAllAnalysis = async (req, res, next) => {
     try {
-        // CHANGED: role-aware. Inspector sees analyses for inspections
-        // they created; Engineer sees analyses for inspections in
-        // projects they own; Admin sees all.
-        let inspectionQuery = {};
-
-        if (req.user.role === "Inspector") {
-            inspectionQuery.createdBy = req.user.id;
-        } else if (req.user.role === "Engineer") {
-            const Project = require("../models/project");
-            const projectIds = await Project.find({
-                createdBy: req.user.id,
-            }).select("_id");
-
-            inspectionQuery.project = {
-                $in: projectIds.map((p) => p._id),
-            };
-        }
+        const projectIds = await Project.find(getProjectScope(req.user)).select("_id");
+        const inspectionQuery = {
+            project: { $in: projectIds.map((p) => p._id) },
+        };
 
         const inspections = await Inspection.find(
             inspectionQuery

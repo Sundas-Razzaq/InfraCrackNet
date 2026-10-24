@@ -17,8 +17,11 @@ const generateReportCode = require("../utils/reportCodeGenerator");
 const generateRecommendations = require("../utils/recommendationGenerator");
 const generateReportPDF = require("../pdf/generateReport");
 
-const { hasProjectAccess } = require("../utils/projectAccess");
-
+const {
+    hasProjectAccess,
+    getProjectScope,
+    getProjectLeadId,
+} = require("../utils/projectAccess");
 /* GET Generate Report */
 const generateReport = async (req, res, next) => {
     try {
@@ -154,10 +157,10 @@ const generateReport = async (req, res, next) => {
                 projectCode: analysis.inspection.project.projectCode,
             },
         });
-        // notify the project's Engineer, not the Inspector
-        // who just generated the report.
-        const engineerId =
-            analysis.inspection.project.createdBy;
+
+        const engineerId = await getProjectLeadId(
+            analysis.inspection.project
+        );
 
         if (engineerId) {
             await createNotification({
@@ -243,19 +246,12 @@ const getReport = async (req, res, next) => {
 /* GET ALL REPORTS — role-aware */
 const getAllReports = async (req, res, next) => {
     try {
-        let inspectionQuery = {};
+        const projectIds = await Project.find(getProjectScope(req.user)).select("_id");
 
-        if (req.user.role === "Inspector") {
-            inspectionQuery.createdBy = req.user.id;
-        } else if (req.user.role === "Engineer") {
-            const projectIds = await Project.find({
-                createdBy: req.user.id,
-            }).select("_id");
+        const inspectionQuery = {
+            project: { $in: projectIds.map((p) => p._id) },
+        };
 
-            inspectionQuery.project = {
-                $in: projectIds.map((p) => p._id),
-            };
-        }
         // Admin / other: no filter
 
         const inspections = await Inspection.find(
@@ -360,19 +356,11 @@ const downloadReport = async (req, res, next) => {
 /* GET REPORT COUNT — role-aware */
 const getReportCount = async (req, res, next) => {
     try {
-        let inspectionQuery = {};
+        const projectIds = await Project.find(getProjectScope(req.user)).select("_id");
 
-        if (req.user.role === "Inspector") {
-            inspectionQuery.createdBy = req.user.id;
-        } else if (req.user.role === "Engineer") {
-            const projectIds = await Project.find({
-                createdBy: req.user.id,
-            }).select("_id");
-
-            inspectionQuery.project = {
-                $in: projectIds.map((p) => p._id),
-            };
-        }
+        const inspectionQuery = {
+            project: { $in: projectIds.map((p) => p._id) },
+        };
 
         const inspections = await Inspection.find(
             inspectionQuery

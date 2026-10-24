@@ -8,24 +8,12 @@ const { logActivity } = require("../services/activityLogService");
 const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 
 const generateInspectionCode = require("../utils/inspectionCodeGenerator");
-const { hasProjectAccess } = require("../utils/projectAccess");
+const { hasProjectAccess, getProjectScope, isInspectionOwner } = require("../utils/projectAccess");
 
 /* HELPER: resolve accessible project IDs for the current user */
 
 const getAccessibleProjectIds = async (user) => {
-    let projectQuery;
-
-    if (user.role === "Engineer") {
-        projectQuery = { createdBy: user.id };
-    } else if (user.role === "Inspector") {
-        projectQuery = { assignedInspectors: user.id };
-    } else {
-        // Admin / other roles — no restriction
-        projectQuery = {};
-    }
-
-    const projects = await Project.find(projectQuery).select("_id");
-
+    const projects = await Project.find(getProjectScope(user)).select("_id");
     return projects.map((project) => project._id);
 };
 
@@ -212,8 +200,13 @@ const updateInspection = async (req, res, next) => {
                     "You do not have access to this inspection.",
             });
         }
+        if (!isInspectionOwner(inspection, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only modify your own inspections.",
+            });
+        }
 
-        // Optional safety: only allow editing before analysis begins.
         const editableStatuses = [
             "Draft",
             "Images Uploaded",
@@ -271,7 +264,12 @@ const deleteInspection = async (req, res, next) => {
                     "You do not have access to this inspection.",
             });
         }
-
+        if (!isInspectionOwner(inspection, req.user)) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only modify your own inspections.",
+            });
+        }
         const deletableStatuses = [
             "Draft",
             "Images Uploaded",

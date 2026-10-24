@@ -20,38 +20,20 @@ const escapeRegex = (value) =>
 
 /* Everything this user has created, been assigned, validated or generated. */
 const getUserWorkload = async (userId) => {
-    const [
-        projectsCreated,
-        projectsAssigned,
-        inspections,
-        analyses,
-        validations,
-        reports,
-    ] = await Promise.all([
-        Project.countDocuments({ createdBy: userId }),
-        Project.countDocuments({
-            $or: [
-                { assignedInspectors: userId },
-                { assignedEngineers: userId },
-            ],
-        }),
-        Inspection.countDocuments({ createdBy: userId }),
-        AIAnalysis.countDocuments({ createdBy: userId }),
-        AIAnalysis.countDocuments({ validatedBy: userId }),
-        Report.countDocuments({ generatedBy: userId }),
-    ]);
+    const [projectsCreated, inspections, analyses, validations, reports] =
+        await Promise.all([
+            Project.countDocuments({ createdBy: userId }),
+            Inspection.countDocuments({ createdBy: userId }),
+            AIAnalysis.countDocuments({ createdBy: userId }),
+            AIAnalysis.countDocuments({ validatedBy: userId }),
+            Report.countDocuments({ generatedBy: userId }),
+        ]);
 
     const total =
-        projectsCreated +
-        projectsAssigned +
-        inspections +
-        analyses +
-        validations +
-        reports;
+        projectsCreated + inspections + analyses + validations + reports;
 
     return {
         projectsCreated,
-        projectsAssigned,
         inspections,
         analyses,
         validations,

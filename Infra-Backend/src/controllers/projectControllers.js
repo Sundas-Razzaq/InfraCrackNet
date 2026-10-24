@@ -1,73 +1,22 @@
+const mongoose = require("mongoose");
+
 const Project = require("../models/project");
-const generateProjectCode = require("../utils/projectCodeGenerator");
-const Inspection = require("../models/inspection");
-const InspectionImage = require("../models/inspectionImage");
-const AIAnalysis = require("../models/AIAnalysis");
-const CrackDetection = require("../models/crackDetection");
-const Report = require("../models/report");
-const User = require("../models/user");
+const { getProjectScope } = require("../utils/projectAccess");
+const { logActivity } = require("../services/activityLogService");
+const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 
-// Create Project
-const createProject = async (req, res, next) => {
-    try {
-        const { assignedInspectors = [] } = req.body;
-
-        const uniqueInspectors = [...new Set(assignedInspectors)];
-
-        if (uniqueInspectors.length > 0) {
-            const inspectors = await User.find({
-                _id: { $in: uniqueInspectors },
-                role: "Inspector",
-            }).select("_id");
-
-            if (inspectors.length !== uniqueInspectors.length) {
-                return res.status(400).json({
-                    success: false,
-                    message: "One or more assigned inspectors are invalid.",
-                });
-            }
-        }
-        const projectCode = await generateProjectCode();
-
-        const project = await Project.create({
-            name: req.body.name,
-            description: req.body.description,
-            structureType: req.body.structureType,
-            location: req.body.location,
-            priority: req.body.priority,
-            status: req.body.status,
-            assignedInspectors: uniqueInspectors,
-            projectCode,
-            createdBy: req.user.id,
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "Project created successfully.",
-            data: project,
-        });
-    } catch (error) {
-        next(error);
-    }
+const TEAM_POPULATE = {
+    path: "team",
+    select: "name status engineerLead",
+    populate: { path: "engineerLead", select: "name email" },
 };
 
-//Get All Projects
+/* Get All Projects (apni team ke; Admin sab) */
 const getProjects = async (req, res, next) => {
     try {
-        let query;
-
-        if (req.user.role === "Engineer") {
-            query = { createdBy: req.user.id };
-        } else if (req.user.role === "Inspector") {
-            query = { assignedInspectors: req.user.id };
-        } else {
-            query = {};
-        }
-
-        const projects = await Project.find(query)
+        const projects = await Project.find(getProjectScope(req.user))
             .populate("createdBy", "name email role")
-            .populate("assignedEngineers", "name email")
-            .populate("assignedInspectors", "name email role")
+            .populate(TEAM_POPULATE)
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -80,23 +29,22 @@ const getProjects = async (req, res, next) => {
     }
 };
 
-// Get Single Project
+/* Get Single Project */
 const getProjectById = async (req, res, next) => {
     try {
-        let query = {
-            _id: req.params.id,
-        };
-
-        if (req.user.role === "Engineer") {
-            query.createdBy = req.user.id;
-        } else if (req.user.role === "Inspector") {
-            query.assignedInspectors = req.user.id;
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found.",
+            });
         }
 
-        const project = await Project.findOne(query)
+        const project = await Project.findOne({
+            _id: req.params.id,
+            ...getProjectScope(req.user),
+        })
             .populate("createdBy", "name email role")
-            .populate("assignedInspectors", "name email role")
-            .populate("assignedEngineers", "name email");
+            .populate(TEAM_POPULATE);
 
         if (!project) {
             return res.status(404).json({
@@ -105,19 +53,33 @@ const getProjectById = async (req, res, next) => {
             });
         }
 
-        res.status(200).json({
-            success: true,
-            data: project,
-        });
+        res.status(200).json({ success: true, data: project });
     } catch (error) {
         next(error);
     }
 };
 
-// Update Project
+/* Update Project details (Engineer, sirf apni team ka project; team change nahi) */
 const updateProject = async (req, res, next) => {
     try {
-        const updateData = {};
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found.",
+            });
+        }
+
+        const before = await Project.findOne({
+            _id: req.params.id,
+            ...getProjectScope(req.user),
+        });
+
+        if (!before) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found.",
+            });
+        }
 
         const allowedFields = [
             "name",
@@ -128,50 +90,41 @@ const updateProject = async (req, res, next) => {
             "status",
         ];
 
+        const updateData = {};
+        const changes = {};
+
         allowedFields.forEach((field) => {
-            if (req.body[field] !== undefined) {
+            if (
+                req.body[field] !== undefined &&
+                req.body[field] !== before[field]
+            ) {
                 updateData[field] = req.body[field];
+                changes[field] = { from: before[field], to: req.body[field] };
             }
         });
 
-        if (req.body.assignedInspectors !== undefined) {
-            const uniqueInspectors = [
-                ...new Set(req.body.assignedInspectors),
-            ];
-
-            const inspectors = await User.find({
-                _id: { $in: uniqueInspectors },
-                role: "Inspector",
-            }).select("_id");
-
-            if (inspectors.length !== uniqueInspectors.length) {
-                return res.status(400).json({
-                    success: false,
-                    message: "One or more assigned inspectors are invalid.",
-                });
-            }
-
-            updateData.assignedInspectors = uniqueInspectors;
+        if (Object.keys(updateData).length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No changes to apply.",
+                data: before,
+            });
         }
 
         const project = await Project.findOneAndUpdate(
-            {
-                _id: req.params.id,
-                createdBy: req.user.id,
-            },
+            { _id: before._id },
             updateData,
-            {
-                returnDocument: "after",
-                runValidators: true,
-            }
+            { returnDocument: "after", runValidators: true }
         );
 
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project not found.",
-            });
-        }
+        await logActivity({
+            actor: req.user,
+            action: ACTIVITY_ACTIONS.PROJECT_UPDATED,
+            targetType: "Project",
+            targetId: project._id,
+            targetLabel: project.projectCode,
+            metadata: { changes },
+        });
 
         res.status(200).json({
             success: true,
@@ -183,82 +136,4 @@ const updateProject = async (req, res, next) => {
     }
 };
 
-// Delete Project
-const deleteProject = async (req, res, next) => {
-    try {
-        const project = await Project.findOne({
-            _id: req.params.id,
-            createdBy: req.user.id,
-        });
-
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project not found.",
-            });
-        }
-
-        // Find all inspections of this project
-        const inspections = await Inspection.find({
-            project: project._id,
-        }).select("_id");
-
-        const inspectionIds = inspections.map(
-            (inspection) => inspection._id
-        );
-
-        if (inspectionIds.length > 0) {
-            // Find all AI analyses
-            const analyses = await AIAnalysis.find({
-                inspection: { $in: inspectionIds },
-            }).select("_id");
-
-            const analysisIds = analyses.map(
-                (analysis) => analysis._id
-            );
-
-            // Delete reports
-            await Report.deleteMany({
-                inspection: { $in: inspectionIds },
-            });
-
-            // Delete crack detections
-            await CrackDetection.deleteMany({
-                analysis: { $in: analysisIds },
-            });
-
-            // Delete AI analyses
-            await AIAnalysis.deleteMany({
-                inspection: { $in: inspectionIds },
-            });
-
-            // Delete uploaded images
-            await InspectionImage.deleteMany({
-                inspection: { $in: inspectionIds },
-            });
-
-            // Delete inspections
-            await Inspection.deleteMany({
-                _id: { $in: inspectionIds },
-            });
-        }
-
-        // Finally delete project
-        await project.deleteOne();
-
-        res.status(200).json({
-            success: true,
-            message: "Project deleted successfully.",
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-module.exports = {
-    createProject,
-    getProjects,
-    getProjectById,
-    updateProject,
-    deleteProject,
-};
+module.exports = { getProjects, getProjectById, updateProject };

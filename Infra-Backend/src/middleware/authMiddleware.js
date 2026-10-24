@@ -98,7 +98,7 @@ const protect = async (req, res, next) => {
         }
 
         const user = await User.findById(decoded.userId)
-            .select("role isActive")
+            .select("role isActive team")
             .lean();
 
         if (!user) {
@@ -115,7 +115,8 @@ const protect = async (req, res, next) => {
 
         req.user = {
             id: user._id.toString(),
-            role: user.role, // role comes from DB, not from the token
+            role: user.role,
+            team: user.team ? user.team.toString() : null,
         };
 
         next();

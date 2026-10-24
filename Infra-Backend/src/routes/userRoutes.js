@@ -8,11 +8,11 @@ const {
     authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-/* List users — Engineer and Admin only */
+/* List users - Admin only */
 router.get(
     "/",
     protect,
-    authorizeRoles("Engineer", "Admin"),
+    authorizeRoles("Admin"),
     listUsers
 );
 
