@@ -461,7 +461,6 @@ const approveAnalysis = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        // CHANGED: hasProjectAccess
         const { analysis, error } =
             await loadAnalysisWithAccess(
                 analysisId,
@@ -516,7 +515,7 @@ const approveAnalysis = async (req, res, next) => {
 
         await analysis.save();
 
-        // CHANGED: capture the updated inspection so we can notify.
+        // capture the updated inspection so we can notify.
         const inspection =
             await Inspection.findByIdAndUpdate(
                 analysis.inspection,
@@ -524,7 +523,7 @@ const approveAnalysis = async (req, res, next) => {
                 { new: true }
             );
 
-        // CHANGED: notify the Inspector (inspection.createdBy).
+        // notify the Inspector (inspection.createdBy).
         if (inspection) {
             await createNotification({
                 recipient: inspection.createdBy,
@@ -533,6 +532,15 @@ const approveAnalysis = async (req, res, next) => {
                 message: `Analysis for inspection ${inspection.inspectionCode} was approved. You can now generate the report.`,
                 relatedEntity: "Inspection",
                 relatedEntityId: inspection._id,
+            });
+            await logActivity({
+                actor: req.user,
+                action: ACTIVITY_ACTIONS.INSPECTION_STATUS_CHANGED,
+                targetType: "Inspection",
+                targetId: inspection._id,
+                targetLabel: inspection.inspectionCode,
+                changes: { after: { status: "Validated" } },
+                metadata: { analysisCode: analysis.analysisCode, via: "approve" },
             });
         }
 
@@ -553,7 +561,6 @@ const rejectAnalysis = async (req, res, next) => {
         const { analysisId } = req.params;
         const { rejectionReason } = req.body;
 
-        // CHANGED: hasProjectAccess
         const { analysis, error } =
             await loadAnalysisWithAccess(
                 analysisId,
@@ -608,8 +615,6 @@ const rejectAnalysis = async (req, res, next) => {
 
         await analysis.save();
 
-        // CHANGED: R2 — rejected goes back to "Pending Analysis",
-        // back in the Engineer's queue for a re-run.
         const inspection =
             await Inspection.findByIdAndUpdate(
                 analysis.inspection,
@@ -626,6 +631,15 @@ const rejectAnalysis = async (req, res, next) => {
                 message: `Analysis for inspection ${inspection.inspectionCode} was rejected. Reason: ${analysis.rejectionReason}`,
                 relatedEntity: "Inspection",
                 relatedEntityId: inspection._id,
+            });
+            await logActivity({
+                actor: req.user,
+                action: ACTIVITY_ACTIONS.INSPECTION_STATUS_CHANGED,
+                targetType: "Inspection",
+                targetId: inspection._id,
+                targetLabel: inspection.inspectionCode,
+                changes: { after: { status: "Pending Analysis" } },
+                metadata: { analysisCode: analysis.analysisCode, via: "reject" },
             });
         }
 
@@ -645,7 +659,6 @@ const cancelAnalysis = async (req, res, next) => {
     try {
         const { analysisId } = req.params;
 
-        // CHANGED: hasProjectAccess
         const { analysis, error } =
             await loadAnalysisWithAccess(
                 analysisId,
@@ -691,7 +704,7 @@ const cancelAnalysis = async (req, res, next) => {
 
         await analysis.save();
 
-        // CHANGED: R2 — cancel puts inspection back to Pending Analysis.
+        // cancel puts inspection back to Pending Analysis.
         const inspection =
             await Inspection.findByIdAndUpdate(
                 analysis.inspection,
@@ -710,6 +723,26 @@ const cancelAnalysis = async (req, res, next) => {
             });
         }
 
+        await logActivity({
+            actor: req.user,
+            action: ACTIVITY_ACTIONS.ANALYSIS_CANCELLED,
+            targetType: "Analysis",
+            targetId: analysis._id,
+            targetLabel: analysis.analysisCode,
+            metadata: { inspectionCode: inspection?.inspectionCode },
+        });
+
+        if (inspection) {
+            await logActivity({
+                actor: req.user,
+                action: ACTIVITY_ACTIONS.INSPECTION_STATUS_CHANGED,
+                targetType: "Inspection",
+                targetId: inspection._id,
+                targetLabel: inspection.inspectionCode,
+                changes: { after: { status: "Pending Analysis" } },
+                metadata: { via: "cancel" },
+            });
+        }
         return res.status(200).json({
             success: true,
             message:

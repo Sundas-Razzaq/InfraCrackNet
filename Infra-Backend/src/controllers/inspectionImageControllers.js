@@ -4,6 +4,8 @@ const Inspection = require("../models/inspection");
 const InspectionImage = require("../models/inspectionImage");
 const Project = require("../models/project");
 const path = require("path");
+const { logActivity } = require("../services/activityLogService");
+const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 
 const {
     uploadImage,
@@ -326,8 +328,22 @@ const requestAnalysis = async (req, res) => {
         }
 
         // Move to Pending Analysis
+        const previousStatus = inspection.status;
         inspection.status = "Pending Analysis";
         await inspection.save();
+
+        await logActivity({
+            actor: req.user,
+            action: ACTIVITY_ACTIONS.INSPECTION_STATUS_CHANGED,
+            targetType: "Inspection",
+            targetId: inspection._id,
+            targetLabel: inspection.inspectionCode,
+            changes: {
+                before: { status: previousStatus },
+                after: { status: "Pending Analysis" },
+            },
+            metadata: { via: "request-analysis" },
+        });
 
         // Notify the project's team lead
         const engineerId = await getProjectLeadId(inspection.project);

@@ -130,11 +130,6 @@ const sendInvitationEmail = async ({
 }) => {
   const inviteUrl = `${getFrontendUrl()}/accept-invitation/${encodeURIComponent(token)}`;
 
-  // Development helper: test the flow without opening the mailbox.
-  if (process.env.NODE_ENV !== "production") {
-    console.log(`[DEV] Invitation link for ${to}: ${inviteUrl}`);
-  }
-
   const inviter = invitedByName || "The administrator";
   const subject = `You're invited to join ${APP_NAME} as ${role}`;
 

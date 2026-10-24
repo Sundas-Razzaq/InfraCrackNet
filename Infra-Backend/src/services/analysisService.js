@@ -3,6 +3,9 @@ const CrackDetection = require("../models/crackDetection");
 const Inspection = require("../models/inspection");
 const InspectionImage = require("../models/inspectionImage");
 const { createNotification } = require("../services/notificationService");
+const { logActivity } = require("./activityLogService");
+const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
+const { notifyAdmins } = require("./adminNotificationService");
 
 const crackClasses = [
     "Longitudinal",
@@ -276,8 +279,18 @@ const startMockAnalysis = async (analysisId) => {
             analysis.inspection,
             {
                 status: "AI Completed",
-            }
-        );
+            });
+        await logActivity({
+            actor: null, // System
+            action: ACTIVITY_ACTIONS.ANALYSIS_COMPLETED,
+            targetType: "Analysis",
+            targetId: analysis._id,
+            targetLabel: analysis.analysisCode,
+            metadata: {
+                inspectionCode: inspection?.inspectionCode,
+                simulated: true,
+            },
+        });
     } catch (error) {
         console.error(
             "Mock AI Error:",
@@ -308,6 +321,23 @@ const startMockAnalysis = async (analysisId) => {
                         "Images Uploaded",
                 }
             );
+            await logActivity({
+                actor: null, // System
+                action: ACTIVITY_ACTIONS.ANALYSIS_FAILED,
+                targetType: "Analysis",
+                targetId: analysis._id,
+                targetLabel: analysis.analysisCode,
+                outcome: "failure",
+                message: error.message,
+            });
+
+            await notifyAdmins({
+                type: "critical",
+                title: "AI analysis failed",
+                message: `Analysis ${analysis.analysisCode} failed: ${error.message}`,
+                relatedEntity: "Analysis",
+                relatedEntityId: analysis._id,
+            });
         }
     }
 };

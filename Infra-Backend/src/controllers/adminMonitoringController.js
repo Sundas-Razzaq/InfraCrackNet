@@ -15,6 +15,9 @@ const {
     AI_DISCLAIMER,
 } = require("../utils/aiMode");
 
+const RUNNING_STATUSES = ["Queued", "Processing"];
+const STUCK_MINUTES = Number(process.env.ANALYSIS_STUCK_MINUTES) || 15;
+const stuckBefore = () => new Date(Date.now() - STUCK_MINUTES * 60 * 1000);
 const escapeRegex = (value) =>
     String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -86,6 +89,7 @@ const getDashboard = async (req, res, next) => {
             inspectionsByStatus,
             analysesByStatus,
             awaitingValidation,
+            stuckAnalyses,
             reportCount,
             recentActivity,
         ] = await Promise.all([
@@ -104,6 +108,10 @@ const getDashboard = async (req, res, next) => {
             AIAnalysis.countDocuments({
                 status: "Completed",
                 validationStatus: "Pending",
+            }),
+            AIAnalysis.countDocuments({
+                status: { $in: RUNNING_STATUSES },
+                createdAt: { $lt: stuckBefore() },
             }),
             Report.countDocuments({}),
             ActivityLog.find({})
@@ -141,6 +149,7 @@ const getDashboard = async (req, res, next) => {
                     total: sum(analysesByStatus),
                     byStatus: analysesByStatus,
                     awaitingValidation,
+                    stuck: stuckAnalyses,
                 },
                 reports: { total: reportCount },
                 recentActivity,
@@ -309,6 +318,7 @@ const listAnalyses = async (req, res, next) => {
             project,
             team,
             inspection,
+            stuck,
             from,
             to,
             sort,
@@ -337,6 +347,14 @@ const listAnalyses = async (req, res, next) => {
             filter.createdAt = {};
             if (from) filter.createdAt.$gte = from;
             if (to) filter.createdAt.$lte = to;
+        }
+
+        if (stuck) {
+            filter.status = { $in: RUNNING_STATUSES };
+            filter.createdAt = {
+                ...(filter.createdAt || {}),
+                $lt: stuckBefore(),
+            };
         }
 
         const order =
