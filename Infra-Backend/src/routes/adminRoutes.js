@@ -66,14 +66,20 @@ const {
     assignTeamValidation,
     deleteProjectQueryValidation,
 } = require("../validations/adminProjectValidators");
-
 const {
     getDashboard,
     listInspections,
     getInspection,
+    listAnalyses,
+    getAnalysis,
+    listReports,
+    getReport,
+    downloadReport,
 } = require("../controllers/adminMonitoringController");
 const {
     listAdminInspectionsValidation,
+    listAdminAnalysesValidation,
+    listAdminReportsValidation,
     adminIdParamValidation,
 } = require("../validations/adminMonitoringValidators");
 
@@ -173,4 +179,10 @@ router.get(
 router.get("/dashboard", getDashboard);
 router.get("/inspections", listAdminInspectionsValidation, listInspections);
 router.get("/inspections/:id", adminIdParamValidation, getInspection);
+
+router.get("/analyses", listAdminAnalysesValidation, listAnalyses);
+router.get("/analyses/:id", adminIdParamValidation, getAnalysis);
+router.get("/reports", listAdminReportsValidation, listReports);
+router.get("/reports/:id", adminIdParamValidation, getReport);
+router.get("/reports/:id/download", adminIdParamValidation, downloadReport);
 module.exports = router;
