@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
-import { sidebarItems } from "./sidebarConfig";
+import { sidebarItems, adminSidebarGroups } from "./sidebarConfig";
 import SidebarItem from "./SidebarItem";
 import { useAuth } from "../../../context/useAuth";
 
@@ -22,6 +22,8 @@ function Sidebar({
             console.error("Logout failed:", error);
         }
     };
+
+    const isAdmin = userRole === "Admin";
 
     const visibleItems = sidebarItems.filter((item) => {
         if (!item.allowedRoles || item.allowedRoles.length === 0) {
@@ -63,15 +65,35 @@ function Sidebar({
                     className="sidebar-nav"
                     aria-label="Dashboard Navigation"
                 >
-                    <ul className="sidebar-nav-list">
-                        {visibleItems.map((item) => (
-                            <SidebarItem
-                                key={item.id}
-                                item={item}
-                                onClick={closeSidebar}
-                            />
-                        ))}
-                    </ul>
+                    {isAdmin ? (
+                        adminSidebarGroups.map((group) => (
+                            <div className="sidebar-group" key={group.id}>
+                                <p className="sidebar-group-title">
+                                    {group.title}
+                                </p>
+
+                                <ul className="sidebar-nav-list">
+                                    {group.items.map((item) => (
+                                        <SidebarItem
+                                            key={item.id}
+                                            item={item}
+                                            onClick={closeSidebar}
+                                        />
+                                    ))}
+                                </ul>
+                            </div>
+                        ))
+                    ) : (
+                        <ul className="sidebar-nav-list">
+                            {visibleItems.map((item) => (
+                                <SidebarItem
+                                    key={item.id}
+                                    item={item}
+                                    onClick={closeSidebar}
+                                />
+                            ))}
+                        </ul>
+                    )}
                 </nav>
 
                 <footer className="sidebar-footer">

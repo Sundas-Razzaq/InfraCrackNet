@@ -1,4 +1,6 @@
 import {
+  Navigate,
+  Outlet,
   Route,
   Routes,
   useNavigate,
@@ -37,6 +39,7 @@ import ReportsPage from "./pages/dashboard/reports/reportsPage";
 import ReportDetailsPage from "./pages/dashboard/reports/reportDetailsPage";
 import ReportExportPage from "./pages/dashboard/reports/reportExportPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminPlaceholderPage from "./components/admin/AdminPlaceholderPage";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -315,6 +318,26 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* admin routes: Admin only */}
+        <Route
+          path="admin"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <Outlet />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminPlaceholderPage itemId="dashboard" />} />
+          <Route path="users" element={<AdminPlaceholderPage itemId="users" />} />
+          <Route path="teams" element={<AdminPlaceholderPage itemId="teams" />} />
+          <Route path="projects" element={<AdminPlaceholderPage itemId="projects" />} />
+          <Route path="inspections" element={<AdminPlaceholderPage itemId="inspections" />} />
+          <Route path="analyses" element={<AdminPlaceholderPage itemId="analyses" />} />
+          <Route path="reports" element={<AdminPlaceholderPage itemId="reports" />} />
+          <Route path="activity-log" element={<AdminPlaceholderPage itemId="activity-log" />} />
+          <Route path="account" element={<AdminPlaceholderPage itemId="account" />} />
+        </Route>
       </Route>
     </Routes>
   );

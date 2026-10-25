@@ -37,6 +37,7 @@ const {
     addTeamMember,
     removeTeamMember,
     listAvailableMembers,
+    getMemberImpact,
 } = require("../controllers/teamController");
 const {
     createTeamValidation,

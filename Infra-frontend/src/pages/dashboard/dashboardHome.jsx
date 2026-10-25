@@ -1,5 +1,5 @@
 import { useAuth } from "../../context/useAuth";
-
+import { Navigate } from "react-router-dom";
 import EngineerDashboard from "./engineerDashboard";
 import InspectorDashboard from "./inspectorDashboard";
 
@@ -9,9 +9,10 @@ function DashboardHome() {
     switch (user?.role) {
         case "Engineer":
             return <EngineerDashboard />;
-
         case "Inspector":
             return <InspectorDashboard />;
+        case "Admin":
+            return <Navigate to="/dashboard/admin/dashboard" replace />;
 
         default:
             return (
