@@ -39,7 +39,9 @@ import ReportsPage from "./pages/dashboard/reports/reportsPage";
 import ReportDetailsPage from "./pages/dashboard/reports/reportDetailsPage";
 import ReportExportPage from "./pages/dashboard/reports/reportExportPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+//admin imports
 import AdminPlaceholderPage from "./components/admin/AdminPlaceholderPage";
+import AdminDashboard from "./pages/dashboard/adminDashboard";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -328,7 +330,7 @@ function App() {
           }
         >
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminPlaceholderPage itemId="dashboard" />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminPlaceholderPage itemId="users" />} />
           <Route path="teams" element={<AdminPlaceholderPage itemId="teams" />} />
           <Route path="projects" element={<AdminPlaceholderPage itemId="projects" />} />
