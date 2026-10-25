@@ -83,3 +83,129 @@
 	align-items: center;
 	gap: var(--space-12);
 }
+
+/* Tabs */
+.adm-tabs {
+	display: flex;
+	gap: var(--space-4);
+	margin-bottom: var(--space-16);
+	border-bottom: 1px solid var(--color-border-default);
+}
+
+.adm-tab {
+	margin-bottom: -1px;
+	padding: var(--space-12) var(--space-16);
+	background: none;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	font-family: inherit;
+	font-size: var(--font-size-small);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-text-soft);
+	cursor: pointer;
+	transition: color var(--transition-fast);
+}
+
+.adm-tab:hover {
+	color: var(--color-text-primary);
+}
+
+.adm-tab.active {
+	color: var(--color-primary);
+	border-bottom-color: var(--color-primary);
+}
+
+/* Small helpers */
+.adm-subtext {
+	font-size: var(--font-size-caption);
+	color: var(--color-text-muted);
+}
+
+.adm-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-16);
+}
+
+.adm-inline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-12);
+}
+
+.adm-inline .input {
+	flex: 1 1 180px;
+	width: auto;
+}
+
+/* Modal shell (form-friendly, left aligned) */
+.adm-modal {
+	display: flex;
+	flex-direction: column;
+	width: min(520px, 92vw);
+	max-height: 90vh;
+	background: var(--color-bg-card);
+	border-radius: var(--radius-modal);
+	box-shadow: var(--shadow-modal);
+}
+
+.adm-modal--wide {
+	width: min(640px, 92vw);
+}
+
+.adm-modal-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--space-16);
+	padding: var(--space-20) var(--space-24);
+	border-bottom: 1px solid var(--color-border-divider);
+}
+
+.adm-modal-title {
+	margin: 0;
+	font-size: var(--font-size-h5);
+	color: var(--color-text-primary);
+}
+
+.adm-modal-subtitle {
+	margin: var(--space-4) 0 0;
+	font-size: var(--font-size-small);
+	color: var(--color-text-soft);
+}
+
+.adm-modal-close {
+	background: none;
+	border: 0;
+	color: var(--color-text-soft);
+	font-size: 1.1rem;
+	cursor: pointer;
+}
+
+.adm-modal-body {
+	padding: var(--space-20) var(--space-24);
+	overflow-y: auto;
+}
+
+.adm-modal-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--space-12);
+	padding: var(--space-16) var(--space-24);
+	border-top: 1px solid var(--color-border-divider);
+}
+
+/* Accept-invitation summary */
+.adm-invite-summary {
+	margin-bottom: var(--space-16);
+	padding: var(--space-12) var(--space-16);
+	background: var(--color-info-bg);
+	border-radius: var(--radius-card);
+	color: var(--color-text-primary);
+	font-size: var(--font-size-small);
+}
+
+.adm-invite-summary p {
+	margin: 0;
+}

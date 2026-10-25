@@ -3,6 +3,7 @@ import {
   Outlet,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useParams,
 } from "react-router-dom";
@@ -42,10 +43,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 //admin imports
 import AdminPlaceholderPage from "./components/admin/AdminPlaceholderPage";
 import AdminDashboard from "./pages/dashboard/adminDashboard";
+import AcceptInvitationPage from "./pages/auth/acceptInvitation";
+import UserManagementPage from "./pages/dashboard/admin/userManagement";
 
 function LoginRoute() {
   const navigate = useNavigate();
-  return <LoginPage onNavigate={navigate} />;
+  const location = useLocation();
+  return <LoginPage onNavigate={navigate} redirectTo={location.state?.from} />;
 }
 
 function SignupRoute() {
@@ -97,6 +101,7 @@ function App() {
         element={<ResetPasswordRoute />}
       />
 
+      <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
       {/* Protected Dashboard */}
 
       <Route
@@ -331,7 +336,7 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<AdminPlaceholderPage itemId="users" />} />
+          <Route path="users" element={<UserManagementPage />} />
           <Route path="teams" element={<AdminPlaceholderPage itemId="teams" />} />
           <Route path="projects" element={<AdminPlaceholderPage itemId="projects" />} />
           <Route path="inspections" element={<AdminPlaceholderPage itemId="inspections" />} />

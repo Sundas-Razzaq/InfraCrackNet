@@ -3,9 +3,8 @@ import { getApiErrorMessage } from "../../api/authApi";
 import AuthForm from "../../components/auth/authForm";
 import { useAuth } from "../../context/useAuth";
 import AuthLayout from "../../layouts/authLayout";
-import PasswordInput from "../../components/common/PasswordInput";
 
-function LoginPage({ onNavigate }) {
+function LoginPage({ onNavigate, redirectTo }) {
     const { loginUser } = useAuth();
 
     const [formData, setFormData] = useState({
@@ -65,8 +64,12 @@ function LoginPage({ onNavigate }) {
                 password: formData.password,
             });
 
-            // DashboardHome will determine which dashboard to render
-            onNavigate("/dashboard");
+            const target =
+                typeof redirectTo === "string" && redirectTo.startsWith("/")
+                    ? redirectTo
+                    : "/dashboard";
+
+            onNavigate(target);
         } catch (err) {
             setError(
                 getApiErrorMessage(
