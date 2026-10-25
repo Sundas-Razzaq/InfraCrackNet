@@ -45,6 +45,8 @@ import AdminPlaceholderPage from "./components/admin/AdminPlaceholderPage";
 import AdminDashboard from "./pages/dashboard/adminDashboard";
 import AcceptInvitationPage from "./pages/auth/acceptInvitation";
 import UserManagementPage from "./pages/dashboard/admin/userManagement";
+import AdminTeamsPage from "./pages/dashboard/admin/adminTeams";
+import AdminTeamDetailsPage from "./pages/dashboard/admin/adminTeamDetails";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -337,7 +339,8 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagementPage />} />
-          <Route path="teams" element={<AdminPlaceholderPage itemId="teams" />} />
+          <Route path="teams" element={<AdminTeamsPage />} />
+          <Route path="teams/:id" element={<AdminTeamDetailsPage />} />
           <Route path="projects" element={<AdminPlaceholderPage itemId="projects" />} />
           <Route path="inspections" element={<AdminPlaceholderPage itemId="inspections" />} />
           <Route path="analyses" element={<AdminPlaceholderPage itemId="analyses" />} />

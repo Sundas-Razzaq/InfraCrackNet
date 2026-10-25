@@ -34,7 +34,7 @@ export const updateUserRole = (id, payload) => patch(`/users/${id}/role`, payloa
 /* Teams */
 export const createTeam = (payload) => post("/teams", payload);
 export const getTeams = (params) => get("/teams", params);
-export const getAvailableMembers = (role) => get("/teams/available-members", { role });
+export const getAvailableMembers = (params) => get("/teams/available-members", params);
 export const getTeamById = (id) => get(`/teams/${id}`);
 export const updateTeam = (id, payload) => patch(`/teams/${id}`, payload);
 export const updateTeamStatus = (id, payload) => patch(`/teams/${id}/status`, payload);
