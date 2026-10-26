@@ -16,3 +16,7 @@ export const formatDateTime = (value) =>
             minute: "2-digit",
         })
         : "-";
+
+// Reads dashboard deep-link filters, e.g. ?status=Active&assignment=unassigned
+export const paramsToFilters = (params, keys) =>
+    Object.fromEntries(keys.map((key) => [key, params.get(key) || ""]));

@@ -158,7 +158,7 @@ function AdminDashboard() {
 
     const attention = [
         { label: "Teams without a lead", count: teams?.withoutLead, to: "teams", variant: "warning" },
-        { label: "Unassigned projects", count: projects?.unassigned, to: "projects", variant: "warning" },
+        { label: "Unassigned projects", count: projects?.unassigned, to: "projects?assignment=unassigned", variant: "warning" },
         { label: "Stuck analyses", count: analyses?.stuck, to: "analyses", variant: "danger" },
         { label: "Awaiting validation", count: analyses?.awaitingValidation, to: "analyses", variant: "info" },
         { label: "Pending invitations", count: users?.pendingInvitations, to: "users", variant: "info" },
@@ -187,7 +187,7 @@ function AdminDashboard() {
                         value={projects?.byStatus?.Active ?? 0}
                         icon={faFolderOpen}
                         iconVariant="success"
-                        onClick={() => navigate(`${BASE}/projects`)}
+                        onClick={() => navigate(`${BASE}/projects?status=Active`)}
                     />
                     <StatsCard
                         title="Teams"

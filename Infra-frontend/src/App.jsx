@@ -47,6 +47,9 @@ import AcceptInvitationPage from "./pages/auth/acceptInvitation";
 import UserManagementPage from "./pages/dashboard/admin/userManagement";
 import AdminTeamsPage from "./pages/dashboard/admin/adminTeams";
 import AdminTeamDetailsPage from "./pages/dashboard/admin/adminTeamDetails";
+import AdminProjectsPage from "./pages/dashboard/admin/adminProjects";
+import AdminProjectFormPage from "./pages/dashboard/admin/adminProjectForm";
+import AdminProjectDetailsPage from "./pages/dashboard/admin/adminProjectDetails";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -341,7 +344,10 @@ function App() {
           <Route path="users" element={<UserManagementPage />} />
           <Route path="teams" element={<AdminTeamsPage />} />
           <Route path="teams/:id" element={<AdminTeamDetailsPage />} />
-          <Route path="projects" element={<AdminPlaceholderPage itemId="projects" />} />
+          <Route path="projects" element={<AdminProjectsPage />} />
+          <Route path="projects/new" element={<AdminProjectFormPage />} />
+          <Route path="projects/:id" element={<AdminProjectDetailsPage />} />
+          <Route path="projects/:id/edit" element={<AdminProjectFormPage />} />
           <Route path="inspections" element={<AdminPlaceholderPage itemId="inspections" />} />
           <Route path="analyses" element={<AdminPlaceholderPage itemId="analyses" />} />
           <Route path="reports" element={<AdminPlaceholderPage itemId="reports" />} />
