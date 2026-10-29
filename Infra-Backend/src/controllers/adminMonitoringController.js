@@ -416,8 +416,9 @@ const getAnalysis = async (req, res, next) => {
         const [detections, reports] = await Promise.all([
             CrackDetection.find({ analysis: analysis._id })
                 .select(
-                    "crackId crackClass confidence severity width length area boundingBox source validationStatus reviewStatus reviewedSeverity isValidated reviewedBy reviewedAt reviewComments"
+                    "inspectionImage crackId crackClass confidence severity width length area boundingBox source validationStatus reviewStatus reviewedSeverity isValidated reviewedBy reviewedAt reviewComments"
                 )
+                .populate("inspectionImage", "imageUrl originalFileName")
                 .populate("reviewedBy", "name email")
                 .sort({ crackId: 1 })
                 .lean(),

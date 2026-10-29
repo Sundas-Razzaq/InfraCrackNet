@@ -7,9 +7,10 @@ const DataTable = ({
     emptyText = "No records found.",
     rowKey = "_id",
     onRowClick,
+    bare = false,
 }) => {
     return (
-        <div className="table-wrapper adm-table-wrapper">
+        <div className={`table-wrapper ${bare ? "" : "adm-table-wrapper"}`}>
             <table className="table">
                 <thead>
                     <tr>

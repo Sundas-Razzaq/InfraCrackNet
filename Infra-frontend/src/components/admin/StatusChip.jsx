@@ -16,6 +16,7 @@ const ADMIN_TONES = {
     Engineer: "info",
     Inspector: "neutral",
     Simulated: "warning",
+    Final: "success",
 };
 
 const StatusChip = ({ value }) => <Chip tone={ADMIN_TONES[value]}>{value}</Chip>;

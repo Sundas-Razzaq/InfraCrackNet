@@ -30,6 +30,10 @@ const InspectionDetails = ({
     analysisLoading,
     onGenerateReport,
     reportLoading = false,
+    backTo = "/dashboard/inspection",
+    backLabel = "All inspections",
+    projectLinkBase = "/dashboard/projects",
+    children,
 }) => {
     const { isEngineer, isInspector } = useRole();
 
@@ -49,9 +53,9 @@ const InspectionDetails = ({
 
     return (
         <div className="dtl">
-            <Link to="/dashboard/inspection" className="dtl-back">
+            <Link to={backTo} className="dtl-back">
                 <FontAwesomeIcon icon={faChevronLeft} />
-                All inspections
+                {backLabel}
             </Link>
 
             <header className="dtl-header">
@@ -158,6 +162,7 @@ const InspectionDetails = ({
                             {inspection.fieldNotes || "No notes added."}
                         </p>
                     </Card>
+                    {children}
                 </div>
 
                 <aside className="dtl-side">
@@ -171,7 +176,7 @@ const InspectionDetails = ({
 
                         {inspection.project?._id && (
                             <Link
-                                to={`/dashboard/projects/${inspection.project._id}`}
+                                to={`${projectLinkBase}/${inspection.project._id}`}
                                 className="dtl-link"
                             >
                                 View project

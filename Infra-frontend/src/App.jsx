@@ -20,7 +20,6 @@ import Profile from "./pages/dashboard/profile";
 import Notifications from "./pages/dashboard/notifications";
 import Settings from "./pages/dashboard/settings";
 import ProjectsPage from "./pages/dashboard/projects/projectsPage";
-import NewProjectPage from "./pages/dashboard/projects/newProject";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
 import EditProjectPage from "./pages/dashboard/projects/editProject";
 // import TeamManagementPage from "./pages/dashboard/team/teamManagementPage";
@@ -50,6 +49,10 @@ import AdminTeamDetailsPage from "./pages/dashboard/admin/adminTeamDetails";
 import AdminProjectsPage from "./pages/dashboard/admin/adminProjects";
 import AdminProjectFormPage from "./pages/dashboard/admin/adminProjectForm";
 import AdminProjectDetailsPage from "./pages/dashboard/admin/adminProjectDetails";
+import AdminInspectionsPage from "./pages/dashboard/admin/adminInspections";
+import AdminInspectionDetailsPage from "./pages/dashboard/admin/adminInspectionDetails";
+import AdminAnalysesPage from "./pages/dashboard/admin/adminAnalyses";
+import AdminAnalysisDetailsPage from "./pages/dashboard/admin/adminAnalysisDetails";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -127,14 +130,6 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
               <ProjectsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="projects/new"
-          element={
-            <ProtectedRoute allowedRoles={["Engineer"]}>
-              <NewProjectPage />
             </ProtectedRoute>
           }
         />
@@ -348,8 +343,10 @@ function App() {
           <Route path="projects/new" element={<AdminProjectFormPage />} />
           <Route path="projects/:id" element={<AdminProjectDetailsPage />} />
           <Route path="projects/:id/edit" element={<AdminProjectFormPage />} />
-          <Route path="inspections" element={<AdminPlaceholderPage itemId="inspections" />} />
-          <Route path="analyses" element={<AdminPlaceholderPage itemId="analyses" />} />
+          <Route path="inspections" element={<AdminInspectionsPage />} />
+          <Route path="inspections/:id" element={<AdminInspectionDetailsPage />} />
+          <Route path="analyses" element={<AdminAnalysesPage />} />
+          <Route path="analyses/:id" element={<AdminAnalysisDetailsPage />} />
           <Route path="reports" element={<AdminPlaceholderPage itemId="reports" />} />
           <Route path="activity-log" element={<AdminPlaceholderPage itemId="activity-log" />} />
           <Route path="account" element={<AdminPlaceholderPage itemId="account" />} />

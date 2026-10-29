@@ -159,8 +159,8 @@ function AdminDashboard() {
     const attention = [
         { label: "Teams without a lead", count: teams?.withoutLead, to: "teams", variant: "warning" },
         { label: "Unassigned projects", count: projects?.unassigned, to: "projects?assignment=unassigned", variant: "warning" },
-        { label: "Stuck analyses", count: analyses?.stuck, to: "analyses", variant: "danger" },
-        { label: "Awaiting validation", count: analyses?.awaitingValidation, to: "analyses", variant: "info" },
+        { label: "Stuck analyses", count: analyses?.stuck, to: "analyses?stuck=true", variant: "danger" },
+        { label: "Awaiting validation", count: analyses?.awaitingValidation, to: "analyses?status=Completed&validationStatus=Pending", variant: "info" },
         { label: "Pending invitations", count: users?.pendingInvitations, to: "users", variant: "info" },
         { label: "Deactivated accounts", count: users?.inactive, to: "users", variant: "primary" },
     ].filter((item) => item.count > 0);

@@ -14,11 +14,19 @@ export function useTeamOptions(params = {}) {
         let cancelled = false;
 
         const run = async () => {
+            setLoading(true);
+            setError("");
+
             try {
                 const res = await getTeams({ limit: 100, sort: "name", ...JSON.parse(key) });
-                if (!cancelled) setTeams(res.data || []);
+                if (!cancelled) {
+                    setTeams(res.data || []);
+                }
             } catch (err) {
-                if (!cancelled) setError(getApiErrorMessage(err, "Failed to load teams."));
+                if (!cancelled) {
+                    setTeams([]);
+                    setError(getApiErrorMessage(err, "Failed to load teams."));
+                }
             } finally {
                 if (!cancelled) setLoading(false);
             }
