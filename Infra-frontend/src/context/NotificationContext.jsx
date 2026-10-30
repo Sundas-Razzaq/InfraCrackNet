@@ -20,6 +20,10 @@ import {
     markAllNotificationsAsRead,
 } from "../api/notificationApi";
 import { getReport } from "../api/reportApi";
+import {
+    adminNotificationTarget,
+    notificationsPath,
+} from "../utils/adminpath";
 
 const POLL_INTERVAL_MS = 15000;
 
@@ -34,7 +38,7 @@ const notificationIcons = {
 };
 
 export function NotificationProvider({ children }) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -70,6 +74,12 @@ export function NotificationProvider({ children }) {
             }
 
             const { relatedEntity, relatedEntityId } = notification;
+
+            if (user?.role === "Admin") {
+                const target = adminNotificationTarget(relatedEntity, relatedEntityId);
+                if (target) navigate(target);
+                return;
+            }
 
             if (relatedEntity === "Report" && relatedEntityId) {
                 const response = await getReport(relatedEntityId);
@@ -112,7 +122,7 @@ export function NotificationProvider({ children }) {
     /*POPUP */
 
     const showNotificationPopup = (notification) => {
-        if (locationPathRef.current === "/dashboard/notifications") {
+        if (locationPathRef.current === notificationsPath(user?.role)) {
             return;
         }
 

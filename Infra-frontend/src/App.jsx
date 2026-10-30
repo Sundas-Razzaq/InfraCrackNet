@@ -40,7 +40,6 @@ import ReportDetailsPage from "./pages/dashboard/reports/reportDetailsPage";
 import ReportExportPage from "./pages/dashboard/reports/reportExportPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 //admin imports
-import AdminPlaceholderPage from "./components/admin/AdminPlaceholderPage";
 import AdminDashboard from "./pages/dashboard/adminDashboard";
 import AcceptInvitationPage from "./pages/auth/acceptInvitation";
 import UserManagementPage from "./pages/dashboard/admin/userManagement";
@@ -353,7 +352,8 @@ function App() {
           <Route path="reports" element={<AdminReportsPage />} />
           <Route path="reports/:id" element={<AdminReportDetailsPage />} />
           <Route path="activity-log" element={<AdminActivityLogPage />} />
-          <Route path="account" element={<AdminPlaceholderPage itemId="account" />} />
+          <Route path="account" element={<Profile />} />
+          <Route path="notifications" element={<Notifications />} />
         </Route>
       </Route>
     </Routes>

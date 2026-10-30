@@ -229,12 +229,27 @@ export const adminSidebarGroups = [
         items: [
             {
                 id: "account",
-                title: "Profile & Settings",
+                title: "Profile",
                 path: "/dashboard/admin/account",
                 icon: faUserGear,
                 description:
-                    "Admin profile, password management, and relevant account settings.",
+                    "Admin profile, password management.",
                 activeMatch: adminMatch("/dashboard/admin/account"),
+            },
+        ],
+    },
+    {
+        id: "notifications",
+        title: "Notifications",
+        items: [
+            {
+                id: "notifications",
+                title: "Notifications",
+                path: "/dashboard/admin/notifications",
+                icon: faBell,
+                description:
+                    "Manage and view notifications.",
+                activeMatch: adminMatch("/dashboard/admin/notifications"),
             },
         ],
     },

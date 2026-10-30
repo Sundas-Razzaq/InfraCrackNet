@@ -1,3 +1,6 @@
+import { useNavigate } from "react-router-dom";
+import { profilePath } from "../../../utils/adminpath";
+
 function getInitials(name = "") {
     return name
         .trim()
@@ -10,6 +13,7 @@ function getInitials(name = "") {
 }
 
 function ProfileDropdown({ user = {} }) {
+    const navigate = useNavigate();
     const initials = getInitials(user.name);
 
     return (
@@ -17,6 +21,7 @@ function ProfileDropdown({ user = {} }) {
             type="button"
             className="profile-dropdown"
             aria-label="Profile menu"
+            onClick={() => navigate(profilePath(user?.role))}
         >
             <span
                 className="profile-avatar"
