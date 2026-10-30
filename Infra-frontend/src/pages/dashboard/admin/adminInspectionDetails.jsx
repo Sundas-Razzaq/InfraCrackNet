@@ -122,7 +122,10 @@ const AdminInspectionDetailsPage = () => {
                 </Card>
 
                 <Card title={`Reports (${reports.length})`}>
-                    <LinkedReportsTable reports={reports} />
+                    <LinkedReportsTable
+    reports={reports}
+    onRowClick={(row) => navigate(`/dashboard/admin/reports/${row._id}`)}
+/>
                 </Card>
             </InspectionDetails>
         </div>

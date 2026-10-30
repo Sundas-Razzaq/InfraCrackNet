@@ -203,6 +203,12 @@ const AdminProjectDetailsPage = () => {
                             <Row label="Created on">{formatDate(project.createdAt)}</Row>
                             <Row label="Last updated">{formatDate(project.updatedAt)}</Row>
                         </dl>
+                        <Link
+                            to={`/dashboard/admin/activity-log?targetType=Project&targetId=${project._id}`}
+                            className="dtl-link"
+                        >
+                            View activity
+                        </Link>
                     </Card>
                 </aside>
             </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
@@ -20,7 +20,7 @@ import { formatDateTime } from "../../../utils/adminFormat";
 
 const AdminAnalysisDetailsPage = () => {
     const { id } = useParams();
-
+    const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -131,7 +131,10 @@ const AdminAnalysisDetailsPage = () => {
                 </Card>
 
                 <Card title={`Reports (${reports.length})`}>
-                    <LinkedReportsTable reports={reports} />
+                    <LinkedReportsTable
+                        reports={reports}
+                        onRowClick={(row) => navigate(`/dashboard/admin/reports/${row._id}`)}
+                    />
                 </Card>
             </div>
         </div>

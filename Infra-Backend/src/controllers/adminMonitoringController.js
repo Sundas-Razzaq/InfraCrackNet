@@ -538,10 +538,16 @@ const listReports = async (req, res, next) => {
 const getReport = async (req, res, next) => {
     try {
         const report = await Report.findById(req.params.id)
-            .populate(INSPECTION_POPULATE)
+            .populate({
+                path: "inspection",
+                populate: {
+                    path: "project",
+                    populate: { path: "team", select: "name" },
+                },
+            })
             .populate(
                 "analysis",
-                "analysisCode status validationStatus overallSeverity riskScore averageConfidence"
+                "analysisCode status validationStatus overallSeverity riskScore averageConfidence totalImages processedImages"
             )
             .populate("generatedBy", "name email role")
             .lean();
@@ -554,17 +560,29 @@ const getReport = async (req, res, next) => {
         }
 
         // pdfData select:false hai, isliye alag se check karte hain
-        const hasPdf = Boolean(
-            await Report.exists({
+        const [hasPdf, cracks] = await Promise.all([
+            Report.exists({
                 _id: report._id,
                 pdfData: { $exists: true, $ne: null },
-            })
-        );
+            }).then(Boolean),
+            report.analysis
+                ? CrackDetection.find({
+                    analysis: report.analysis._id,
+                    validationStatus: { $ne: "Removed" },
+                })
+                    .select(
+                        "crackId crackClass confidence severity source validationStatus"
+                    )
+                    .sort({ crackId: 1 })
+                    .lean()
+                : [],
+        ]);
 
         res.status(200).json({
             success: true,
             data: {
                 report: { ...report, isSimulated: IS_SIMULATED_AI },
+                cracks,
                 hasPdf,
                 aiMode: AI_MODE,
                 aiDisclaimer: IS_SIMULATED_AI ? AI_DISCLAIMER : null,

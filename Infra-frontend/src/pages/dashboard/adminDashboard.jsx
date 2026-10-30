@@ -18,7 +18,8 @@ import WidgetCard from "../../components/dashboard/shared/widgetCard";
 import StatusBadge from "../../components/dashboard/cards/statusBadge";
 import ProgressBar from "../../components/dashboard/cards/progressBar";
 import AiSimulatedBanner from "../../components/admin/AiSimulatedBanner";
-
+import { actionLabel } from "../../../utils/activityActions";
+import { formatDateTime } from "../../../utils/adminFormat";
 import { getAdminDashboard } from "../../api/adminApi";
 import { getApiErrorMessage } from "../../api/authApi";
 import { useAuth } from "../../context/useAuth";
@@ -59,17 +60,6 @@ const ANALYSIS_VARIANT = {
     Failed: "danger",
     Cancelled: "primary",
 };
-
-const formatAction = (action = "") =>
-    action.replace(".", " · ").replace(/_/g, " ");
-
-const formatDate = (value) =>
-    new Date(value).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
 
 /* Share-of-total bars, e.g. role / project / inspection status */
 function DistributionWidget({ title, counts = {}, order, variants }) {
@@ -319,7 +309,8 @@ function AdminDashboard() {
                                     <motion.li key={entry._id} className="approval-item" variants={fadeInUp}>
                                         <div className="approval-info">
                                             <div className="approval-project">
-                                                {entry.message || formatAction(entry.action)}
+                                                {actionLabel(entry.action)}
+                                                {entry.targetLabel ? ` · ${entry.targetLabel}` : ""}
                                             </div>
                                             <div className="approval-engineer">
                                                 {entry.actor?.name || entry.actorRole}
@@ -331,7 +322,7 @@ function AdminDashboard() {
                                         )}
 
                                         <time className="approval-date" dateTime={entry.createdAt}>
-                                            {formatDate(entry.createdAt)}
+                                            {formatDateTime(entry.createdAt)}
                                         </time>
                                     </motion.li>
                                 ))}

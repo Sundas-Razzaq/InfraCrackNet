@@ -196,6 +196,12 @@ const AdminTeamDetailsPage = () => {
                             <Row label="Created">{formatDate(team.createdAt)}</Row>
                             <Row label="Last updated">{formatDate(team.updatedAt)}</Row>
                         </dl>
+                        <Link
+                            to={`/dashboard/admin/activity-log?targetType=Team&targetId=${team._id}`}
+                            className="dtl-link"
+                        >
+                            View activity
+                        </Link>
                     </Card>
                 </aside>
             </div>
