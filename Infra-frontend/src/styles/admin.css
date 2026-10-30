@@ -270,3 +270,29 @@
 	border-color: var(--color-primary);
 	background: var(--color-info-bg);
 }
+
+/* Activity log JSON blocks */
+.adm-json {
+	margin: 0;
+	padding: var(--space-12);
+	max-height: 240px;
+	overflow: auto;
+	background: var(--color-secondary-light);
+	border-radius: var(--radius-button);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: var(--font-size-caption);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.adm-json-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-12);
+}
+
+@media (max-width: 640px) {
+	.adm-json-grid {
+		grid-template-columns: 1fr;
+	}
+}

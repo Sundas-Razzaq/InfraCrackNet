@@ -53,6 +53,9 @@ import AdminInspectionsPage from "./pages/dashboard/admin/adminInspections";
 import AdminInspectionDetailsPage from "./pages/dashboard/admin/adminInspectionDetails";
 import AdminAnalysesPage from "./pages/dashboard/admin/adminAnalyses";
 import AdminAnalysisDetailsPage from "./pages/dashboard/admin/adminAnalysisDetails";
+import AdminReportsPage from "./pages/dashboard/admin/adminReports";
+import AdminReportDetailsPage from "./pages/dashboard/admin/adminReportDetails";
+import AdminActivityLogPage from "./pages/dashboard/admin/adminActivityLog";
 
 function LoginRoute() {
   const navigate = useNavigate();
@@ -347,8 +350,9 @@ function App() {
           <Route path="inspections/:id" element={<AdminInspectionDetailsPage />} />
           <Route path="analyses" element={<AdminAnalysesPage />} />
           <Route path="analyses/:id" element={<AdminAnalysisDetailsPage />} />
-          <Route path="reports" element={<AdminPlaceholderPage itemId="reports" />} />
-          <Route path="activity-log" element={<AdminPlaceholderPage itemId="activity-log" />} />
+          <Route path="reports" element={<AdminReportsPage />} />
+          <Route path="reports/:id" element={<AdminReportDetailsPage />} />
+          <Route path="activity-log" element={<AdminActivityLogPage />} />
           <Route path="account" element={<AdminPlaceholderPage itemId="account" />} />
         </Route>
       </Route>
