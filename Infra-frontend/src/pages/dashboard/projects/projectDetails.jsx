@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-import DashboardLayout from "../../../layouts/DashboardLayout";
-import ProjectDetails from "../../../components/projects/projectDetails";
-import DeleteConfirmationModal from "../../../components/common/deleteConfirmationModal";
-
 import { toast } from "react-toastify";
+
+import ProjectDetails from "../../../components/projects/projectDetails";
+
 import { getApiErrorMessage } from "../../../api/authApi";
-import {
-    getProjectById,
-    deleteProject,
-} from "../../../api/projectApi";
+import { getProjectById } from "../../../api/projectApi";
 
 const ProjectDetailsPage = () => {
     const { id } = useParams();
@@ -19,26 +14,13 @@ const ProjectDetailsPage = () => {
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const [showDeleteModal, setShowDeleteModal] =
-        useState(false);
-
-    const [deleteLoading, setDeleteLoading] =
-        useState(false);
-
     useEffect(() => {
         const fetchProject = async () => {
             try {
-                const response =
-                    await getProjectById(id);
-
+                const response = await getProjectById(id);
                 setProject(response.data);
             } catch (error) {
-                toast.error(
-                    getApiErrorMessage(
-                        error,
-                        "Failed to load project."
-                    )
-                );
+                toast.error(getApiErrorMessage(error, "Failed to load project."));
             } finally {
                 setLoading(false);
             }
@@ -49,76 +31,23 @@ const ProjectDetailsPage = () => {
 
     const handleStartInspection = () => {
         navigate("/dashboard/inspection/new", {
-            state: {
-                projectId: project._id,
-            },
+            state: { projectId: project._id },
         });
     };
 
-    const handleDelete = async () => {
-        try {
-            setDeleteLoading(true);
-
-            await deleteProject(project._id);
-
-            toast.success(
-                "Project deleted successfully."
-            );
-
-            navigate("/dashboard/projects");
-        } catch (error) {
-            toast.error(
-                getApiErrorMessage(
-                    error,
-                    "Failed to delete project."
-                )
-            );
-        } finally {
-            setDeleteLoading(false);
-            setShowDeleteModal(false);
-        }
-    };
-
     if (loading) {
-        return (
-            <div className="page-loading">
-                Loading project...
-            </div>
-        );
+        return <div className="page-loading">Loading project...</div>;
     }
 
     if (!project) {
-        return (
-            <div className="page-loading">
-                Project not found.
-            </div>
-        );
+        return <div className="page-loading">Project not found.</div>;
     }
 
     return (
-        <>
-            <ProjectDetails
-                project={project}
-                onStartInspection={handleStartInspection}
-                onDelete={() =>
-                    setShowDeleteModal(true)
-                }
-            />
-
-            <DeleteConfirmationModal
-                isOpen={showDeleteModal}
-                title="Delete Project"
-                description="Are you sure you want to delete this project?"
-                warning="This will permanently delete the project and all related inspections, uploaded images, AI analyses, crack detections, and reports. This action cannot be undone."
-                confirmText="Delete Project"
-                loadingText="Deleting..."
-                isLoading={deleteLoading}
-                onClose={() =>
-                    setShowDeleteModal(false)
-                }
-                onConfirm={handleDelete}
-            />
-        </>
+        <ProjectDetails
+            project={project}
+            onStartInspection={handleStartInspection}
+        />
     );
 };
 

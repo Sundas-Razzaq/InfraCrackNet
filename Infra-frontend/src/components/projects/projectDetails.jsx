@@ -6,7 +6,6 @@ import {
     faUserTie,
     faPlay,
     faPen,
-    faTrashCan,
     faCubes,
     faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
@@ -21,7 +20,7 @@ const initialsOf = (name = "") =>
         .map((part) => part[0].toUpperCase())
         .join("") || "?";
 
-const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
+const ProjectDetails = ({ project, onStartInspection }) => {
     const navigate = useNavigate();
     const { isEngineer, isInspector } = useRole();
 
@@ -77,20 +76,6 @@ const ProjectDetails = ({ project, onDelete, onStartInspection }) => {
                         >
                             Edit Project
                         </Button>
-                    )}
-
-                    {/* Delete Project is Engineer-only */}
-                    {isEngineer && (
-                        <>
-                            <span className="dtl-toolbar-sep" aria-hidden="true" />
-                            <Button
-                                variant="danger"
-                                icon={faTrashCan}
-                                onClick={onDelete}
-                            >
-                                Delete Project
-                            </Button>
-                        </>
                     )}
                 </div>
             </header>

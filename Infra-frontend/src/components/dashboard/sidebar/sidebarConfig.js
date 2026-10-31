@@ -4,7 +4,6 @@ import {
     faClipboardCheck,
     faFolderOpen,
     faGaugeHigh,
-    faGear,
     faFileLines,
     faUser,
     faUsers,
@@ -115,16 +114,6 @@ export const sidebarItems = [
             pathname.startsWith("/dashboard/profile/"),
     },
 
-    {
-        id: "settings",
-        title: "Settings",
-        path: "/dashboard/settings",
-        icon: faGear,
-        allowedRoles: ["Engineer", "Inspector"],
-        activeMatch: (pathname) =>
-            pathname === "/dashboard/settings" ||
-            pathname.startsWith("/dashboard/settings/"),
-    },
 ];
 
 //admin sidebar items

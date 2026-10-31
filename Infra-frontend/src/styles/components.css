@@ -95,6 +95,7 @@
 }
 
 .btn-sm {
+	min-width: 96px;
 	min-height: 2.25rem;
 	padding: var(--space-4) var(--space-12);
 	font-size: var(--font-size-caption);

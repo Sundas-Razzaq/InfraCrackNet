@@ -18,7 +18,6 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/dashboard/dashboardHome";
 import Profile from "./pages/dashboard/profile";
 import Notifications from "./pages/dashboard/notifications";
-import Settings from "./pages/dashboard/settings";
 import ProjectsPage from "./pages/dashboard/projects/projectsPage";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
 import EditProjectPage from "./pages/dashboard/projects/editProject";
@@ -315,15 +314,6 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
               <Notifications />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="settings"
-          element={
-            <ProtectedRoute allowedRoles={["Engineer", "Inspector"]}>
-              <Settings />
             </ProtectedRoute>
           }
         />
