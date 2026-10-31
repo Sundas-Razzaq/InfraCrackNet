@@ -82,10 +82,9 @@ export const sidebarItems = [
 
     {
         id: "team",
-        title: "Team Management",
+        title: "My Team",
         path: "/dashboard/team",
         icon: faUsers,
-        // CHANGED: Engineer-only — Inspector does not manage the team.
         allowedRoles: ["Engineer"],
         activeMatch: (pathname) =>
             pathname === "/dashboard/team" ||

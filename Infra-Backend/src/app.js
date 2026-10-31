@@ -16,6 +16,7 @@ const userRoutes = require("./routes/userRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const invitationRoutes = require("./routes/invitationRoutes");
+const teamRoutes = require("./routes/teamRoutes");
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/invitations", invitationRoutes);
+app.use("/api/teams", teamRoutes);
 
 // Test Route
 app.get("/", (req, res) => {

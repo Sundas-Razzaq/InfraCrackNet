@@ -4,12 +4,12 @@ const Project = require("../models/project");
 const { logActivity } = require("../services/activityLogService");
 const { notifySafely } = require("../services/invitationService");
 const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
+const { getTeamInspectors } = require("../services/projectService");
 const {
     countRunningAnalyses,
     getMemberImpact: buildMemberImpact,
 } = require("../services/teamImpactService");
 
-/* Recommended (NOT enforced) inspector range. Configurable via .env */
 const RECOMMENDED_MIN =
     Number(process.env.TEAM_RECOMMENDED_MIN_INSPECTORS) || 2;
 const RECOMMENDED_MAX =
@@ -810,6 +810,42 @@ const getMemberImpact = async (req, res, next) => {
         next(error);
     }
 };
+/* GET /api/teams/my  (Engineer, Inspector)
+   Always the caller's OWN team, taken from the logged-in user. */
+const getMyTeam = async (req, res, next) => {
+    try {
+        const empty = { success: true, data: null, inspectors: [], projects: null };
+
+        if (!req.user.team) return res.status(200).json(empty);
+
+        const team = await Team.findById(req.user.team)
+            .select("name description status engineerLead createdAt")
+            .populate("engineerLead", LEAD_FIELDS);
+
+        if (!team) return res.status(200).json(empty);
+
+        const [inspectors, grouped] = await Promise.all([
+            getTeamInspectors(team._id),
+            Project.aggregate([
+                { $match: { team: team._id } },
+                { $group: { _id: "$status", count: { $sum: 1 } } },
+            ]),
+        ]);
+
+        const projects = { total: 0, active: 0, onHold: 0, completed: 0 };
+
+        grouped.forEach(({ _id, count }) => {
+            projects.total += count;
+            if (_id === "Active") projects.active = count;
+            else if (_id === "On Hold") projects.onHold = count;
+            else if (_id === "Completed") projects.completed = count;
+        });
+
+        res.status(200).json({ success: true, data: team, inspectors, projects });
+    } catch (error) {
+        next(error);
+    }
+};
 module.exports = {
     createTeam,
     listTeams,
@@ -821,4 +857,5 @@ module.exports = {
     removeTeamMember,
     listAvailableMembers,
     getMemberImpact,
+    getMyTeam,
 };

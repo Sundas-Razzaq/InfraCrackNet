@@ -21,7 +21,7 @@ import Notifications from "./pages/dashboard/notifications";
 import ProjectsPage from "./pages/dashboard/projects/projectsPage";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
 import ProjectFormPage from "./pages/dashboard/projects/projectFormPage";
-// import TeamManagementPage from "./pages/dashboard/team/teamManagementPage";
+import TeamPage from "./pages/dashboard/team/teamPage";
 import InspectionsPage from "./pages/dashboard/inspection/InspectionPage";
 import DraftInspectionsPage from "./pages/dashboard/inspection/DraftInspectionsPage";
 import StartInspectionPage from "./pages/dashboard/inspection/StartInspectionPage";
@@ -149,15 +149,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* team management */}
-        {/* <Route
-            path="team"
-            element={
-              <ProtectedRoute allowedRoles={["Engineer"]}>
-                <TeamManagementPage />
-              </ProtectedRoute>
-            }
-          /> */}
+        {/* my team (read-only) */}
+        <Route
+          path="team"
+          element={
+            <ProtectedRoute allowedRoles={["Engineer"]}>
+              <TeamPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* inspection routes */}
         <Route
