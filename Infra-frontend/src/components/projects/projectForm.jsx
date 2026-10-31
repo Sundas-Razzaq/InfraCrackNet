@@ -1,14 +1,45 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useState } from "react";
 
-import { getInspectors } from "../../api/userApi";
-import { getApiErrorMessage } from "../../api/authApi";
+import { useRole } from "../../utils/useRole";
+import { useTeamOptions } from "../../utils/useTeamOptions";
 
-const ProjectForm = ({
-    mode = "create",
-    initialData = {},
-    onSubmit,
-}) => {
+const ASSIGNABLE_TEAMS = { status: "Active", hasLead: true };
+
+// Admin + create only. Separate component so the admin teams request is
+// never made for Engineers.
+const TeamField = ({ value, onChange, disabled }) => {
+    const { teams, loading } = useTeamOptions(ASSIGNABLE_TEAMS);
+
+    return (
+        <div className="form-group project-form-inspectors">
+            <label className="form-label">Assign Team (optional)</label>
+            <p className="form-hint">
+                Only one team can work on a project. Leave empty to create it as Unassigned and
+                assign a team later. Only active teams with an Engineer lead are listed.
+            </p>
+
+            <select
+                className="form-control form-select"
+                name="teamId"
+                value={value}
+                onChange={onChange}
+                disabled={disabled || loading}
+            >
+                <option value="">{loading ? "Loading teams..." : "Unassigned"}</option>
+                {teams.map((team) => (
+                    <option key={team._id} value={team._id}>
+                        {team.name} (Lead: {team.engineerLead?.name || "-"})
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
+const ProjectForm = ({ mode = "create", initialData = {}, onSubmit, onCancel }) => {
+    const { isAdmin } = useRole();
+    const isCreate = mode === "create";
+
     const [formData, setFormData] = useState({
         name: initialData.name || "",
         description: initialData.description || "",
@@ -16,112 +47,48 @@ const ProjectForm = ({
         location: initialData.location || "",
         priority: initialData.priority || "Medium",
         status: initialData.status || "Active",
-
-        assignedInspectors: (
-            initialData.assignedInspectors || []
-        ).map((inspector) =>
-            typeof inspector === "string"
-                ? inspector
-                : inspector._id
-        ),
+        teamId: "",
     });
-
     const [loading, setLoading] = useState(false);
 
-    //  inspector list state
-    const [inspectors, setInspectors] = useState([]);
-    const [inspectorsLoading, setInspectorsLoading] =
-        useState(true);
-
-    //  fetch inspectors on mount
-    useEffect(() => {
-        const fetchInspectors = async () => {
-            try {
-                const response = await getInspectors();
-                setInspectors(response.data || []);
-            } catch (error) {
-                toast.error(
-                    getApiErrorMessage(
-                        error,
-                        "Failed to load inspectors."
-                    )
-                );
-            } finally {
-                setInspectorsLoading(false);
-            }
-        };
-
-        fetchInspectors();
-    }, []);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // toggle one inspector in/out of the array
-    const handleInspectorToggle = (inspectorId) => {
-        setFormData((prev) => {
-            const alreadySelected =
-                prev.assignedInspectors.includes(inspectorId);
-
-            return {
-                ...prev,
-                assignedInspectors: alreadySelected
-                    ? prev.assignedInspectors.filter(
-                        (id) => id !== inspectorId
-                    )
-                    : [
-                        ...prev.assignedInspectors,
-                        inspectorId,
-                    ],
-            };
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (event) => {
+        event.preventDefault();
         if (loading) return;
 
-        //  enforce at least one inspector
-        if (formData.assignedInspectors.length === 0) {
-            toast.error(
-                "Please assign at least one inspector to the project."
-            );
-            return;
-        }
+        const payload = {
+            name: formData.name.trim(),
+            description: formData.description.trim(),
+            structureType: formData.structureType,
+            location: formData.location.trim(),
+            priority: formData.priority,
+            status: formData.status,
+        };
+
+        if (isAdmin && isCreate && formData.teamId) payload.teamId = formData.teamId;
+
+        setLoading(true);
 
         try {
-            setLoading(true);
-
-            if (onSubmit) {
-                await onSubmit(formData);
-            }
+            await onSubmit(payload);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <form
-            className="project-form"
-            onSubmit={handleSubmit}
-        >
+        <form className="project-form" onSubmit={handleSubmit}>
             <div className="project-form-grid">
-
                 <div className="form-group">
-                    <label className="form-label">
-                        Project Name
-                    </label>
+                    <label className="form-label">Project Name</label>
                     <input
                         className="form-control"
-                        type="text"
                         name="name"
+                        maxLength={100}
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter project name"
@@ -131,13 +98,12 @@ const ProjectForm = ({
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">
-                        Description
-                    </label>
+                    <label className="form-label">Description</label>
                     <textarea
                         className="form-control form-textarea"
                         name="description"
                         rows="5"
+                        maxLength={1000}
                         value={formData.description}
                         onChange={handleChange}
                         placeholder="Describe the project..."
@@ -147,9 +113,7 @@ const ProjectForm = ({
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">
-                        Structure Type
-                    </label>
+                    <label className="form-label">Structure Type</label>
                     <select
                         className="form-control form-select"
                         name="structureType"
@@ -158,9 +122,7 @@ const ProjectForm = ({
                         required
                         disabled={loading}
                     >
-                        <option value="">
-                            Select structure type
-                        </option>
+                        <option value="">Select structure type</option>
                         <option value="Bridge">Bridge</option>
                         <option value="Building">Building</option>
                         <option value="Road">Road</option>
@@ -168,13 +130,11 @@ const ProjectForm = ({
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">
-                        Location
-                    </label>
+                    <label className="form-label">Location</label>
                     <input
                         className="form-control"
-                        type="text"
                         name="location"
+                        maxLength={200}
                         value={formData.location}
                         onChange={handleChange}
                         placeholder="Enter location"
@@ -184,9 +144,7 @@ const ProjectForm = ({
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">
-                        Priority
-                    </label>
+                    <label className="form-label">Priority</label>
                     <select
                         className="form-control form-select"
                         name="priority"
@@ -202,9 +160,7 @@ const ProjectForm = ({
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">
-                        Status
-                    </label>
+                    <label className="form-label">Status</label>
                     <select
                         className="form-control form-select"
                         name="status"
@@ -217,80 +173,28 @@ const ProjectForm = ({
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
-
             </div>
 
-            {/*  Inspector picker */}
-            <div className="form-group project-form-inspectors">
-                <label className="form-label">
-                    Assign Inspectors
-                </label>
-
+            {isAdmin && isCreate ? (
+                <TeamField
+                    value={formData.teamId}
+                    onChange={handleChange}
+                    disabled={loading}
+                />
+            ) : (
                 <p className="form-hint">
-                    Select one or more inspectors who will work on
-                    this project. They will see the project in their
-                    dashboard and will be able to create inspections
-                    for it.
+                    {isAdmin
+                        ? "The assigned team is managed from the project details page."
+                        : "The assigned team is managed by an Admin."}
                 </p>
-
-                {inspectorsLoading ? (
-                    <p className="form-hint">Loading inspectors...</p>
-                ) : inspectors.length === 0 ? (
-                    <p className="form-hint">
-                        No inspectors available. An admin must create
-                        Inspector accounts first.
-                    </p>
-                ) : (
-                    <div className="inspector-picker">
-                        {inspectors.map((inspector) => {
-                            const isSelected =
-                                formData.assignedInspectors.includes(
-                                    inspector._id
-                                );
-
-                            return (
-                                <label
-                                    key={inspector._id}
-                                    className={`inspector-picker-item ${isSelected ? "is-selected" : ""
-                                        }`}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={isSelected}
-                                        onChange={() =>
-                                            handleInspectorToggle(
-                                                inspector._id
-                                            )
-                                        }
-                                        disabled={loading}
-                                    />
-
-                                    <div className="inspector-picker-info">
-                                        <span className="inspector-picker-name">
-                                            {inspector.name}
-                                        </span>
-                                        <span className="inspector-picker-email">
-                                            {inspector.email}
-                                        </span>
-                                    </div>
-                                </label>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+            )}
 
             <div className="project-form-actions">
-                <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading || inspectorsLoading}
-                >
-                    {loading
-                        ? "Saving..."
-                        : mode === "create"
-                            ? "Create Project"
-                            : "Update Project"}
+                <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={loading}>
+                    Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? "Saving..." : isCreate ? "Create Project" : "Save Changes"}
                 </button>
             </div>
         </form>

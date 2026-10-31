@@ -20,7 +20,7 @@ import Profile from "./pages/dashboard/profile";
 import Notifications from "./pages/dashboard/notifications";
 import ProjectsPage from "./pages/dashboard/projects/projectsPage";
 import ProjectDetailsPage from "./pages/dashboard/projects/projectDetails";
-import EditProjectPage from "./pages/dashboard/projects/editProject";
+import ProjectFormPage from "./pages/dashboard/projects/projectFormPage";
 // import TeamManagementPage from "./pages/dashboard/team/teamManagementPage";
 import InspectionsPage from "./pages/dashboard/inspection/InspectionPage";
 import DraftInspectionsPage from "./pages/dashboard/inspection/DraftInspectionsPage";
@@ -45,7 +45,6 @@ import UserManagementPage from "./pages/dashboard/admin/userManagement";
 import AdminTeamsPage from "./pages/dashboard/admin/adminTeams";
 import AdminTeamDetailsPage from "./pages/dashboard/admin/adminTeamDetails";
 import AdminProjectsPage from "./pages/dashboard/admin/adminProjects";
-import AdminProjectFormPage from "./pages/dashboard/admin/adminProjectForm";
 import AdminProjectDetailsPage from "./pages/dashboard/admin/adminProjectDetails";
 import AdminInspectionsPage from "./pages/dashboard/admin/adminInspections";
 import AdminInspectionDetailsPage from "./pages/dashboard/admin/adminInspectionDetails";
@@ -146,11 +145,10 @@ function App() {
           path="projects/:id/edit"
           element={
             <ProtectedRoute allowedRoles={["Engineer"]}>
-              <EditProjectPage />
+              <ProjectFormPage />
             </ProtectedRoute>
           }
         />
-
         {/* team management */}
         {/* <Route
             path="team"
@@ -332,9 +330,7 @@ function App() {
           <Route path="teams" element={<AdminTeamsPage />} />
           <Route path="teams/:id" element={<AdminTeamDetailsPage />} />
           <Route path="projects" element={<AdminProjectsPage />} />
-          <Route path="projects/new" element={<AdminProjectFormPage />} />
           <Route path="projects/:id" element={<AdminProjectDetailsPage />} />
-          <Route path="projects/:id/edit" element={<AdminProjectFormPage />} />
           <Route path="inspections" element={<AdminInspectionsPage />} />
           <Route path="inspections/:id" element={<AdminInspectionDetailsPage />} />
           <Route path="analyses" element={<AdminAnalysesPage />} />

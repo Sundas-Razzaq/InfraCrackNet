@@ -5,15 +5,25 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
-import AdminProjectForm from "../../../components/admin/projects/AdminProjectForm";
+import ProjectForm from "../../../components/projects/projectForm";
 
-import { createAdminProject, getAdminProject, updateAdminProject } from "../../../api/adminApi";
+import {
+    createAdminProject,
+    getAdminProject,
+    updateAdminProject,
+} from "../../../api/adminApi";
+import { getProjectById, updateProject } from "../../../api/projectApi";
 import { getApiErrorMessage } from "../../../api/authApi";
+import { useRole } from "../../../utils/useRole";
 
-const AdminProjectFormPage = () => {
+// One page for: Admin create, Admin edit, Engineer edit.
+const ProjectFormPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { isAdmin } = useRole();
     const isEdit = Boolean(id);
+
+    const basePath = isAdmin ? "/dashboard/admin/projects" : "/dashboard/projects";
 
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(isEdit);
@@ -25,7 +35,7 @@ const AdminProjectFormPage = () => {
 
         const run = async () => {
             try {
-                const res = await getAdminProject(id);
+                const res = await (isAdmin ? getAdminProject(id) : getProjectById(id));
                 if (!cancelled) setProject(res.data);
             } catch (err) {
                 if (!cancelled) toast.error(getApiErrorMessage(err, "Failed to load project."));
@@ -38,18 +48,20 @@ const AdminProjectFormPage = () => {
         return () => {
             cancelled = true;
         };
-    }, [id]);
+    }, [id, isAdmin]);
 
-    const backTo = isEdit ? `/dashboard/admin/projects/${id}` : "/dashboard/admin/projects";
+    const backTo = isEdit ? `${basePath}/${id}` : basePath;
 
     const handleSubmit = async (payload) => {
         try {
-            const res = isEdit
-                ? await updateAdminProject(id, payload)
-                : await createAdminProject(payload);
+            let res;
+
+            if (!isEdit) res = await createAdminProject(payload);
+            else if (isAdmin) res = await updateAdminProject(id, payload);
+            else res = await updateProject(id, payload);
 
             toast.success(res.message);
-            navigate(`/dashboard/admin/projects/${res.data._id}`);
+            navigate(`${basePath}/${res.data._id}`);
         } catch (err) {
             toast.error(getApiErrorMessage(err, "Failed to save project."));
         }
@@ -74,7 +86,7 @@ const AdminProjectFormPage = () => {
                 }
             />
 
-            <AdminProjectForm
+            <ProjectForm
                 mode={isEdit ? "edit" : "create"}
                 initialData={project || {}}
                 onSubmit={handleSubmit}
@@ -84,4 +96,4 @@ const AdminProjectFormPage = () => {
     );
 };
 
-export default AdminProjectFormPage;
+export default ProjectFormPage;
