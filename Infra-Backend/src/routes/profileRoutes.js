@@ -7,6 +7,7 @@ const {
     updateProfile,
     changePassword,
     uploadProfilePhoto,
+    getActivitySummary,
 } = require("../controllers/profileControllers");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -40,6 +41,12 @@ router.put(
     protect,
     upload.single("profileImage"),
     uploadProfilePhoto
+);
+
+router.get(
+    "/activity-summary",
+    protect,
+    getActivitySummary
 );
 
 module.exports = router;

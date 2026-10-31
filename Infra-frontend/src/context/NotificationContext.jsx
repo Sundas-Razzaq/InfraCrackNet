@@ -25,7 +25,7 @@ import {
     notificationsPath,
 } from "../utils/adminpath";
 
-const POLL_INTERVAL_MS = 15000;
+const POLL_INTERVAL_MS = 30000;
 
 const notificationIcons = {
     critical: faTriangleExclamation,
@@ -300,10 +300,18 @@ export function NotificationProvider({ children }) {
                 console.error("Poll error:", error.message);
             }
         };
+        // Poll only while the tab is visible, and right away when it comes back.
+        const pollIfVisible = () => {
+            if (document.visibilityState === "visible") poll();
+        };
 
-        const intervalId = setInterval(poll, POLL_INTERVAL_MS);
+        const intervalId = setInterval(pollIfVisible, POLL_INTERVAL_MS);
+        document.addEventListener("visibilitychange", pollIfVisible);
 
-        return () => clearInterval(intervalId);
+        return () => {
+            clearInterval(intervalId);
+            document.removeEventListener("visibilitychange", pollIfVisible);
+        };
     }, [isAuthenticated]);
 
     /*CONTEXT*/

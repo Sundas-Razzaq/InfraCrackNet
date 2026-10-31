@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 import { scaleIn } from "../../../utils/animation";
 
-function WidgetCard({ title, children, headerAction, onClick }) {
+function WidgetCard({ title, children, headerAction, onClick, hasError = false }) {
     return (
         <motion.div
             className={`widget-card ${onClick ? "clickable" : ""}`}
@@ -22,7 +22,13 @@ function WidgetCard({ title, children, headerAction, onClick }) {
             </div>
 
             <div className="widget-card-body">
-                {children}
+                {hasError ? (
+                    <p className="form-error">
+                        Could not load this section. Please refresh the page.
+                    </p>
+                ) : (
+                    children
+                )}
             </div>
         </motion.div>
     );

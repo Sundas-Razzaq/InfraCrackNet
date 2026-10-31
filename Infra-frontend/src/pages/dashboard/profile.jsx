@@ -10,6 +10,7 @@ import {
     updateProfile,
     changePassword,
     uploadProfilePhoto,
+    getActivitySummary,
 } from "../../api/profileApi";
 
 import { getApiErrorMessage } from "../../api/authApi";
@@ -43,6 +44,22 @@ function Profile() {
         useState(false);
 
     const [error, setError] = useState("");
+    const [activity, setActivity] = useState([]);
+
+    // Non-critical: if it fails the card is simply hidden.
+    useEffect(() => {
+        let cancelled = false;
+
+        getActivitySummary()
+            .then((res) => {
+                if (!cancelled) setActivity(res.data?.items || []);
+            })
+            .catch(() => { });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -322,31 +339,25 @@ function Profile() {
                         </button>
                     </div>
 
-                    <div className="profile-page-divider"></div>
+                    {activity.length > 0 && (
+                        <>
+                            <div className="profile-page-divider"></div>
 
-                    <div className="profile-page-activity">
-                        <h3>Activity Summary</h3>
+                            <div className="profile-page-activity">
+                                <h3>Activity Summary</h3>
 
-                        <div className="profile-page-activity-item">
-                            <span>Reports Generated</span>
-                            <strong>18</strong>
-                        </div>
-
-                        <div className="profile-page-activity-item">
-                            <span>Inspections Reviewed</span>
-                            <strong>47</strong>
-                        </div>
-
-                        <div className="profile-page-activity-item">
-                            <span>Projects Assigned</span>
-                            <strong>5</strong>
-                        </div>
-
-                        <div className="profile-page-activity-item">
-                            <span>Last Active</span>
-                            <strong>Today</strong>
-                        </div>
-                    </div>
+                                {activity.map((item) => (
+                                    <div
+                                        key={item.label}
+                                        className="profile-page-activity-item"
+                                    >
+                                        <span>{item.label}</span>
+                                        <strong>{item.value}</strong>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </motion.aside>
 
                 <motion.section

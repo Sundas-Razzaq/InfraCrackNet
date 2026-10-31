@@ -5,6 +5,11 @@ export const getProfile = async () => {
     return data;
 };
 
+export const getActivitySummary = async () => {
+    const { data } = await authApi.get("/profile/activity-summary");
+    return data;
+};
+
 export const updateProfile = async (payload) => {
     const { data } = await authApi.put("/profile", payload);
     return data;

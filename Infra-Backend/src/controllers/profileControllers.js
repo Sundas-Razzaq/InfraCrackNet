@@ -9,7 +9,12 @@ const {
     uploadImage,
     deleteImage,
 } = require("../services/cloudinaryService");
-
+const Project = require("../models/project");
+const Inspection = require("../models/inspection");
+const InspectionImage = require("../models/inspectionImage");
+const AIAnalysis = require("../models/AIAnalysis");
+const Report = require("../models/report");
+const { getProjectScope } = require("../utils/projectAccess");
 /*Get logged-in user's profile*/
 const getProfile = async (req, res) => {
     try {
@@ -203,10 +208,54 @@ const uploadProfilePhoto = async (req, res) => {
         });
     }
 };
+/*Real activity numbers for the logged-in user (profile sidebar).
+  Admin has no personal activity, so the list is empty.*/
+const getActivitySummary = async (req, res) => {
+    try {
+        const { id, role } = req.user;
+        let items = [];
 
+        if (role === "Engineer") {
+            const [reports, validated, projects] = await Promise.all([
+                Report.countDocuments({ generatedBy: id }),
+                AIAnalysis.countDocuments({ validatedBy: id }),
+                Project.countDocuments(getProjectScope(req.user)),
+            ]);
+
+            items = [
+                { label: "Reports Generated", value: reports },
+                { label: "Analyses Validated", value: validated },
+                { label: "Team Projects", value: projects },
+            ];
+        } else if (role === "Inspector") {
+            const [inspections, images, projects] = await Promise.all([
+                Inspection.countDocuments({ createdBy: id }),
+                InspectionImage.countDocuments({ uploadedBy: id }),
+                Project.countDocuments(getProjectScope(req.user)),
+            ]);
+
+            items = [
+                { label: "Inspections Created", value: inspections },
+                { label: "Images Uploaded", value: images },
+                { label: "Team Projects", value: projects },
+            ];
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: { items },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server error",
+            error: error.message,
+        });
+    }
+};
 module.exports = {
     getProfile,
     updateProfile,
     changePassword,
     uploadProfilePhoto,
+    getActivitySummary,
 };
