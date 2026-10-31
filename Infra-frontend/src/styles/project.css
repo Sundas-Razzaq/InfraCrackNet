@@ -7,49 +7,6 @@
     width: 100%;
 }
 
-/*PAGE HEADER*/
-
-.projects-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.projects-header-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-.projects-title {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-}
-
-.projects-subtitle {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.projects-header-actions {
-    display: flex;
-    align-items: center;
-}
-
-.project-btn-icon {
-    font-size: 1rem;
-    margin-right: 0.55rem;
-}
-.projects-header .btn {
-    padding: 0.9rem 1.5rem;
-    gap: 0.6rem;
-}
 /*LOADING*/
 
 .projects-loading {
@@ -100,12 +57,6 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 1rem;
-}
-
-.project-card-title-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
 }
 
 .project-card-title,
@@ -167,11 +118,6 @@
     display: flex;
     align-items: center;
     gap: .45rem;
-}
-
-.project-location-icon {
-    color: var(--color-primary);
-    font-size: .9rem;
 }
 
 /*STATUS BADGES*/
@@ -384,133 +330,11 @@
     margin-top: 2rem;
 }
 
-/*PROJECT DETAILS*/
-
-.project-inspectors-card {
-    margin-top: 1.5rem;
-    padding: 1.25rem 1.5rem;
-}
-
-.project-inspectors-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.75rem;
-}
-
-.project-inspectors-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.project-inspector-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-}
-
-.project-inspector-info {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.25;
-}
-
-.project-inspector-name {
-    font-weight: 500;
-    color: #1f2937;
-}
-
-.project-inspector-email {
-    font-size: 0.8rem;
-    color: #6b7280;
-}
-.project-details {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.project-details-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.project-details-title {
-    display: flex;
-    flex-direction: column;
-    gap: .4rem;
-}
-
 .project-name {
     margin: 0;
     color: var(--color-text-primary);
     font-size: 2rem;
     font-weight: 700;
-}
-
-.project-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.project-details-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--radius-card);
-    padding: 2rem;
-    box-shadow: var(--shadow-sm);
-}
-
-.project-details-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem 2rem;
-}
-
-.project-detail {
-    display: flex;
-    flex-direction: column;
-    gap: .55rem;
-}
-
-.project-detail label {
-    font-size: .82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--color-text-secondary);
-}
-
-.project-detail p {
-    margin: 0;
-    color: var(--color-text-primary);
-    line-height: 1.7;
-}
-
-.project-meta {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-}
-
-.detail-icon {
-    color: var(--color-primary);
-    width: 18px;
-}
-
-.project-details-empty {
-    padding: 4rem;
-    text-align: center;
-    color: var(--color-text-secondary);
 }
 
 .project-form-inspectors {
@@ -523,79 +347,7 @@
     margin-bottom: 0.75rem;
 }
 
-.inspector-picker {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-height: 260px;
-    overflow-y: auto;
-    padding: 0.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    background: #fff;
-}
-
-.inspector-picker-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #fff;
-    transition: background 0.15s, border-color 0.15s;
-    width: 100%;
-    box-sizing: border-box;
-}
-
 /* Custom scrollbar — optional but looks cleaner */
-.inspector-picker::-webkit-scrollbar {
-    width: 8px;
-}
-
-.inspector-picker::-webkit-scrollbar-track {
-    background: #f3f4f6;
-    border-radius: 4px;
-}
-
-.inspector-picker::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
-
-.inspector-picker::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-.inspector-picker-item:hover {
-    background: #f9fafb;
-}
-
-.inspector-picker-item.is-selected {
-    border-color: #1e3a8a;
-    background: #eff6ff;
-}
-
-.inspector-picker-info {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.25;
-    min-width: 0;  
-}
-
-.inspector-picker-name {
-    font-weight: 500;
-    color: #1f2937;
-}
-
-.inspector-picker-email {
-    font-size: 0.8rem;
-    color: #6b7280;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 
 /*DELETE MODAL*/
 
@@ -680,8 +432,7 @@
 
 @media (max-width:992px){
 
-    .project-form-grid,
-    .project-details-grid{
+    .project-form-grid{
         grid-template-columns:1fr;
     }
 
@@ -693,33 +444,6 @@
 
 @media (max-width:768px){
 
-    .projects-header{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .projects-header-actions{
-        width:100%;
-    }
-
-    .projects-header-actions .btn{
-        width:100%;
-        justify-content:center;
-    }
-
-    .project-details-header{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .project-actions{
-        width:100%;
-    }
-
-    .project-actions .btn{
-        flex:1;
-    }
-
     .project-card-footer{
         flex-direction:column;
         align-items:flex-start;
@@ -730,10 +454,6 @@
 
 @media (max-width:576px){
 
-    .projects-title{
-        font-size:1.6rem;
-    }
-
     .project-name{
         font-size:1.5rem;
     }
@@ -743,7 +463,6 @@
     }
 
     .project-form,
-    .project-details-card,
     .delete-modal,
     .empty-projects-content{
         padding:1.5rem;
