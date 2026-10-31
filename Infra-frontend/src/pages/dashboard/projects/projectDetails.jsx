@@ -12,21 +12,31 @@ const ProjectDetailsPage = () => {
     const navigate = useNavigate();
 
     const [project, setProject] = useState(null);
+    const [teamInspectors, setTeamInspectors] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProject = async () => {
+        let cancelled = false;
+
+        const run = async () => {
             try {
                 const response = await getProjectById(id);
+                if (cancelled) return;
                 setProject(response.data);
+                setTeamInspectors(response.teamInspectors || []);
             } catch (error) {
-                toast.error(getApiErrorMessage(error, "Failed to load project."));
+                if (!cancelled) {
+                    toast.error(getApiErrorMessage(error, "Failed to load project."));
+                }
             } finally {
-                setLoading(false);
+                if (!cancelled) setLoading(false);
             }
         };
 
-        fetchProject();
+        run();
+        return () => {
+            cancelled = true;
+        };
     }, [id]);
 
     const handleStartInspection = () => {
@@ -35,17 +45,13 @@ const ProjectDetailsPage = () => {
         });
     };
 
-    if (loading) {
-        return <div className="page-loading">Loading project...</div>;
-    }
-
-    if (!project) {
-        return <div className="page-loading">Project not found.</div>;
-    }
+    if (loading) return <div className="page-loading">Loading project...</div>;
+    if (!project) return <div className="page-loading">Project not found.</div>;
 
     return (
         <ProjectDetails
             project={project}
+            teamInspectors={teamInspectors}
             onStartInspection={handleStartInspection}
         />
     );

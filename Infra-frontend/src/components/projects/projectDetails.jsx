@@ -1,42 +1,41 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faLocationDot,
-    faCalendarDays,
-    faUserTie,
-    faPlay,
-    faPen,
-    faCubes,
     faChevronLeft,
+    faCubes,
+    faLocationDot,
+    faPen,
+    faPlay,
+    faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
-import { useRole } from "../../utils/useRole";
+
 import { Button, Card, Chip, Fact, Row } from "../dashboard/shared/DetailsKit";
+import Person from "../admin/Person";
+import StatusChip from "../admin/StatusChip";
 
-const initialsOf = (name = "") =>
-    name
-        .split(" ")
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0].toUpperCase())
-        .join("") || "?";
+import { useRole } from "../../utils/useRole";
+import { formatDate } from "../../utils/adminFormat";
 
-const ProjectDetails = ({ project, onStartInspection }) => {
+/*Shared project details for all roles. */
+const ProjectDetails = ({
+    project,
+    teamInspectors = [],
+    footprint = null,
+    onStartInspection,
+    onAssign,
+    onUnassign,
+    onDelete,
+}) => {
     const navigate = useNavigate();
-    const { isEngineer, isInspector } = useRole();
+    const { isAdmin, isEngineer, isInspector } = useRole();
 
-    if (!project) {
-        return (
-            <div className="project-details-empty">
-                Project not found.
-            </div>
-        );
-    }
-
-    const inspectors = project.assignedInspectors || [];
+    const basePath = isAdmin ? "/dashboard/admin/projects" : "/dashboard/projects";
+    const team = project.team;
+    const lead = team?.engineerLead;
 
     return (
         <div className="dtl">
-            <Link to="/dashboard/projects" className="dtl-back">
+            <Link to={basePath} className="dtl-back">
                 <FontAwesomeIcon icon={faChevronLeft} />
                 All projects
             </Link>
@@ -47,35 +46,31 @@ const ProjectDetails = ({ project, onStartInspection }) => {
 
                     <div className="dtl-heading-meta">
                         <span className="dtl-code">{project.projectCode}</span>
-                        <Chip>{project.status}</Chip>
-                        <Chip>{project.priority}</Chip>
+                        <StatusChip value={project.status} />
+                        <StatusChip value={project.priority} />
                     </div>
                 </div>
 
                 <div className="dtl-toolbar">
-                    {/* Start Inspection is Inspector-only */}
                     {isInspector && (
-                        <Button
-                            variant="primary"
-                            icon={faPlay}
-                            onClick={onStartInspection}
-                        >
+                        <Button variant="primary" icon={faPlay} onClick={onStartInspection}>
                             Start Inspection
                         </Button>
                     )}
 
-                    {/* Edit Project is Engineer-only */}
-                    {isEngineer && (
-                        <Button
-                            icon={faPen}
-                            onClick={() =>
-                                navigate(
-                                    `/dashboard/projects/${project._id}/edit`
-                                )
-                            }
-                        >
+                    {(isAdmin || isEngineer) && (
+                        <Button icon={faPen} onClick={() => navigate(`${basePath}/${project._id}/edit`)}>
                             Edit Project
                         </Button>
+                    )}
+
+                    {isAdmin && (
+                        <>
+                            <span className="dtl-toolbar-sep" aria-hidden="true" />
+                            <Button variant="danger" icon={faTrashCan} onClick={onDelete}>
+                                Delete Project
+                            </Button>
+                        </>
                     )}
                 </div>
             </header>
@@ -83,72 +78,119 @@ const ProjectDetails = ({ project, onStartInspection }) => {
             <div className="dtl-layout">
                 <div className="dtl-main">
                     <Card title="Overview">
-                        <p className="dtl-prose">
+                        <p className={`dtl-prose ${project.description ? "" : "dtl-prose--empty"}`}>
                             {project.description || "No description added."}
                         </p>
 
                         <dl className="dtl-facts dtl-facts--2">
-                            <Fact label="Structure type" icon={faCubes}>
-                                {project.structureType}
-                            </Fact>
-
-                            <Fact label="Location" icon={faLocationDot}>
-                                {project.location}
-                            </Fact>
+                            <Fact label="Structure type" icon={faCubes}>{project.structureType}</Fact>
+                            <Fact label="Location" icon={faLocationDot}>{project.location}</Fact>
                         </dl>
                     </Card>
 
-                    {/* Inspectors section */}
-                    {inspectors.length > 0 && (
-                        <Card title="Assigned inspectors">
-                            <ul className="dtl-people">
-                                {inspectors.map((inspector) => (
-                                    <li
-                                        key={
-                                            typeof inspector === "string"
-                                                ? inspector
-                                                : inspector._id
-                                        }
-                                        className="dtl-person"
-                                    >
-                                        <span
-                                            className="dtl-avatar"
-                                            aria-hidden="true"
-                                        >
-                                            {initialsOf(inspector.name)}
-                                        </span>
+                    <Card title="Assigned team">
+                        {team ? (
+                            <dl className="dtl-rows">
+                                <Row label="Team">
+                                    {isAdmin ? (
+                                        <Link to={`/dashboard/admin/teams/${team._id}`} className="dtl-link">
+                                            {team.name}
+                                        </Link>
+                                    ) : (
+                                        team.name
+                                    )}
+                                </Row>
+                                {isAdmin && (
+                                    <Row label="Team status"><StatusChip value={team.status} /></Row>
+                                )}
+                                <Row label="Assigned on">{formatDate(project.assignedAt)}</Row>
+                                {isAdmin && <Row label="Assigned by">{project.assignedBy?.name}</Row>}
+                            </dl>
+                        ) : (
+                            <>
+                                <Chip tone="warning">Unassigned</Chip>
+                                <p className="dtl-prose dtl-prose--empty">
+                                    This project is outside the team workflow. Engineers and Inspectors cannot
+                                    see it until a team is assigned.
+                                </p>
+                            </>
+                        )}
 
-                                        <span className="dtl-person-info">
-                                            <span className="dtl-person-name">
-                                                {inspector.name ||
-                                                    "Unknown inspector"}
-                                            </span>
+                        {isAdmin && (
+                            <div className="adm-card-actions">
+                                <Button variant="primary" onClick={onAssign}>
+                                    {team ? "Reassign team" : "Assign team"}
+                                </Button>
 
-                                            {inspector.email && (
-                                                <span className="dtl-person-sub">
-                                                    {inspector.email}
-                                                </span>
-                                            )}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </Card>
+                                {team && (
+                                    <Button variant="secondary" onClick={onUnassign}>
+                                        Unassign
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+                    </Card>
+
+                    {team && (
+                        <>
+                            <Card title="Engineer lead">
+                                {lead ? (
+                                    <ul className="dtl-people">
+                                        <Person name={lead.name} sub={lead.email} />
+                                    </ul>
+                                ) : (
+                                    <p className="dtl-prose dtl-prose--empty">No lead assigned.</p>
+                                )}
+                            </Card>
+
+                            <Card title={`Inspectors (${teamInspectors.length})`}>
+                                {teamInspectors.length === 0 ? (
+                                    <p className="dtl-prose dtl-prose--empty">
+                                        No active inspectors in this team.
+                                    </p>
+                                ) : (
+                                    <ul className="dtl-people">
+                                        {teamInspectors.map((inspector) => (
+                                            <Person
+                                                key={inspector._id}
+                                                name={inspector.name}
+                                                sub={inspector.email}
+                                            />
+                                        ))}
+                                    </ul>
+                                )}
+                            </Card>
+                        </>
                     )}
                 </div>
 
                 <aside className="dtl-side">
+                    {footprint && (
+                        <Card title="Progress">
+                            <dl className="dtl-rows">
+                                <Row label="Inspections">{String(footprint.inspections)}</Row>
+                                <Row label="Images / media">{String(footprint.images)}</Row>
+                                <Row label="AI analyses">{String(footprint.analyses)}</Row>
+                                <Row label="Reports">{String(footprint.reports)}</Row>
+                            </dl>
+                        </Card>
+                    )}
+
                     <Card title="Project record">
                         <dl className="dtl-rows">
-                            <Row label="Created by" icon={faUserTie}>
-                                {project.createdBy?.name}
-                            </Row>
-                            <Row label="Created on" icon={faCalendarDays}>
-                                {new Date(
-                                    project.createdAt
-                                ).toLocaleDateString()}
-                            </Row>
+                            <Row label="Created by">{project.createdBy?.name}</Row>
+                            <Row label="Created on">{formatDate(project.createdAt)}</Row>
+                            <Row label="Last updated">{formatDate(project.updatedAt)}</Row>
                         </dl>
+
+                        {isAdmin && (
+                            <Link
+                                to={`/dashboard/admin/activity-log?targetType=Project&targetId=${project._id}`}
+                                className="dtl-link"
+                            >
+                                View activity
+                            </Link>
+                        )}
                     </Card>
                 </aside>
             </div>

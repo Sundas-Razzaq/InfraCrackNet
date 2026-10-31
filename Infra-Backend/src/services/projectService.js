@@ -44,6 +44,20 @@ const getAssignableTeam = async (teamId) => {
     return { team };
 };
 
+/* Active Inspectors of a team (for project details). */
+const getTeamInspectors = async (teamId) => {
+    if (!teamId) return [];
+
+    return User.find({
+        team: teamId,
+        role: "Inspector",
+        isActive: { $ne: false },
+    })
+        .select("name email")
+        .sort({ name: 1 })
+        .lean();
+};
+
 const getProjectInspectionIds = async (projectId) => {
     const inspections = await Inspection.find({ project: projectId })
         .select("_id")
@@ -163,6 +177,7 @@ const deleteProjectCascade = async (project) => {
 
 module.exports = {
     getAssignableTeam,
+    getTeamInspectors,
     hasRunningAnalysis,
     getProjectFootprint,
     notifyTeamMembers,

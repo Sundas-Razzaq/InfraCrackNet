@@ -1,18 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faChevronLeft,
-    faCubes,
-    faLocationDot,
-    faPen,
-    faTrashCan,
-} from "@fortawesome/free-solid-svg-icons";
 
-import { Button, Card, Chip, Fact, Row } from "../../../components/dashboard/shared/DetailsKit";
+import ProjectDetails from "../../../components/projects/projectDetails";
 import ConfirmModal from "../../../components/admin/ConfirmModal";
-import StatusChip from "../../../components/admin/StatusChip";
 import AssignTeamModal from "../../../components/admin/projects/AssignTeamModal";
 
 import {
@@ -21,7 +12,6 @@ import {
     unassignProjectTeam,
 } from "../../../api/adminApi";
 import { getApiErrorMessage } from "../../../api/authApi";
-import { formatDate } from "../../../utils/adminFormat";
 
 const AdminProjectDetailsPage = () => {
     const { id } = useParams();
@@ -29,6 +19,7 @@ const AdminProjectDetailsPage = () => {
 
     const [project, setProject] = useState(null);
     const [footprint, setFootprint] = useState(null);
+    const [teamInspectors, setTeamInspectors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [reloadKey, setReloadKey] = useState(0);
@@ -46,6 +37,7 @@ const AdminProjectDetailsPage = () => {
                 if (cancelled) return;
                 setProject(res.data);
                 setFootprint(res.footprint || null);
+                setTeamInspectors(res.teamInspectors || []);
                 setError("");
             } catch (err) {
                 if (!cancelled) setError(getApiErrorMessage(err, "Failed to load project."));
@@ -102,116 +94,16 @@ const AdminProjectDetailsPage = () => {
     if (loading) return <div className="page-loading">Loading project...</div>;
     if (error || !project) return <div className="page-loading">{error || "Project not found."}</div>;
 
-    const team = project.team;
-
     return (
-        <div className="dtl">
-            <Link to="/dashboard/admin/projects" className="dtl-back">
-                <FontAwesomeIcon icon={faChevronLeft} />
-                All projects
-            </Link>
-
-            <header className="dtl-header">
-                <div className="dtl-heading">
-                    <h1 className="dtl-title">{project.name}</h1>
-
-                    <div className="dtl-heading-meta">
-                        <span className="dtl-code">{project.projectCode}</span>
-                        <StatusChip value={project.status} />
-                        <StatusChip value={project.priority} />
-                    </div>
-                </div>
-
-                <div className="dtl-toolbar">
-                    <Button icon={faPen} onClick={() => navigate(`/dashboard/admin/projects/${project._id}/edit`)}>
-                        Edit Project
-                    </Button>
-
-                    <span className="dtl-toolbar-sep" aria-hidden="true" />
-
-                    <Button variant="danger" icon={faTrashCan} onClick={() => setModal("delete")}>
-                        Delete Project
-                    </Button>
-                </div>
-            </header>
-
-            <div className="dtl-layout">
-                <div className="dtl-main">
-                    <Card title="Overview">
-                        <p className={`dtl-prose ${project.description ? "" : "dtl-prose--empty"}`}>
-                            {project.description || "No description added."}
-                        </p>
-
-                        <dl className="dtl-facts dtl-facts--2">
-                            <Fact label="Structure type" icon={faCubes}>{project.structureType}</Fact>
-                            <Fact label="Location" icon={faLocationDot}>{project.location}</Fact>
-                        </dl>
-                    </Card>
-
-                    <Card title="Assigned team">
-                        {team ? (
-                            <dl className="dtl-rows">
-                                <Row label="Team">
-                                    <Link to={`/dashboard/admin/teams/${team._id}`} className="dtl-link">
-                                        {team.name}
-                                    </Link>
-                                </Row>
-                                <Row label="Team status"><StatusChip value={team.status} /></Row>
-                                <Row label="Engineer lead">{team.engineerLead?.name}</Row>
-                                <Row label="Assigned on">{formatDate(project.assignedAt)}</Row>
-                                <Row label="Assigned by">{project.assignedBy?.name}</Row>
-                            </dl>
-                        ) : (
-                            <>
-                                <Chip tone="warning">Unassigned</Chip>
-                                <p className="dtl-prose dtl-prose--empty">
-                                    This project is outside the team workflow. Engineers and Inspectors cannot
-                                    see it until a team is assigned.
-                                </p>
-                            </>
-                        )}
-
-                        <div className="adm-card-actions">
-                            <Button variant="primary" onClick={() => setModal("assign")}>
-                                {team ? "Reassign team" : "Assign team"}
-                            </Button>
-
-                            {team && (
-                                <Button variant="secondary" onClick={() => setModal("unassign")}>
-                                    Unassign
-                                </Button>
-                            )}
-                        </div>
-                    </Card>
-                </div>
-
-                <aside className="dtl-side">
-                    {footprint && (
-                        <Card title="Progress">
-                            <dl className="dtl-rows">
-                                <Row label="Inspections">{String(footprint.inspections)}</Row>
-                                <Row label="Images / media">{String(footprint.images)}</Row>
-                                <Row label="AI analyses">{String(footprint.analyses)}</Row>
-                                <Row label="Reports">{String(footprint.reports)}</Row>
-                            </dl>
-                        </Card>
-                    )}
-
-                    <Card title="Project record">
-                        <dl className="dtl-rows">
-                            <Row label="Created by">{project.createdBy?.name}</Row>
-                            <Row label="Created on">{formatDate(project.createdAt)}</Row>
-                            <Row label="Last updated">{formatDate(project.updatedAt)}</Row>
-                        </dl>
-                        <Link
-                            to={`/dashboard/admin/activity-log?targetType=Project&targetId=${project._id}`}
-                            className="dtl-link"
-                        >
-                            View activity
-                        </Link>
-                    </Card>
-                </aside>
-            </div>
+        <>
+            <ProjectDetails
+                project={project}
+                teamInspectors={teamInspectors}
+                footprint={footprint}
+                onAssign={() => setModal("assign")}
+                onUnassign={() => setModal("unassign")}
+                onDelete={() => setModal("delete")}
+            />
 
             {modal === "assign" && (
                 <AssignTeamModal
@@ -227,7 +119,7 @@ const AdminProjectDetailsPage = () => {
             <ConfirmModal
                 isOpen={modal === "unassign"}
                 title="Unassign this project?"
-                description={`${project.name} will no longer be visible to ${team?.name || "the team"}.`}
+                description={`${project.name} will no longer be visible to ${project.team?.name || "the team"}.`}
                 warning="Blocked while an analysis is running."
                 confirmText="Unassign"
                 loading={busy}
@@ -251,7 +143,7 @@ const AdminProjectDetailsPage = () => {
                 onClose={() => setModal(null)}
                 onConfirm={handleDelete}
             />
-        </div>
+        </>
     );
 };
 

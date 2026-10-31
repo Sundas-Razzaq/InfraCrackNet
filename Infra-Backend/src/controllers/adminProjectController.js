@@ -5,6 +5,7 @@ const generateProjectCode = require("../utils/projectCodeGenerator");
 const { logActivity } = require("../services/activityLogService");
 const {
     getAssignableTeam,
+    getTeamInspectors,
     hasRunningAnalysis,
     getProjectFootprint,
     notifyTeamMembers,
@@ -209,12 +210,16 @@ const getAdminProject = async (req, res, next) => {
 
         if (!project) return notFound(res);
 
-        const footprint = await getProjectFootprint(project._id);
+        const [footprint, teamInspectors] = await Promise.all([
+            getProjectFootprint(project._id),
+            getTeamInspectors(project.team?._id),
+        ]);
 
         res.status(200).json({
             success: true,
             data: project,
             footprint,
+            teamInspectors,
         });
     } catch (error) {
         next(error);

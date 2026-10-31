@@ -104,8 +104,7 @@ const ProjectCard = ({ project }) => {
             <div className="project-card-footer">
 
                 <small className="project-author">
-                    Created by{" "}
-                    {project.createdBy?.name || "Unknown"}
+                    Team: {project.team?.name || "Unassigned"}
                 </small>
 
                 <small className="project-date">

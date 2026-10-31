@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Project = require("../models/project");
 const { getProjectScope } = require("../utils/projectAccess");
+const { getTeamInspectors } = require("../services/projectService");
 const { logActivity } = require("../services/activityLogService");
 const { ACTIVITY_ACTIONS } = require("../utils/activityActions");
 
@@ -52,8 +53,8 @@ const getProjectById = async (req, res, next) => {
                 message: "Project not found.",
             });
         }
-
-        res.status(200).json({ success: true, data: project });
+        const teamInspectors = await getTeamInspectors(project.team?._id);
+        res.status(200).json({ success: true, data: project, teamInspectors });
     } catch (error) {
         next(error);
     }
