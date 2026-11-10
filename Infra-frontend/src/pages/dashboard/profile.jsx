@@ -3,7 +3,7 @@ import { useAuth } from "../../context/useAuth";
 import PasswordInput from "../../components/common/PasswordInput";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import { pageTransition, slideLeft, slideRight } from "../../utils/animation";
+import { pageTransition } from "../../utils/animation";
 
 import {
     getProfile,
@@ -236,6 +236,13 @@ function Profile() {
         });
     };
 
+    const initials = formData.name
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
     return (
         <motion.div
             className="profile-page"
@@ -274,120 +281,121 @@ function Profile() {
                 </p>
             )}
 
-            <div className="profile-page-content">
-                <motion.aside
-                    className="profile-page-sidebar card"
-                    variants={slideLeft}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: 0.15 }}>
-                    <div className="profile-page-avatar-wrapper">
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={handlePhotoUpload}
-                            disabled={saving}
-                        />
-                        <motion.div className="profile-page-avatar"
-                            initial={{ scale: 0.85, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{
-                                duration: 0.35,
-                                delay: 0.25,
-                            }}>
+            {/* IDENTITY + ACTIVITY (full width) */}
+            <motion.section
+                className="profile-page-hero card"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}>
+                <div
+                    className="profile-page-banner"
+                    aria-hidden="true"
+                />
 
-                            {formData.profileImage ? (
-                                <img
-                                    src={formData.profileImage}
-                                    alt={formData.name}
-                                    className="profile-page-avatar-image"
-                                />
-                            ) : (
-                                formData.name
-                                    .split(" ")
-                                    .map((word) => word[0])
-                                    .join("")
-                                    .slice(0, 2)
-                                    .toUpperCase()
-                            )}
+                <div className="profile-page-identity">
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={handlePhotoUpload}
+                        disabled={saving}
+                    />
 
-                        </motion.div>
+                    <motion.div
+                        className="profile-page-avatar"
+                        initial={{ scale: 0.85, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                            duration: 0.35,
+                            delay: 0.25,
+                        }}>
+                        {formData.profileImage ? (
+                            <img
+                                src={formData.profileImage}
+                                alt={formData.name}
+                                className="profile-page-avatar-image"
+                            />
+                        ) : (
+                            initials
+                        )}
+                    </motion.div>
 
+                    <div className="profile-page-identity-text">
                         <h2 className="profile-page-name">
                             {formData.name}
                         </h2>
 
-                        <span className="profile-page-role badge badge-info">
-                            {formData.role}
-                        </span>
+                        <div className="profile-page-identity-meta">
+                            <span className="profile-page-role badge badge-info">
+                                {formData.role}
+                            </span>
 
-                        <p className="profile-page-member-since">
-                            Member since {formatMemberSince(formData.createdAt)}
-                        </p>
-
-                        <button
-                            className="btn-secondary profile-page-photo-btn"
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploadingPhoto}
-                        >
-                            {uploadingPhoto
-                                ? "Uploading..."
-                                : "Change Photo"}
-                        </button>
+                            <span className="profile-page-member-since">
+                                Member since{" "}
+                                {formatMemberSince(formData.createdAt)}
+                            </span>
+                        </div>
                     </div>
 
-                    {activity.length > 0 && (
-                        <>
-                            <div className="profile-page-divider"></div>
-
-                            <div className="profile-page-activity">
-                                <h3>Activity Summary</h3>
-
-                                {activity.map((item) => (
-                                    <div
-                                        key={item.label}
-                                        className="profile-page-activity-item"
-                                    >
-                                        <span>{item.label}</span>
-                                        <strong>{item.value}</strong>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </motion.aside>
-
-                <motion.section
-                    className="profile-page-form card"
-                    variants={slideRight}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: 0.2 }}>
-                    <div className="card-header">
-                        <h2 className="card-title">
-                            Personal Information
-                        </h2>
-                    </div>
-
-                    <form
-                        id="profileForm"
-                        onSubmit={handleSubmit}
+                    <button
+                        className="btn-secondary profile-page-photo-btn"
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingPhoto}
                     >
-                        <div className="profile-page-grid">
-                            <div className="form-group">
-                                <label>Name</label>
+                        {uploadingPhoto
+                            ? "Uploading..."
+                            : "Change Photo"}
+                    </button>
+                </div>
 
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    disabled={saving}
-                                />
-                            </div>
+                {activity.length > 0 && (
+                    <>
+                        <hr className="profile-page-divider" />
+
+                        <div className="profile-page-stats">
+                            {activity.map((item) => (
+                                <div
+                                    key={item.label}
+                                    className="profile-page-stat"
+                                >
+                                    <strong>{item.value}</strong>
+                                    <span>{item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </motion.section>
+
+            {/* PERSONAL INFORMATION */}
+            <motion.section
+                className="profile-page-form card"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}>
+                <div className="card-header">
+                    <h2 className="card-title">
+                        Personal Information
+                    </h2>
+                </div>
+
+                <form
+                    id="profileForm"
+                    onSubmit={handleSubmit}
+                >
+                    <div className="profile-page-grid">
+                        <div className="form-group">
+                            <label>Name</label>
+
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                disabled={saving}
+                            />
                         </div>
 
                         <div className="form-group">
@@ -427,35 +435,57 @@ function Profile() {
                         </div>
 
                         <div className="form-group">
+                            <label>Position</label>
+
+                            <input
+                                type="text"
+                                name="position"
+                                value={formData.position}
+                                onChange={handleChange}
+                                disabled={saving}
+                            />
+                        </div>
+
+                        <div className="form-group">
                             <label>Role</label>
 
                             <input
                                 type="text"
                                 value={formData.role}
-                                disabled={saving} />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Bio</label>
-
-                            <textarea
-                                name="bio"
-                                value={formData.bio}
-                                onChange={handleChange}
-                                rows="5"
+                                readOnly
+                                disabled
                             />
                         </div>
-                    </form>
-
-                    <hr className="profile-page-divider" />
-
-                    <div className="card-header">
-                        <h2 className="card-title">
-                            Change Password
-                        </h2>
                     </div>
 
-                    <form onSubmit={handlePasswordSubmit}>
+                    <div className="form-group">
+                        <label>Bio</label>
+
+                        <textarea
+                            name="bio"
+                            value={formData.bio}
+                            onChange={handleChange}
+                            rows="5"
+                            disabled={saving}
+                        />
+                    </div>
+                </form>
+            </motion.section>
+
+            {/* CHANGE PASSWORD */}
+            <motion.section
+                className="profile-page-form card"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}>
+                <div className="card-header">
+                    <h2 className="card-title">
+                        Change Password
+                    </h2>
+                </div>
+
+                <form onSubmit={handlePasswordSubmit}>
+                    <div className="profile-page-grid profile-page-grid-3">
                         <div className="form-group">
                             <PasswordInput
                                 label="Current Password"
@@ -485,7 +515,9 @@ function Profile() {
                                 disabled={changingPassword}
                             />
                         </div>
-                        <br />
+                    </div>
+
+                    <div className="profile-page-actions">
                         <button
                             type="submit"
                             className="btn-primary"
@@ -495,9 +527,9 @@ function Profile() {
                                 ? "Updating..."
                                 : "Update Password"}
                         </button>
-                    </form>
-                </motion.section>
-            </div>
+                    </div>
+                </form>
+            </motion.section>
         </motion.div>
     );
 }

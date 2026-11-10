@@ -508,9 +508,26 @@ const approveAnalysis = async (req, res, next) => {
             });
         }
 
+        // Approving without annotating: every crack the engineer did not
+        const validatedAt = new Date();
+
+        const cracksResult = await CrackDetection.updateMany(
+            { analysis: analysis._id, validationStatus: "Pending" },
+            {
+                $set: {
+                    validationStatus: "Validated",
+                    reviewStatus: "Completed",
+                    isValidated: true,
+                    reviewedBy: req.user.id,
+                    reviewedAt: validatedAt,
+                },
+                $inc: { reviewVersion: 1 },
+            }
+        );
+
         analysis.validationStatus = "Approved";
         analysis.validatedBy = req.user.id;
-        analysis.validatedAt = new Date();
+        analysis.validatedAt = validatedAt;
         analysis.rejectionReason = "";
 
         await analysis.save();
@@ -540,7 +557,11 @@ const approveAnalysis = async (req, res, next) => {
                 targetId: inspection._id,
                 targetLabel: inspection.inspectionCode,
                 changes: { after: { status: "Validated" } },
-                metadata: { analysisCode: analysis.analysisCode, via: "approve" },
+                metadata: {
+                    analysisCode: analysis.analysisCode,
+                    via: "approve",
+                    validatedCracks: cracksResult.modifiedCount,
+                },
             });
         }
 
