@@ -9,7 +9,6 @@ import SummaryCards from "../../../components/analysis/SummaryCards";
 import DetectionImage from "../../../components/analysis/DetectionImage";
 import SeverityBar from "../../../components/analysis/SeverityBar";
 import CrackTable from "../../../components/analysis/CrackTable";
-import AiSimulatedBanner from "../../../components/admin/AiSimulatedBanner";
 import LinkedReportsTable from "../../../components/admin/LinkedReportsTable";
 import StatusChip from "../../../components/admin/StatusChip";
 import ValidationBadge from "../../../components/admin/ValidationBadge";
@@ -79,7 +78,6 @@ const AdminAnalysisDetailsPage = () => {
                 </div>
             </div>
 
-            <AiSimulatedBanner aiMode={data.aiMode} disclaimer={data.aiDisclaimer} />
 
             {isCompleted ? (
                 <>

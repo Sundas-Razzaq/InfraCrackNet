@@ -17,7 +17,6 @@ import DashboardGrid from "../../components/dashboard/shared/dashboardGrid";
 import WidgetCard from "../../components/dashboard/shared/widgetCard";
 import StatusBadge from "../../components/dashboard/cards/statusBadge";
 import ProgressBar from "../../components/dashboard/cards/progressBar";
-import AiSimulatedBanner from "../../components/admin/AiSimulatedBanner";
 import { actionLabel } from "../../utils/activityActions";
 import { formatDateTime } from "../../utils/adminFormat";
 import { getAdminDashboard } from "../../api/adminApi";
@@ -161,7 +160,6 @@ function AdminDashboard() {
         <>
             {header}
 
-            <AiSimulatedBanner aiMode={data.aiMode} disclaimer={data.aiDisclaimer} />
 
             <motion.div variants={staggerContainer} initial="hidden" animate="visible">
                 <StatsGrid>

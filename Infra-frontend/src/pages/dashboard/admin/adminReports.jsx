@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import { findAdminItem } from "../../../components/dashboard/sidebar/sidebarConfig";
 import SeverityBadge from "../../../components/analysis/SeverityBadge";
-import AiSimulatedBanner from "../../../components/admin/AiSimulatedBanner";
 import DataTable from "../../../components/admin/DataTable";
 import Pagination from "../../../components/admin/Pagination";
 import StatusChip from "../../../components/admin/StatusChip";
@@ -28,7 +27,7 @@ const AdminReportsPage = () => {
     const navigate = useNavigate();
     const [params] = useSearchParams();
 
-    const { items, pagination, extra, loading, error, filters, setFilter } = useAdminList(
+    const { items, pagination, loading, error, filters, setFilter } = useAdminList(
         fetchReports,
         paramsToFilters(params, FILTER_KEYS)
     );
@@ -115,7 +114,6 @@ const AdminReportsPage = () => {
         <div className="adm-page">
             <PageHeader title="Reports" subtitle={findAdminItem("reports")?.description} />
 
-            <AiSimulatedBanner aiMode={extra?.aiMode} disclaimer={extra?.aiDisclaimer} />
 
             <div className="adm-toolbar">
                 <input

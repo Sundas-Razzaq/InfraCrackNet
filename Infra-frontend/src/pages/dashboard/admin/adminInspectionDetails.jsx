@@ -5,7 +5,6 @@ import InspectionDetails from "../../../components/inspection/inspectionDetails"
 import UploadedImageCard from "../../../components/inspectionImage/UploadedImageCard";
 import SeverityBadge from "../../../components/analysis/SeverityBadge";
 import { Card, Chip, Row } from "../../../components/dashboard/shared/DetailsKit";
-import AiSimulatedBanner from "../../../components/admin/AiSimulatedBanner";
 import DataTable from "../../../components/admin/DataTable";
 import LinkedReportsTable from "../../../components/admin/LinkedReportsTable";
 import StatusChip from "../../../components/admin/StatusChip";
@@ -73,9 +72,7 @@ const AdminInspectionDetailsPage = () => {
 
     return (
         <div className="adm-page">
-            {analyses.length > 0 && (
-                <AiSimulatedBanner aiMode={data.aiMode} disclaimer={data.aiDisclaimer} />
-            )}
+
 
             <InspectionDetails
                 inspection={inspection}
@@ -123,9 +120,9 @@ const AdminInspectionDetailsPage = () => {
 
                 <Card title={`Reports (${reports.length})`}>
                     <LinkedReportsTable
-    reports={reports}
-    onRowClick={(row) => navigate(`/dashboard/admin/reports/${row._id}`)}
-/>
+                        reports={reports}
+                        onRowClick={(row) => navigate(`/dashboard/admin/reports/${row._id}`)}
+                    />
                 </Card>
             </InspectionDetails>
         </div>

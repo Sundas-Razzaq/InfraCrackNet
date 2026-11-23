@@ -6,7 +6,6 @@ import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import { Card, Chip, Row } from "../../../components/dashboard/shared/DetailsKit";
-import AiSimulatedBanner from "../../../components/admin/AiSimulatedBanner";
 
 import ReportStatusBadge from "../../../components/reports/reportStatusBadge";
 import ReportSummary from "../../../components/reports/reportSummary";
@@ -97,7 +96,6 @@ const AdminReportDetailsPage = () => {
                 </div>
             </div>
 
-            <AiSimulatedBanner aiMode={data.aiMode} disclaimer={data.aiDisclaimer} />
 
             <ReportSummary report={report} analysis={analysis} />
             <ReportProjectInfo project={project} />

@@ -5,6 +5,7 @@
 **/.env
 *.local
 **/.env.example
+**/.venv
 # Build output
 dist
 dist-ssr

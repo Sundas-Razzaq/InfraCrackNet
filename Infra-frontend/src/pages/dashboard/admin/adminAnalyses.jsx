@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
 import { findAdminItem } from "../../../components/dashboard/sidebar/sidebarConfig";
 import SeverityBadge from "../../../components/analysis/SeverityBadge";
-import AiSimulatedBanner from "../../../components/admin/AiSimulatedBanner";
 import DataTable from "../../../components/admin/DataTable";
 import Pagination from "../../../components/admin/Pagination";
 import StatusChip from "../../../components/admin/StatusChip";
@@ -65,7 +64,7 @@ const AdminAnalysesPage = () => {
     const navigate = useNavigate();
     const [params] = useSearchParams();
 
-    const { items, pagination, extra, loading, error, filters, setFilter } = useAdminList(
+    const { items, pagination, loading, error, filters, setFilter } = useAdminList(
         fetchAnalyses,
         paramsToFilters(params, FILTER_KEYS)
     );
@@ -79,7 +78,6 @@ const AdminAnalysesPage = () => {
         <div className="adm-page">
             <PageHeader title="AI Analyses" subtitle={findAdminItem("analyses")?.description} />
 
-            <AiSimulatedBanner aiMode={extra?.aiMode} disclaimer={extra?.aiDisclaimer} />
 
             <div className="adm-toolbar">
                 <input
