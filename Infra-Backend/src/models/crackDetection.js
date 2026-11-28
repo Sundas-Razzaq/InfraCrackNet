@@ -58,9 +58,29 @@ const crackDetectionSchema = new mongoose.Schema(
             },
         },
 
+        // Real-world units (mm / cm2). Null until a calibration step exists.
         width: { type: Number, default: null, min: 0 },
         length: { type: Number, default: null, min: 0 },
         area: { type: Number, default: null, min: 0 },
+
+        // ---- ML service per-crack measurements (pixels of the original image) ----
+        // `crack_id` from the ML service (1, 2, 3 ... per image). `crackId`
+        // above stays the unique, human readable "CRK-001" code.
+        mlCrackId: { type: Number, default: null },
+        lengthPx: { type: Number, default: null, min: 0 },
+        maxWidthPx: { type: Number, default: null, min: 0 },
+        meanWidthPx: { type: Number, default: null, min: 0 },
+        areaPx: { type: Number, default: null, min: 0 },
+        areaRatio: { type: Number, default: null, min: 0 },
+        lengthRatio: { type: Number, default: null, min: 0 },
+        maxWidthRatio: { type: Number, default: null, min: 0 },
+
+        // Size of the image the pixel coordinates (boundingBox / polygons) refer to.
+        imageWidth: { type: Number, default: null, min: 0 },
+        imageHeight: { type: Number, default: null, min: 0 },
+
+        // Crack outlines: [ [ [x, y], [x, y], ... ], ... ] in image pixels.
+        polygons: { type: mongoose.Schema.Types.Mixed, default: [] },
 
         boundingBox: {
             x: {

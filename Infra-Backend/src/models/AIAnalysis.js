@@ -1,5 +1,41 @@
 const mongoose = require("mongoose");
 
+// Image-level result returned by the ML service for one inspection image.
+const imageResultSchema = new mongoose.Schema(
+    {
+        inspectionImage: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "InspectionImage",
+            required: true,
+        },
+        imageUrl: { type: String, default: "" },
+        originalFileName: { type: String, default: "" },
+        imageWidth: { type: Number, default: null },
+        imageHeight: { type: Number, default: null },
+
+        presence: {
+            label: { type: String, default: null },
+            confidence: { type: Number, default: null },
+            pCracked: { type: Number, default: null },
+        },
+
+        crackCount: { type: Number, default: 0 },
+        severity: { type: String, default: null },
+        severityConfidence: { type: Number, default: null },
+        severityMetrics: {
+            totalAreaPx: { type: Number, default: null },
+            totalAreaRatio: { type: Number, default: null },
+            maxLengthPx: { type: Number, default: null },
+            maxWidthPx: { type: Number, default: null },
+        },
+
+        modelsRun: { type: [String], default: [] },
+        notes: { type: [String], default: [] },
+        timingMs: { type: Number, default: null },
+    },
+    { _id: false }
+);
+
 const aiAnalysisSchema = new mongoose.Schema(
     {
         analysisCode: {
@@ -88,6 +124,12 @@ const aiAnalysisSchema = new mongoose.Schema(
             type: Number,
             min: 0,
             max: 100,
+        },
+
+        // One entry per analysed image (presence, crack count, severity, metrics...)
+        imageResults: {
+            type: [imageResultSchema],
+            default: [],
         },
 
         startedAt: {

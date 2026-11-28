@@ -413,6 +413,11 @@ const getAnalysisResults = async (req, res, next) => {
             0
         );
 
+        // Pixel-based measurements (real AI mode)
+        const maxLengthPx = cracks.reduce((m, c) => Math.max(m, c.lengthPx || 0), 0);
+        const maxWidthPx = cracks.reduce((m, c) => Math.max(m, c.maxWidthPx || 0), 0);
+        const totalAreaPx = cracks.reduce((sum, c) => sum + (c.areaPx || 0), 0);
+
         const severityBreakdown = {
             Low: 0,
             Medium: 0,
@@ -446,11 +451,16 @@ const getAnalysisResults = async (req, res, next) => {
                     maxWidth,
                     maxLength,
                     totalAffectedArea,
+                    maxLengthPx,
+                    maxWidthPx,
+                    totalAreaPx,
                     severityBreakdown,
                     startedAt: analysis.startedAt,
                     completedAt: analysis.completedAt,
                     processingTime,
                 },
+                // per-image ML results (presence, crack_count, severity, metrics...)
+                imageResults: analysis.imageResults || [],
                 cracks,
             },
         });

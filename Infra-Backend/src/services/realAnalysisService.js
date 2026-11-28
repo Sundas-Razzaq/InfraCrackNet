@@ -35,16 +35,54 @@ const startRealAnalysis = async (analysisId) => {
         analysis.currentStep = "Running crack detection";
         await analysis.save();
 
+        const imageResults = [];
+
         for (let i = 0; i < totalImages; i++) {
             const image = images[i];
 
             // sequential: ML service ek waqt mein ek image karti hai
+            // (analyzeImage already returns a normalised, complete object)
             const result = await analyzeImage(image.imageUrl);
+            const [imageWidth, imageHeight] = result.image_size;
+            const imageSeverity = result.severity || null;
 
             const notes = [
                 `Model 1: ${result.presence.label} (P(cracked)=${result.presence.p_cracked}).`,
                 ...(result.notes || []),
             ].join(" ").slice(0, 1000);
+
+            // image-level result (presence, crack_count, severity, metrics, ...)
+            const m = result.severity_metrics;
+            imageResults.push({
+                inspectionImage: image._id,
+                imageUrl: image.imageUrl,
+                originalFileName: image.originalFileName || "",
+                imageWidth,
+                imageHeight,
+                presence: {
+                    label: result.presence.label,
+                    confidence: result.presence.confidence,
+                    pCracked: result.presence.p_cracked,
+                },
+                crackCount: result.crack_count,
+                severity: imageSeverity,
+                severityConfidence: result.severity_confidence,
+                severityMetrics: m
+                    ? {
+                        totalAreaPx: m.total_area_px,
+                        totalAreaRatio: m.total_area_ratio,
+                        maxLengthPx: m.max_length_px,
+                        maxWidthPx: m.max_width_px,
+                    }
+                    : undefined,
+                modelsRun: result.models_run,
+                notes: result.notes,
+                timingMs: result.timing_ms,
+            });
+
+            if (imageSeverity && (!highest || SEVERITY_RANK[imageSeverity] > SEVERITY_RANK[highest])) {
+                highest = imageSeverity;
+            }
 
             for (const d of result.detections) {
                 totalConfidence += d.confidence;
@@ -57,15 +95,29 @@ const startRealAnalysis = async (analysisId) => {
                     analysis: analysis._id,
                     inspectionImage: image._id,
                     crackId: `CRK-${String(crackCounter++).padStart(3, "0")}`,
+                    mlCrackId: d.crack_id,
                     crackClass: d.crack_class,
                     confidence: d.confidence,
                     severity: d.severity,
-                    // mm / cm2 abhi nahi naapte (alag measurement step), isliye null
+
+                    // Pixel measurements from the segmentation model
+                    lengthPx: d.length_px,
+                    maxWidthPx: d.max_width_px,
+                    meanWidthPx: d.mean_width_px,
+                    areaPx: d.area_px,
+                    areaRatio: d.area_ratio,
+                    lengthRatio: d.length_ratio,
+                    maxWidthRatio: d.max_width_ratio,
+
+                    // mm / cm2 need camera calibration, so they stay null
                     width: null,
                     length: null,
                     area: null,
+
                     boundingBox: d.box,
-                    segmentationMask: d.polygons?.length ? JSON.stringify(d.polygons) : "",
+                    polygons: d.polygons,
+                    imageWidth,
+                    imageHeight,
                     aiNotes: notes,
                     isValidated: false,
                 });
@@ -75,6 +127,8 @@ const startRealAnalysis = async (analysisId) => {
             analysis.progress = 10 + Math.round(((i + 1) / totalImages) * 75);
             await analysis.save();
         }
+
+        analysis.imageResults = imageResults;
 
         analysis.currentStep = "Severity classification";
         analysis.progress = 90;
