@@ -1,9 +1,9 @@
 {
   "area_ratio_thresholds": [
-    0.018514546389302246,
-    0.046743039731626156
+    0.00016937255859375,
+    0.00031890869140625
   ],
-  "rule": "Low < t1 <= Medium < t2 <= High, area_ratio = crack pixels / image pixels",
-  "derived_from": "tertiles of GT crack masks of 1457 training images",
-  "min_comp_pixels": 60
+  "rule": "Evaluated per individual crack instance: Low < t1 <= Medium < t2 <= High",
+  "derived_from": "tertiles of 51104 individual GT crack instances in training set",
+  "min_comp_pixels": 35
 }
