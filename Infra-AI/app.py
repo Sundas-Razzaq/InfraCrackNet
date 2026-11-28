@@ -7,6 +7,7 @@ import io
 import os
 import threading
 import time
+from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
 import cv2
@@ -35,8 +36,30 @@ CLASS_MAP = {  # Model 2 label -> backend crackClass enum
     "Pothole": "Pothole",
 }
 
-app = FastAPI(title="InfraCrackNet ML service")
 _lock = threading.Lock()   # CPU par ek waqt mein ek hi image
+
+
+def warmup():
+    """Service start hote hi teeno models memory mein load (pehli request tez aaye)."""
+    try:
+        with _lock:
+            p1, p2, p3 = _models()
+            blank = Image.new("RGB", (640, 480), (128, 128, 128))
+            p1.predict(blank, W1, "cpu")
+            p2.predict(blank, W2, "cpu")
+            p3.predict(blank, W3, TH, "cpu")
+        print("warmup done")
+    except Exception as e:   # warm-up fail ho to bhi service chalti rahe
+        print("warmup skipped:", e)
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    threading.Thread(target=warmup, daemon=True).start()   # /health foran jawab de, load background mein
+    yield
+
+
+app = FastAPI(title="InfraCrackNet ML service", lifespan=lifespan)
 
 
 class AnalyzeRequest(BaseModel):

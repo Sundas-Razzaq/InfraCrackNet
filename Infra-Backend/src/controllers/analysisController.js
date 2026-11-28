@@ -11,6 +11,8 @@ const generateAnalysisCode = require("../utils/analysisCodeGenerator");
 const {
     startMockAnalysis,
 } = require("../services/analysisService");
+const { startRealAnalysis } = require("../services/realAnalysisService");
+const { AI_MODE } = require("../utils/aiMode");
 const Project = require("../models/project");
 const { hasProjectAccess, getProjectScope } = require("../utils/projectAccess");
 const {
@@ -182,9 +184,10 @@ const startAnalysis = async (req, res, next) => {
             },
         });
 
-        // Run AI asynchronously
+        // Run AI asynchronously (AI_MODE=real: asli models, warna mock)
+        const runAnalysis = AI_MODE === "real" ? startRealAnalysis : startMockAnalysis;
         setImmediate(() => {
-            startMockAnalysis(analysis._id);
+            runAnalysis(analysis._id);
         });
 
         return res.status(201).json({

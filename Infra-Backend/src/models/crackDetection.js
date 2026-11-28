@@ -58,23 +58,9 @@ const crackDetectionSchema = new mongoose.Schema(
             },
         },
 
-        width: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-
-        length: {
-            type: Number,
-            required: true,
-            min: 0,
-        },
-
-        area: {
-            type: Number,
-            default: 0,
-            min: 0,
-        },
+        width: { type: Number, default: null, min: 0 },
+        length: { type: Number, default: null, min: 0 },
+        area: { type: Number, default: null, min: 0 },
 
         boundingBox: {
             x: {
