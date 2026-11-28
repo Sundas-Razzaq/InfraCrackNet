@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import PageHeader from "../../../components/dashboard/shared/PageHeader";
@@ -8,6 +8,8 @@ import SummaryCards from "../../../components/analysis/SummaryCards";
 import DetectionImage from "../../../components/analysis/DetectionImage";
 import SeverityBar from "../../../components/analysis/SeverityBar";
 import CrackTable from "../../../components/analysis/CrackTable";
+import ImageSummary from "../../../components/analysis/ImageSummary";
+import { buildImageList } from "../../../utils/crackGeometery";
 import { useRole } from "../../../utils/useRole";
 
 import { getAnalysisResults } from "../../../api/analysisApi";
@@ -20,6 +22,8 @@ const AIResultsPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [results, setResults] = useState(null);
+    const [imageIndex, setImageIndex] = useState(0);
+    const [activeCrackId, setActiveCrackId] = useState(null);
     const { isEngineer } = useRole();
 
     useEffect(() => {
@@ -27,11 +31,6 @@ const AIResultsPage = () => {
             try {
                 const response =
                     await getAnalysisResults(analysisId);
-
-                console.log(
-                    "AI ANALYSIS RESULTS:",
-                    response.data
-                );
 
                 setResults(response.data);
             } catch (error) {
@@ -48,6 +47,15 @@ const AIResultsPage = () => {
 
         fetchResults();
     }, [analysisId]);
+
+    const images = useMemo(
+        () =>
+            buildImageList(
+                results?.cracks || [],
+                results?.imageResults || []
+            ),
+        [results]
+    );
 
     if (loading) {
         return (
@@ -70,6 +78,9 @@ const AIResultsPage = () => {
         summary,
         cracks = [],
     } = results;
+
+    const currentImage =
+        images[Math.min(imageIndex, images.length - 1)] || null;
 
     return (
         <div className="analysis-results-page">
@@ -130,7 +141,14 @@ const AIResultsPage = () => {
             <div className="analysis-results-grid">
 
                 <DetectionImage
-                    cracks={cracks}
+                    images={images}
+                    activeIndex={imageIndex}
+                    onChangeIndex={(i) => {
+                        setImageIndex(i);
+                        setActiveCrackId(null);
+                    }}
+                    activeCrackId={activeCrackId}
+                    onSelectCrack={setActiveCrackId}
                 />
 
                 <SeverityBar
@@ -139,8 +157,17 @@ const AIResultsPage = () => {
 
             </div>
 
+            <ImageSummary image={currentImage} />
+
             <CrackTable
-                cracks={cracks}
+                title={
+                    currentImage
+                        ? `Detected Cracks — ${currentImage.originalFileName || "Image"}`
+                        : "Detected Cracks"
+                }
+                cracks={currentImage ? currentImage.cracks : cracks}
+                activeCrackId={activeCrackId}
+                onSelectCrack={setActiveCrackId}
             />
 
         </div>

@@ -176,9 +176,17 @@ const analyzeImage = async (imageUrl) => {
             `ML service unreachable at ${baseUrl()} (is Infra-AI running? try: uvicorn app:app --port 8000).`
         );
     }
-    const raw = lastError.response?.data?.detail;
-    const detail = typeof raw === "string" ? raw : raw ? JSON.stringify(raw) : lastError.message;
-    throw new Error(`ML service error: ${detail}`);
+    const body = lastError.response?.data;
+    const raw = body?.detail ?? body;
+    let detail = lastError.message;
+    if (typeof raw === "string" && raw.trim()) detail = raw;
+    else if (raw && typeof raw === "object") detail = JSON.stringify(raw);
+    const status = lastError.response?.status;
+    if (status === 500) {
+        // FastAPI hides the real cause in the uvicorn terminal.
+        console.error("[mlClient] ML service returned 500. Check the Infra-AI (uvicorn) terminal for the traceback.");
+    }
+    throw new Error(`ML service error${status ? ` (${status})` : ""}: ${detail}`.slice(0, 480));
 };
 
 module.exports = { analyzeImage, normalizeAnalyzeResponse };

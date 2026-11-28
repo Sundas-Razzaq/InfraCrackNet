@@ -3,6 +3,7 @@
 POST /analyze {"image_url": "https://res.cloudinary.com/..."}  (header: x-api-key)
 Runs: Model 1 (crack presence) -> if cracked: Model 2 (road crack type) + Model 3 (per-crack outline, width, length & severity).
 """
+
 import io
 import os
 import threading
@@ -19,7 +20,11 @@ from pydantic import BaseModel
 
 API_KEY = os.environ.get("ML_API_KEY", "")
 MODELS_DIR = os.environ.get("MODELS_DIR", "models")
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_IMAGE_HOSTS", "res.cloudinary.com").split(",") if h.strip()]
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get("ALLOWED_IMAGE_HOSTS", "res.cloudinary.com").split(",")
+    if h.strip()
+]
 GATE_MIN_CRACK_PROB = float(os.environ.get("GATE_MIN_CRACK_PROB", "0.25"))
 MAX_BYTES = 15 * 1024 * 1024
 MAX_POLY_POINTS = 300
@@ -68,6 +73,7 @@ class AnalyzeRequest(BaseModel):
 
 def _models():
     from ml_models import predict as p1, predict_type as p2, predict_severity as p3
+
     return p1, p2, p3
 
 
@@ -134,6 +140,19 @@ def _match_crack_type(seg_box, seg_poly, r2_dets):
     return CLASS_MAP.get(best_label, "Other") if best_label else "Other"
 
 
+def _py(o):
+    """Recursively convert numpy scalars/arrays to plain Python so FastAPI can serialise them."""
+    if isinstance(o, dict):
+        return {k: _py(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_py(v) for v in o]
+    if isinstance(o, np.generic):
+        return o.item()
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    return o
+
+
 def run_pipeline(img: Image.Image) -> dict:
     t0 = time.time()
     p1, p2, p3 = _models()
@@ -159,7 +178,9 @@ def run_pipeline(img: Image.Image) -> dict:
     }
 
     if p_crack < GATE_MIN_CRACK_PROB:
-        out["notes"].append(f"Model 1 found no crack (P(cracked)={p_crack:.2f}); Models 2 and 3 skipped.")
+        out["notes"].append(
+            f"Model 1 found no crack (P(cracked)={p_crack:.2f}); Models 2 and 3 skipped."
+        )
         out["timing_ms"] = int((time.time() - t0) * 1000)
         return out
 
@@ -179,32 +200,35 @@ def run_pipeline(img: Image.Image) -> dict:
         x1, y1, x2, y2 = c["box_xyxy"]
         matched_class = _match_crack_type(c["box_xyxy"], poly, det_types)
 
-        out["detections"].append({
-            "crack_id": len(out["detections"]) + 1,
-            "crack_class": matched_class,
-            "confidence": round(c["confidence"] * 100, 2),
-            "severity": c["severity"],
-            "length_px": c["length_px"],
-            "max_width_px": c["max_width_px"],
-            "mean_width_px": c["mean_width_px"],
-            "area_px": c["area_px"],
-            "area_ratio": c["area_ratio"],
-            "length_ratio": c["length_ratio"],
-            "max_width_ratio": c["max_width_ratio"],
-            "box": {
-                "x": int(round(x1)),
-                "y": int(round(y1)),
-                "width": int(round(x2 - x1)),
-                "height": int(round(y2 - y1)),
-            },
-            "polygons": [poly],
-        })
+        out["detections"].append(
+            {
+                "crack_id": len(out["detections"]) + 1,
+                "crack_class": matched_class,
+                "confidence": round(c["confidence"] * 100, 2),
+                "severity": c["severity"],
+                "length_px": c["length_px"],
+                "max_width_px": c["max_width_px"],
+                "mean_width_px": c["mean_width_px"],
+                "area_px": c["area_px"],
+                "area_ratio": c["area_ratio"],
+                "length_ratio": c["length_ratio"],
+                "max_width_ratio": c["max_width_ratio"],
+                "box": {
+                    "x": int(round(x1)),
+                    "y": int(round(y1)),
+                    "width": int(round(x2 - x1)),
+                    "height": int(round(y2 - y1)),
+                },
+                "polygons": [poly],
+            }
+        )
 
     # Fallback: If Model 3 found no outline, surface Model 2 boxes so detections aren't lost
-       # Fallback: Model 3 found no mask -> extract real crack contour inside each Model 2 box using OpenCV
+    # Fallback: Model 3 found no mask -> extract real crack contour inside each Model 2 box using OpenCV
     if not out["detections"] and det_types:
         import json as _json
         from skimage.morphology import skeletonize as _skel
+
         cfg_th = _json.load(open(TH))
         gray_full = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2GRAY)
 
@@ -217,7 +241,9 @@ def run_pipeline(img: Image.Image) -> dict:
             roi = gray_full[y1:y2, x1:x2]
             blur = cv2.GaussianBlur(roi, (5, 5), 0)
             # Dark crack pixels inside the bounding box
-            _, binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            _, binary = cv2.threshold(
+                blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+            )
             binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
 
             inst_mask = np.zeros((H, W), np.uint8)
@@ -234,50 +260,68 @@ def run_pipeline(img: Image.Image) -> dict:
             if length_px < 1.0:
                 length_px = float(max(w_box, h_box))
 
-            # Compute real Low / Medium / High using calibrated thresholds
-            ta = cfg_th["area_ratio_thresholds"]
-            tw = cfg_th["width_ratio_thresholds"]
-            tl = cfg_th["length_ratio_thresholds"]
-            s_a = 0 if area_ratio < ta[0] else (1 if area_ratio < ta[1] else 2)
-            s_w = 0 if (max_w / W) < tw[0] else (1 if (max_w / W) < tw[1] else 2)
-            s_l = 0 if (length_px / max(W, H)) < tl[0] else (1 if (length_px / max(W, H)) < tl[1] else 2)
-            score = 0.4 * s_a + 0.35 * s_w + 0.25 * s_l
-            sev = "Low" if score < 0.75 else ("Medium" if score < 1.45 else "High")
+            # Low / Medium / High from calibrated thresholds.
+            # Only "area_ratio_thresholds" is guaranteed in severity_thresholds.json;
+            # width/length thresholds are optional, so missing keys no longer crash.
+            def _lvl(v, t):
+                return 0 if v < t[0] else (1 if v < t[1] else 2)
 
-            cs, _ = cv2.findContours(inst_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            s_a = _lvl(area_ratio, cfg_th["area_ratio_thresholds"])
+            tw = cfg_th.get("width_ratio_thresholds")
+            tl = cfg_th.get("length_ratio_thresholds")
+            if tw and tl:
+                s_w = _lvl(max_w / W, tw)
+                s_l = _lvl(length_px / max(W, H), tl)
+                score = 0.4 * s_a + 0.35 * s_w + 0.25 * s_l
+                sev = "Low" if score < 0.75 else ("Medium" if score < 1.45 else "High")
+            else:
+                sev = ("Low", "Medium", "High")[s_a]
+
+            cs, _ = cv2.findContours(
+                inst_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
             polys = [_shrink(c.reshape(-1, 2).tolist()) for c in cs if len(c) >= 3]
 
-            out["detections"].append({
-                "crack_id": len(out["detections"]) + 1,
-                "crack_class": CLASS_MAP.get(d["label"], "Other"),
-                "confidence": round(d["confidence"] * 100, 2),
-                "severity": sev,
-                "length_px": round(length_px, 2),
-                "max_width_px": round(max_w, 2),
-                "mean_width_px": round(area_px / max(length_px, 1.0), 2),
-                "area_px": area_px,
-                "area_ratio": round(area_ratio, 6),
-                "length_ratio": round(length_px / max(W, H), 6),
-                "max_width_ratio": round(max_w / W, 6),
-                "box": {"x": x1, "y": y1, "width": w_box, "height": h_box},
-                "polygons": polys,
-            })
-        out["notes"].append("Model 3 missed pixel mask; extracted crack contours and severity inside Model 2 boxes.")
-
+            out["detections"].append(
+                {
+                    "crack_id": len(out["detections"]) + 1,
+                    "crack_class": CLASS_MAP.get(d["label"], "Other"),
+                    "confidence": round(d["confidence"] * 100, 2),
+                    "severity": sev,
+                    "length_px": round(length_px, 2),
+                    "max_width_px": round(max_w, 2),
+                    "mean_width_px": round(area_px / max(length_px, 1.0), 2),
+                    "area_px": area_px,
+                    "area_ratio": round(area_ratio, 6),
+                    "length_ratio": round(length_px / max(W, H), 6),
+                    "max_width_ratio": round(max_w / W, 6),
+                    "box": {"x": x1, "y": y1, "width": w_box, "height": h_box},
+                    "polygons": polys,
+                }
+            )
+        out["notes"].append(
+            "Model 3 missed pixel mask; extracted crack contours and severity inside Model 2 boxes."
+        )
 
     # Populate image-level summary fields for backward compatibility
     out["crack_count"] = len(out["detections"])
     if out["detections"]:
         sev_rank = {"Low": 1, "Medium": 2, "High": 3}
-        out["detections"].sort(key=lambda item: (-sev_rank[item["severity"]], -item["confidence"]))
+        out["detections"].sort(
+            key=lambda item: (-sev_rank[item["severity"]], -item["confidence"])
+        )
         for idx, item in enumerate(out["detections"], start=1):
             item["crack_id"] = idx
 
         out["severity"] = out["detections"][0]["severity"]
-        out["severity_confidence"] = round(float(np.mean([d["confidence"] for d in out["detections"]])), 2)
+        out["severity_confidence"] = round(
+            float(np.mean([d["confidence"] for d in out["detections"]])), 2
+        )
         out["severity_metrics"] = {
             "total_area_px": sum(d["area_px"] for d in out["detections"]),
-            "total_area_ratio": round(sum(d["area_ratio"] for d in out["detections"]), 6),
+            "total_area_ratio": round(
+                sum(d["area_ratio"] for d in out["detections"]), 6
+            ),
             "max_length_px": max(d["length_px"] for d in out["detections"]),
             "max_width_px": max(d["max_width_px"] for d in out["detections"]),
         }
@@ -288,7 +332,12 @@ def run_pipeline(img: Image.Image) -> dict:
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "models_present": {os.path.basename(p): os.path.exists(p) for p in (W1, W2, W3, TH)}}
+    return {
+        "status": "ok",
+        "models_present": {
+            os.path.basename(p): os.path.exists(p) for p in (W1, W2, W3, TH)
+        },
+    }
 
 
 @app.post("/analyze")
@@ -297,4 +346,4 @@ def analyze(req: AnalyzeRequest, x_api_key: str = Header(default="")):
         raise HTTPException(401, "Invalid API key.")
     img = fetch_image(req.image_url)
     with _lock:
-        return run_pipeline(img)
+        return _py(run_pipeline(img))

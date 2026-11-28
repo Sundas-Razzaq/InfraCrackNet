@@ -8,13 +8,15 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const SummaryCards = ({ summary, cracks = [] }) => {
-    const maximumCrackWidth =
-        cracks.length > 0
-            ? Math.max(...cracks.map((c) => c.width || 0))
-            : 0;
+    // Real AI results are measured in pixels; manual / calibrated cracks in mm / cm2.
+    const hasPx = cracks.some((c) => c.maxWidthPx != null);
+
+    const maximumCrackWidth = hasPx
+        ? Math.max(0, ...cracks.map((c) => c.maxWidthPx || 0))
+        : Math.max(0, ...cracks.map((c) => c.width || 0));
 
     const totalAffectedArea = cracks.reduce(
-        (total, crack) => total + (crack.area || 0),
+        (total, crack) => total + ((hasPx ? crack.areaPx : crack.area) || 0),
         0
     );
 
@@ -33,13 +35,15 @@ const SummaryCards = ({ summary, cracks = [] }) => {
         },
         {
             title: "Maximum Crack Width",
-            value: `${maximumCrackWidth.toFixed(2)} mm`,
+            value: `${maximumCrackWidth.toFixed(2)} ${hasPx ? "px" : "mm"}`,
             icon: faRulerCombined,
             className: "warning",
         },
         {
             title: "Affected Area",
-            value: `${totalAffectedArea.toFixed(2)} cm²`,
+            value: hasPx
+                ? `${Math.round(totalAffectedArea)} px²`
+                : `${totalAffectedArea.toFixed(2)} cm²`,
             icon: faDrawPolygon,
             className: "success",
         },

@@ -330,6 +330,7 @@ function App() {
           <Route path="teams" element={<AdminTeamsPage />} />
           <Route path="teams/:id" element={<AdminTeamDetailsPage />} />
           <Route path="projects" element={<AdminProjectsPage />} />
+          <Route path="projects/new" element={<ProjectFormPage />} />
           <Route path="projects/:id" element={<AdminProjectDetailsPage />} />
           <Route path="inspections" element={<AdminInspectionsPage />} />
           <Route path="inspections/:id" element={<AdminInspectionDetailsPage />} />

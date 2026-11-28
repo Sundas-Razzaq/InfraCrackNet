@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { boxToPercentStyle } from "../../utils/crackGeometery";
+
 const AnnotationCanvas = ({
     image,
     cracks = [],
@@ -191,18 +193,13 @@ const AnnotationCanvas = ({
                                 key={crack._id}
                                 type="button"
                                 className={`bounding-box ${active
-                                        ? "active"
-                                        : ""
+                                    ? "active"
+                                    : ""
                                     } ${status
                                         ? `status-${status}`
                                         : ""
                                     }`}
-                                style={{
-                                    left: `${crack.boundingBox.x}%`,
-                                    top: `${crack.boundingBox.y}%`,
-                                    width: `${crack.boundingBox.width}%`,
-                                    height: `${crack.boundingBox.height}%`,
-                                }}
+                                style={boxToPercentStyle(crack)}
                                 onMouseDown={(event) =>
                                     event.stopPropagation()
                                 }
